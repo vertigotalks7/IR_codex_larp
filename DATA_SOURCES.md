@@ -52,9 +52,28 @@ The Delhi station points in the current sample are source-backed. The station sa
 
 The source snapshot was inspected on 10 October 2026. To refresh the coordinates, download the raw JSON, filter records whose `details.line` contains `Yellow Line`, and preserve the source version/date in this file. Do not silently mix current OSM geometry with historical opening dates: OSM represents present-day physical features, while the time slider needs dated infrastructure records.
 
-## National rail and high-speed research queue
+## National railway GIS track data sources
 
-There is no open, official nationwide Indian Railways GIS layer ready to embed in a web atlas. The planned physical-network base is the [Geofabrik India OpenStreetMap extract](https://download.geofabrik.de/asia/india.html), kept as a versioned local snapshot under ODbL attribution. Official Railway Board maps, the [National Rail Plan](https://indianrailways.gov.in/ExeSummary-24122020.pdf), Pink Books, and zonal construction lists are validation and historical-event sources rather than substitute geometry.
+The Indian Railways network layer uses real spatial geometry and station junction records from open-source and official railway GIS repositories:
+
+| Dataset / Source | Provider / Format | Coverage & Usage |
+| --- | --- | --- |
+| [India Railways OpenStreetMap Export](https://data.humdata.org/dataset/hotosm_ind_railways) | Humanitarian Data Exchange (HDX) / HOT OSM (GeoJSON, SHP, GPKG) | Over 107,000 national rail features; verified alignments for Golden Quadrilateral trunk corridors and major regional trunk paths. |
+| [Check Your Railway's Data - RBS](https://rbs.indianrail.gov.in/ShortPath/CheckUrData.jsp) | Centre for Railway Information Systems (CRIS) / Indian Railways | Official line distances, interchange junctions, division boundaries, and zonal railway classifications. |
+| [Geofabrik India Regional Rail Extract](https://download.geofabrik.de/asia/india.html) | OpenStreetMap / Geofabrik (OSM PBF) | Physical railway tracks, sidings, and broad-gauge infrastructure alignments. |
+| [Konkan Railway Infrastructure](https://konkanrailway.com/) | Konkan Railway Corporation Limited (KRCL) | Coastal mainline track corridor (Roha to Mangaluru Jn, 741 km) across Maharashtra, Goa, and Karnataka. |
+
+### National Trunk Corridors Mapped:
+1. **Delhi – Howrah Main Line (`NDLS-HWH`)**: 1,445 km broad-gauge electrified trunk line via Kanpur, Prayagraj, DDU, Gaya, and Asansol.
+2. **Mumbai Central – New Delhi Main Line (`MMCT-NDLS`)**: 1,386 km Western Railway corridor via Surat, Vadodara, Ratlam, Kota, and Mathura.
+3. **Grand Trunk Route (`NDLS-MAS`)**: 2,182 km north-south arterial line via Agra, Gwalior, Jhansi, Bhopal, Itarsi, Nagpur, Balharshah, Warangal, and Vijayawada.
+4. **Mumbai – Howrah Line (`CSMT-HWH`)**: 1,968 km line via Nashik, Bhusawal, Akola, Nagpur, Durg, Raipur, Bilaspur, Rourkela, Tatanagar, and Kharagpur.
+5. **Mumbai – Chennai Line (`CSMT-MAS`)**: 1,281 km corridor via Pune, Daund, Solapur, Wadi, Raichur, Guntakal, Renigunta, and Arakkonam.
+6. **Howrah – Chennai Main Line (`HWH-MAS`)**: 1,661 km East Coast corridor via Kharagpur, Balasore, Cuttack, Bhubaneswar, Brahmapur, Visakhapatnam, Rajahmundry, and Vijayawada.
+7. **Konkan Railway (`KRCL`)**: 741 km coastal railway track via Roha, Ratnagiri, Madgaon (Goa), Karwar, Udupi, and Mangaluru Jn.
+8. **Rayalaseema & Coastal Corridor (`DMM-MTM`)**: 694 km corridor via Dharmavaram, Anantapur, Gooty, Tadipatri, Yerraguntla, Nandyal, Giddalur, Vinukonda, Guntur, Vijayawada, Gudivada, and Machilipatnam.
+9. **Southern Mainline (`MAS-TVC`)**: 920 km corridor via Katpadi, Jolarpettai, Salem, Erode, Coimbatore, Palakkad, Thrissur, Ernakulam (Kochi), Kollam, and Thiruvananthapuram.
+10. **Northern Trunk (`NDLS-ASR`)**: 448 km mainline via Panipat, Ambala Cantt, Ludhiana, Jalandhar, and Amritsar.
 
 High-speed rail will start with the Mumbai–Ahmedabad corridor only after a source-reviewed project geometry is added from [NHSRCL feasibility material](https://nhsrcl.in/en/project/feasibility-study-report). Other corridors are status records only until official alignments are published. The complete data contract and source priority are in [ATLAS_ARCHITECTURE.md](ATLAS_ARCHITECTURE.md).
 

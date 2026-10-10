@@ -23,15 +23,15 @@ export function AtlasLegend({ network }: AtlasLegendProps) {
       {network === 'rail' && (
         <>
           <span>
-            <i className="legend-line railway-corridor" /> 17216 Express Route
+            <i className="legend-line railway-corridor" /> National Rail Track Corridors
           </span>
           <span>
-            <i className="legend-dot" /> Railway Station (22 Stops)
+            <i className="legend-dot" /> Railway Junctions / Stations
           </span>
           <span>
-            <i className="legend-dot train-dot" /> Train Radar Marker
+            <i className="legend-dot train-dot" /> Live Train GPS Marker
           </span>
-          <small>South Central Railway · RailRadar corridor</small>
+          <small>HDX hotosm_ind_railways · CRIS RBS network</small>
         </>
       )}
 

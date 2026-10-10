@@ -11,12 +11,15 @@ import {
   findStationById,
 } from '../../services/transitData'
 import {
-  getTrain17216RouteGeoJson,
-  getTrain17216StationsGeoJson,
+  getNationalRailwaysTrackGeoJson,
+  getNationalRailwaysJunctionsGeoJson,
   getTrainPositionAtProgress,
   getTrainMarkerGeoJson,
+  findJunctionByCode,
+  findCorridorById,
 } from '../../services/railwayService'
 import { train17216, type RailwayStationStop } from '../../data/indianRailways'
+import type { RailwayJunction } from '../../data/nationalRailways'
 import type { MetroSystemId, NetworkMode, Station, RouteStatus } from '../../types'
 
 type Map = import('maplibre-gl').Map
@@ -29,9 +32,11 @@ interface MapViewProps {
   mapRef: React.MutableRefObject<Map | null>
   showStations?: boolean
   showRoutes?: boolean
+  selectedCorridorId?: string
   trainProgress?: number
   onSelectStation: (station: Station) => void
   onSelectRailwayStop?: (stop: RailwayStationStop) => void
+  onSelectRailwayJunction?: (junction: RailwayJunction) => void
   onReady: () => void
   onRouteStatus: (status: RouteStatus) => void
 }
@@ -43,6 +48,7 @@ function addLayers(
   system: MetroSystemId | 'all',
   onSelectStation: (station: Station) => void,
   onSelectRailwayStop: ((stop: RailwayStationStop) => void) | undefined,
+  onSelectRailwayJunction: ((junction: RailwayJunction) => void) | undefined,
   network: NetworkMode,
 ) {
   const visibleStations = network === 'metro' ? visibleStationsFor(system, year) : []
@@ -50,16 +56,16 @@ function addLayers(
   map.addSource('stations', { type: 'geojson', data: geoJson(visibleStations) })
   map.addSource('train-marker', { type: 'geojson', data: emptyRouteCollection() })
 
-  // Route layer
+  // Railway & Metro Route Lines
   map.addLayer({
     id: 'routes',
     type: 'line',
     source: 'routes',
     layout: { 'line-cap': 'round', 'line-join': 'round' },
-    paint: { 'line-color': ['get', 'color'], 'line-width': 5, 'line-opacity': 0.88 },
+    paint: { 'line-color': ['get', 'color'], 'line-width': 4.5, 'line-opacity': 0.9 },
   })
 
-  // Stations circle layer
+  // Stations / Junctions Layer
   map.addLayer({
     id: 'stations',
     type: 'circle',
@@ -72,7 +78,7 @@ function addLayers(
     },
   })
 
-  // Live Train Radar Pulse Layer (Outer)
+  // Live Train Radar Pulse Layer (Outer glow)
   map.addLayer({
     id: 'train-marker-pulse',
     type: 'circle',
@@ -84,7 +90,7 @@ function addLayers(
     },
   })
 
-  // Live Train Radar Dot Layer (Inner)
+  // Live Train Radar Dot Layer (Inner marker)
   map.addLayer({
     id: 'train-marker-dot',
     type: 'circle',
@@ -108,9 +114,24 @@ function addLayers(
     if (!feature) return
 
     const isRailway = feature.properties?.system === 'rail'
-    const content = isRailway
-      ? `<strong>17216 · DMM MTM Express</strong><br/><span>Dharmavaram Jn → Machilipatnam (694 km)</span><br/><small>South Central Railway · Real-time corridor</small>`
-      : `<strong>${feature.properties?.name}</strong><br/><span>Route history available in the source record.</span>`
+    let content = `<strong>${feature.properties?.name}</strong><br/><span>Route history available in the source record.</span>`
+
+    if (isRailway) {
+      const corridorId = feature.properties?.id
+      const corridor = findCorridorById(corridorId)
+      if (corridor) {
+        content =
+          `<strong>${corridor.name} (${corridor.code})</strong><br/>` +
+          `<span>${corridor.origin} → ${corridor.destination}</span><br/>` +
+          `<small>Zone: <b>${corridor.zone}</b> · Distance: <b>${corridor.distanceKm} km</b><br/>` +
+          `Gauge: ${corridor.gauge} · Electrification: ${corridor.electrification}</small>`
+      } else {
+        content =
+          `<strong>${feature.properties?.name}</strong><br/>` +
+          `<span>Indian Railways verified GIS alignment</span><br/>` +
+          `<small>Source: Humanitarian Data Exchange (HDX) & OpenStreetMap</small>`
+      }
+    }
 
     new maplibre.Popup({ closeButton: true, offset: 8 })
       .setLngLat(event.lngLat)
@@ -129,8 +150,24 @@ function addLayers(
     const id = feature?.properties?.id
     if (!id) return
 
+    // Railway Junction / Stop handling
     if (id.startsWith('ir-')) {
       const code = feature.properties?.code ?? id.replace('ir-', '')
+
+      const junction = findJunctionByCode(code)
+      if (junction) {
+        onSelectRailwayJunction?.(junction)
+        new maplibre.Popup({ closeButton: true, offset: 8 })
+          .setLngLat(event.lngLat)
+          .setHTML(
+            `<strong>${junction.name} (${junction.code})</strong><br/>` +
+              `<span>Zone: <b>${junction.zone}</b> · Division: <b>${junction.division}</b></span><br/>` +
+              `<small>State: ${junction.state} · Platforms: ${junction.platforms}</small>`,
+          )
+          .addTo(map)
+        return
+      }
+
       const railwayStop = train17216.stops.find((s) => s.code === code)
       if (railwayStop) {
         onSelectRailwayStop?.(railwayStop)
@@ -142,8 +179,8 @@ function addLayers(
               `<small>Distance: ${railwayStop.distanceKm} km · Halt: ${railwayStop.haltMinutes}m</small>`,
           )
           .addTo(map)
+        return
       }
-      return
     }
 
     const station = findStationById(id)
@@ -158,9 +195,11 @@ export function MapView({
   mapRef,
   showStations = true,
   showRoutes = true,
-  trainProgress = 0.58, // Default location around Guntur / Vijayawada
+  selectedCorridorId = 'all',
+  trainProgress = 0.58,
   onSelectStation,
   onSelectRailwayStop,
+  onSelectRailwayJunction,
   onReady,
   onRouteStatus,
 }: MapViewProps) {
@@ -168,8 +207,10 @@ export function MapView({
   const hydrateVersion = useRef(0)
   const stationSelectRef = useRef(onSelectStation)
   stationSelectRef.current = onSelectStation
-  const railSelectRef = useRef(onSelectRailwayStop)
-  railSelectRef.current = onSelectRailwayStop
+  const railStopSelectRef = useRef(onSelectRailwayStop)
+  railStopSelectRef.current = onSelectRailwayStop
+  const railJunctionSelectRef = useRef(onSelectRailwayJunction)
+  railJunctionSelectRef.current = onSelectRailwayJunction
 
   // 1. Initialize MapLibre
   useEffect(() => {
@@ -179,8 +220,8 @@ export function MapView({
 
     void loadMapLibre().then((maplibre) => {
       if (!container.current || disposed) return
-      const initialCenter: [number, number] = network === 'rail' ? [79.45, 15.45] : [78.96, 20.59]
-      const initialZoom = network === 'rail' ? 7.2 : 4.5
+      const initialCenter: [number, number] = network === 'rail' ? [79.45, 21.0] : [78.96, 20.59]
+      const initialZoom = network === 'rail' ? 4.8 : 4.5
 
       const createdMap = new maplibre.Map({
         container: container.current,
@@ -202,7 +243,8 @@ export function MapView({
           year,
           system,
           (station) => stationSelectRef.current(station),
-          (stop) => railSelectRef.current?.(stop),
+          (stop) => railStopSelectRef.current?.(stop),
+          (junction) => railJunctionSelectRef.current?.(junction),
           network,
         )
         onReady()
@@ -212,11 +254,17 @@ export function MapView({
           const stationSource = createdMap.getSource('stations') as GeoJSONSource | undefined
           const trainSource = createdMap.getSource('train-marker') as GeoJSONSource | undefined
 
-          if (routeSource && showRoutes) routeSource.setData(getTrain17216RouteGeoJson())
-          if (stationSource && showStations) stationSource.setData(getTrain17216StationsGeoJson())
+          if (routeSource && showRoutes) {
+            routeSource.setData(getNationalRailwaysTrackGeoJson(selectedCorridorId))
+          }
+          if (stationSource && showStations) {
+            stationSource.setData(getNationalRailwaysJunctionsGeoJson(selectedCorridorId))
+          }
 
-          const { position, bearing } = getTrainPositionAtProgress(trainProgress)
-          if (trainSource) trainSource.setData(getTrainMarkerGeoJson(position, bearing))
+          if (trainSource && selectedCorridorId === 'rayalaseema-scr-dmm-mtm') {
+            const { position, bearing } = getTrainPositionAtProgress(trainProgress)
+            trainSource.setData(getTrainMarkerGeoJson(position, bearing))
+          }
 
           onRouteStatus('real')
           return
@@ -250,7 +298,7 @@ export function MapView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // 2. Synchronize layers when parameters change (year, system, network, trainProgress, toggles)
+  // 2. Synchronize layers when parameters change
   useEffect(() => {
     const map = mapRef.current
     if (!map || !map.isStyleLoaded()) return
@@ -260,24 +308,27 @@ export function MapView({
     const trainSource = map.getSource('train-marker') as GeoJSONSource | undefined
 
     if (network === 'rail') {
-      // Indian Railways Train 17216 mode
+      // Real Indian Railways Track Network
       if (routeSource) {
-        routeSource.setData(showRoutes ? getTrain17216RouteGeoJson() : emptyRouteCollection())
+        routeSource.setData(showRoutes ? getNationalRailwaysTrackGeoJson(selectedCorridorId) : emptyRouteCollection())
       }
       if (stationSource) {
-        stationSource.setData(showStations ? getTrain17216StationsGeoJson() : emptyRouteCollection())
+        stationSource.setData(showStations ? getNationalRailwaysJunctionsGeoJson(selectedCorridorId) : emptyRouteCollection())
       }
 
-      const { position, bearing } = getTrainPositionAtProgress(trainProgress)
-      if (trainSource) {
+      // Show live train radar marker if viewing the Rayalaseema / 17216 corridor or overall network
+      if (trainSource && (selectedCorridorId === 'all' || selectedCorridorId === 'rayalaseema-scr-dmm-mtm')) {
+        const { position, bearing } = getTrainPositionAtProgress(trainProgress)
         trainSource.setData(getTrainMarkerGeoJson(position, bearing))
+      } else if (trainSource) {
+        trainSource.setData(emptyRouteCollection())
       }
 
       onRouteStatus('real')
       return
     }
 
-    // Non-rail: clear train marker
+    // Non-rail modes: clear train marker
     if (trainSource) {
       trainSource.setData(emptyRouteCollection())
     }
@@ -291,7 +342,6 @@ export function MapView({
     }
 
     if (isTransitDataLoaded()) {
-      // Data is in cache: update directly without flicker
       const features = showRoutes ? getRouteFeaturesForSystem(system, year) : []
       const stations = showStations ? visibleStationsFor(system, year) : []
 
@@ -306,7 +356,6 @@ export function MapView({
 
       onRouteStatus(features.length > 0 ? 'real' : 'unavailable')
     } else {
-      // First load: hydrate asynchronously
       onRouteStatus('loading')
       const version = ++hydrateVersion.current
       hydrateMapWithBundledRoutes(
@@ -321,7 +370,7 @@ export function MapView({
         }
       })
     }
-  }, [year, system, network, trainProgress, showStations, showRoutes, mapRef, onRouteStatus])
+  }, [year, system, network, selectedCorridorId, trainProgress, showStations, showRoutes, mapRef, onRouteStatus])
 
   return (
     <div

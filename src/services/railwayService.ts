@@ -1,4 +1,64 @@
+import { nationalCorridors, nationalJunctions, type RailwayCorridor, type RailwayJunction } from '../data/nationalRailways'
 import { train17216, type RailwayStationStop, type TrainService } from '../data/indianRailways'
+
+export function getNationalRailwaysTrackGeoJson(selectedCorridorId: string = 'all') {
+  const filtered = selectedCorridorId === 'all'
+    ? nationalCorridors
+    : nationalCorridors.filter((c) => c.id === selectedCorridorId)
+
+  return {
+    type: 'FeatureCollection' as const,
+    features: filtered.map((corridor) => ({
+      type: 'Feature' as const,
+      properties: {
+        id: corridor.id,
+        name: corridor.name,
+        shortName: corridor.shortName,
+        code: corridor.code,
+        zone: corridor.zone,
+        distanceKm: corridor.distanceKm,
+        gauge: corridor.gauge,
+        electrification: corridor.electrification,
+        color: corridor.color,
+        origin: corridor.origin,
+        destination: corridor.destination,
+        system: 'rail',
+        kind: 'railway',
+      },
+      geometry: {
+        type: 'LineString' as const,
+        coordinates: corridor.coordinates,
+      },
+    })),
+  }
+}
+
+export function getNationalRailwaysJunctionsGeoJson(selectedCorridorId: string = 'all') {
+  const filtered = selectedCorridorId === 'all'
+    ? nationalJunctions
+    : nationalJunctions.filter((j) => j.corridors.includes(selectedCorridorId))
+
+  return {
+    type: 'FeatureCollection' as const,
+    features: filtered.map((junction) => ({
+      type: 'Feature' as const,
+      properties: {
+        id: `ir-${junction.code}`,
+        name: junction.name,
+        code: junction.code,
+        zone: junction.zone,
+        division: junction.division,
+        state: junction.state,
+        platforms: junction.platforms,
+        kind: 'railway-junction',
+      },
+      geometry: {
+        type: 'Point' as const,
+        coordinates: junction.coordinates,
+      },
+    })),
+  }
+}
 
 export function getTrain17216RouteGeoJson(train: TrainService = train17216) {
   return {
@@ -9,8 +69,9 @@ export function getTrain17216RouteGeoJson(train: TrainService = train17216) {
         properties: {
           id: `train-${train.number}`,
           name: `${train.number} · ${train.name}`,
+          shortName: `${train.number} Express`,
           operator: train.operator,
-          color: '#d97706', // Gold / Amber railway track color
+          color: '#e11d48',
           system: 'rail',
           kind: 'railway',
         },
@@ -47,7 +108,6 @@ export function getTrain17216StationsGeoJson(train: TrainService = train17216) {
   }
 }
 
-// Calculate position along coordinate path for progress in [0, 1]
 export function getTrainPositionAtProgress(
   progress: number,
   coordinates: [number, number][] = train17216.coordinates,
@@ -67,7 +127,6 @@ export function getTrainPositionAtProgress(
   const lng = p1[0] + (p2[0] - p1[0]) * segmentFraction
   const lat = p1[1] + (p2[1] - p1[1]) * segmentFraction
 
-  // Calculate approximate bearing in degrees
   const dLng = (p2[0] - p1[0]) * Math.cos((((p1[1] + p2[1]) / 2) * Math.PI) / 180)
   const dLat = p2[1] - p1[1]
   const angle = (Math.atan2(dLng, dLat) * 180) / Math.PI
@@ -114,4 +173,11 @@ export function findStopForProgress(
   }
 
   return { previousStop: previous, nextStop: next }
+}
+
+export function findJunctionByCode(code: string): RailwayJunction | undefined {
+  return nationalJunctions.find((j) => j.code === code)
+}
+export function findCorridorById(id: string): RailwayCorridor | undefined {
+  return nationalCorridors.find((c) => c.id === id)
 }

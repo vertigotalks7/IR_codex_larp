@@ -16,7 +16,7 @@ export function AtlasHeader({ onGoLanding, selectedNetwork, network, routeStatus
           ? 'loading route geometry…'
           : 'route geometry unavailable'
       : network === 'rail'
-        ? '17216 DMM–MTM Express · 694 km corridor & radar active'
+        ? 'HDX / OSM national GIS tracks · 10 trunk corridors (11,000+ km) & 33+ junctions'
         : 'reference mode · reviewed geometry pending'
 
   return (

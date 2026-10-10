@@ -1,5 +1,6 @@
 import { systems } from '../../data'
 import { networkModes } from '../../config/networks'
+import { nationalCorridors, type RailwayJunction } from '../../data/nationalRailways'
 import { train17216, type RailwayStationStop } from '../../data/indianRailways'
 import { findStopForProgress } from '../../services/railwayService'
 import type { MetroSystemId, NetworkMode, Station, RouteStatus, NetworkModeConfig } from '../../types'
@@ -9,6 +10,8 @@ interface AtlasPanelProps {
   system: MetroSystemId | 'all'
   selectedStation: Station | null
   selectedRailwayStop: RailwayStationStop | null
+  selectedRailwayJunction: RailwayJunction | null
+  selectedCorridorId: string
   selectedNetwork: NetworkModeConfig
   routeStatus: RouteStatus
   visibleStationsCount: number
@@ -20,7 +23,9 @@ interface AtlasPanelProps {
   onTrainProgressChange: (progress: number) => void
   onNetworkChange: (mode: NetworkMode) => void
   onSystemChange: (system: MetroSystemId | 'all') => void
+  onCorridorChange: (corridorId: string) => void
   onSelectRailwayStop: (stop: RailwayStationStop) => void
+  onSelectRailwayJunction: (junction: RailwayJunction) => void
   onToggleStations: (show: boolean) => void
   onToggleRoutes: (show: boolean) => void
 }
@@ -30,6 +35,8 @@ export function AtlasPanel({
   system,
   selectedStation,
   selectedRailwayStop,
+  selectedRailwayJunction,
+  selectedCorridorId,
   selectedNetwork,
   routeStatus,
   visibleStationsCount,
@@ -41,12 +48,14 @@ export function AtlasPanel({
   onTrainProgressChange,
   onNetworkChange,
   onSystemChange,
+  onCorridorChange,
   onSelectRailwayStop,
   onToggleStations,
   onToggleRoutes,
 }: AtlasPanelProps) {
   const currentProgressSegment = findStopForProgress(trainProgress)
   const currentKm = Math.round(trainProgress * train17216.distanceKm)
+  const currentCorridor = nationalCorridors.find((c) => c.id === selectedCorridorId)
 
   return (
     <aside className="atlas-panel">
@@ -99,92 +108,150 @@ export function AtlasPanel({
       {network === 'rail' && (
         <>
           <div className="panel-close">
-            LIVE TRAIN RADAR <span>⌃</span>
+            GIS TRUNK CORRIDORS (OSM / HDX / CRIS) <span>⌃</span>
           </div>
-          <div className="railway-card">
-            <div className="railway-header">
-              <span className="railway-badge">{train17216.number} EXP</span>
-              <span className="railway-status-pill">
-                <i /> ON TIME
-              </span>
-            </div>
-            <h3>{train17216.name}</h3>
-            <p>
-              {train17216.origin} → {train17216.destination}
-            </p>
-            <p style={{ fontSize: '10px', color: '#88745c' }}>
-              South Central Railway (SCR) · Daily Service
-            </p>
+          <div className="system-filter atlas-systems" role="tablist" aria-label="Filter railway corridor">
+            <button
+              className={selectedCorridorId === 'all' ? 'active' : ''}
+              onClick={() => onCorridorChange('all')}
+            >
+              <i style={{ background: '#d97706' }} />
+              All National Trunks
+              <small>10 corridors</small>
+            </button>
+            {nationalCorridors.map((c) => (
+              <button
+                key={c.id}
+                className={selectedCorridorId === c.id ? 'active' : ''}
+                onClick={() => onCorridorChange(c.id)}
+              >
+                <i style={{ background: c.color }} />
+                {c.shortName}
+                <small>{c.distanceKm} km</small>
+              </button>
+            ))}
+          </div>
 
-            <div className="railway-live-metric">
-              <div>
-                <strong>{currentKm} km</strong>
-                <span>COVERED</span>
-              </div>
-              <div>
-                <strong>~74 km/h</strong>
-                <span>SPEED</span>
-              </div>
-              <div>
-                <strong>{train17216.stops.length}</strong>
-                <span>HALTS</span>
-              </div>
-            </div>
-
-            <div className="rail-radar-ctrl">
-              <div className="rail-radar-actions">
-                <span>
-                  Next:{' '}
-                  <b>
-                    {currentProgressSegment.nextStop
-                      ? `${currentProgressSegment.nextStop.name} (${currentProgressSegment.nextStop.code})`
-                      : 'Arrived at MTM'}
-                  </b>
+          {currentCorridor && selectedCorridorId !== 'all' && (
+            <div className="railway-card" style={{ marginTop: '8px' }}>
+              <div className="railway-header">
+                <span className="railway-badge">{currentCorridor.code}</span>
+                <span style={{ fontSize: '10px', color: '#6d2f2b', fontWeight: 600 }}>
+                  {currentCorridor.distanceKm} KM
                 </span>
-                <button onClick={onToggleTrainRunning}>
-                  {isTrainRunning ? 'Ⅱ Pause' : '▶ Track Live'}
-                </button>
               </div>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.005"
-                value={trainProgress}
-                onChange={(e) => onTrainProgressChange(Number(e.target.value))}
-                aria-label="Train journey progress"
-              />
+              <h3 style={{ fontSize: '14px' }}>{currentCorridor.name}</h3>
+              <p>
+                <b>Route:</b> {currentCorridor.origin} → {currentCorridor.destination}
+              </p>
+              <div className="railway-live-metric" style={{ marginTop: '6px' }}>
+                <div>
+                  <strong>{currentCorridor.distanceKm} km</strong>
+                  <span>DISTANCE</span>
+                </div>
+                <div>
+                  <strong>{currentCorridor.zone.split('/')[0]}</strong>
+                  <span>ZONE</span>
+                </div>
+                <div>
+                  <strong>{currentCorridor.majorJunctions.length}</strong>
+                  <span>JUNCTIONS</span>
+                </div>
+              </div>
+              <p style={{ fontSize: '10px', color: '#786751' }}>
+                Gauge: {currentCorridor.gauge} · Traction: {currentCorridor.electrification}
+              </p>
             </div>
-          </div>
+          )}
 
-          <div className="settings-divider" />
+          {/* RailRadar Train 17216 Card */}
+          {(selectedCorridorId === 'all' || selectedCorridorId === 'rayalaseema-scr-dmm-mtm') && (
+            <>
+              <div className="settings-divider" />
+              <div className="panel-close">
+                LIVE TRAIN RADAR (TRAIN 17216) <span>⌃</span>
+              </div>
+              <div className="railway-card">
+                <div className="railway-header">
+                  <span className="railway-badge">{train17216.number} EXP</span>
+                  <span className="railway-status-pill">
+                    <i /> ON TIME
+                  </span>
+                </div>
+                <h3>{train17216.name}</h3>
+                <p>
+                  {train17216.origin} → {train17216.destination}
+                </p>
 
-          <div className="panel-close">
-            STATION TIMETABLE (22 STOPS) <span>⌃</span>
-          </div>
-          <div className="railway-stop-list" role="list">
-            {train17216.stops.map((stop) => {
-              const isSelected = selectedRailwayStop?.code === stop.code
-              const isPassed = stop.distanceKm <= currentKm
-              return (
-                <button
-                  key={stop.code}
-                  className={`railway-stop-item ${isSelected ? 'active' : ''}`}
-                  onClick={() => onSelectRailwayStop(stop)}
-                  title={`${stop.name} (${stop.code}) - ${stop.arrival} / ${stop.departure}`}
-                >
-                  <span className="railway-stop-code">
-                    {isPassed ? '✓ ' : ''}
-                    {stop.code}
-                  </span>
-                  <span className="railway-stop-name">{stop.name}</span>
-                  <span className="railway-stop-time">
-                    {stop.arrival === 'Start' ? stop.departure : stop.arrival}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
+                <div className="railway-live-metric">
+                  <div>
+                    <strong>{currentKm} km</strong>
+                    <span>COVERED</span>
+                  </div>
+                  <div>
+                    <strong>~74 km/h</strong>
+                    <span>SPEED</span>
+                  </div>
+                  <div>
+                    <strong>{train17216.stops.length}</strong>
+                    <span>HALTS</span>
+                  </div>
+                </div>
+
+                <div className="rail-radar-ctrl">
+                  <div className="rail-radar-actions">
+                    <span>
+                      Next:{' '}
+                      <b>
+                        {currentProgressSegment.nextStop
+                          ? `${currentProgressSegment.nextStop.name} (${currentProgressSegment.nextStop.code})`
+                          : 'Arrived at MTM'}
+                      </b>
+                    </span>
+                    <button onClick={onToggleTrainRunning}>
+                      {isTrainRunning ? 'Ⅱ Pause' : '▶ Track Live'}
+                    </button>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.005"
+                    value={trainProgress}
+                    onChange={(e) => onTrainProgressChange(Number(e.target.value))}
+                    aria-label="Train journey progress"
+                  />
+                </div>
+              </div>
+
+              <div className="panel-close" style={{ marginTop: '10px' }}>
+                STATION TIMETABLE (22 STOPS) <span>⌃</span>
+              </div>
+              <div className="railway-stop-list" role="list">
+                {train17216.stops.map((stop) => {
+                  const isSelected = selectedRailwayStop?.code === stop.code
+                  const isPassed = stop.distanceKm <= currentKm
+                  return (
+                    <button
+                      key={stop.code}
+                      className={`railway-stop-item ${isSelected ? 'active' : ''}`}
+                      onClick={() => onSelectRailwayStop(stop)}
+                      title={`${stop.name} (${stop.code}) - ${stop.arrival} / ${stop.departure}`}
+                    >
+                      <span className="railway-stop-code">
+                        {isPassed ? '✓ ' : ''}
+                        {stop.code}
+                      </span>
+                      <span className="railway-stop-name">{stop.name}</span>
+                      <span className="railway-stop-time">
+                        {stop.arrival === 'Start' ? stop.departure : stop.arrival}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </>
+          )}
         </>
       )}
 
@@ -207,7 +274,7 @@ export function AtlasPanel({
       </div>
 
       <label className="toggle-row">
-        <span>Show line routes</span>
+        <span>Show track lines</span>
         <input
           type="checkbox"
           checked={showRoutes}
@@ -215,7 +282,7 @@ export function AtlasPanel({
         />
       </label>
       <label className="toggle-row">
-        <span>Show station pins</span>
+        <span>Show stations / junctions</span>
         <input
           type="checkbox"
           checked={showStations}
@@ -233,7 +300,7 @@ export function AtlasPanel({
                   ? '…'
                   : '—'
               : network === 'rail'
-                ? 'RADAR'
+                ? 'GIS/HDX'
                 : 'REF'}
           </strong>
           <span>map source</span>
@@ -243,14 +310,24 @@ export function AtlasPanel({
             {network === 'metro'
               ? visibleStationsCount
               : network === 'rail'
-                ? train17216.stops.length
+                ? selectedCorridorId === 'all'
+                  ? '33+ junc'
+                  : currentCorridor?.majorJunctions.length ?? '—'
                 : '—'}
           </strong>
-          <span>{network === 'metro' ? 'stations in view' : 'route stops'}</span>
+          <span>{network === 'metro' ? 'stations in view' : 'junctions'}</span>
         </div>
         <div>
-          <strong>{network === 'metro' ? systems.length : '1'}</strong>
-          <span>{network === 'metro' ? 'systems' : 'train corridor'}</span>
+          <strong>
+            {network === 'metro'
+              ? systems.length
+              : network === 'rail'
+                ? selectedCorridorId === 'all'
+                  ? '10 lines'
+                  : '1 corridor'
+                : '1'}
+          </strong>
+          <span>{network === 'metro' ? 'systems' : 'rail corridor'}</span>
         </div>
       </div>
 
@@ -279,7 +356,32 @@ export function AtlasPanel({
         </div>
       )}
 
-      {network === 'rail' && selectedRailwayStop && (
+      {network === 'rail' && selectedRailwayJunction && (
+        <div className="atlas-selection">
+          <small>SELECTED RAILWAY JUNCTION</small>
+          <strong>
+            {selectedRailwayJunction.name} ({selectedRailwayJunction.code})
+          </strong>
+          <span>
+            Zone: <b>{selectedRailwayJunction.zone}</b> · Division: <b>{selectedRailwayJunction.division}</b>
+          </span>
+          <span>
+            State: {selectedRailwayJunction.state} · Platforms: {selectedRailwayJunction.platforms}
+          </span>
+          <span>
+            Corridors: {selectedRailwayJunction.corridors.length} main trunk line(s)
+          </span>
+          <a
+            href="https://rbs.indianrail.gov.in/ShortPath/CheckUrData.jsp"
+            target="_blank"
+            rel="noreferrer"
+          >
+            CRIS / RBS Railway Record ↗
+          </a>
+        </div>
+      )}
+
+      {network === 'rail' && selectedRailwayStop && !selectedRailwayJunction && (
         <div className="atlas-selection">
           <small>SELECTED RAILWAY STATION</small>
           <strong>

@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T03:30:00+05:30 — Integrate national Indian Railways GIS track network and junction dataset
+
+- Changed: Added national Indian Railways GIS track network mapping sourced from Humanitarian Data Exchange (HDX `hotosm_ind_railways`), OpenStreetMap, and CRIS RBS. Implemented 10 major trunk corridors spanning over 11,000 km across India (Delhi–Howrah, Mumbai Central–New Delhi, Grand Trunk Delhi–Chennai, Mumbai–Howrah via Nagpur, Mumbai–Chennai, Howrah–Chennai East Coast, Konkan Railway, Rayalaseema DMM–MTM, Southern Mainline MAS–TVC, and Northern Trunk Delhi–Amritsar) plus 33+ key junction hubs with CRIS station codes, platform counts, and railway divisions. Added interactive corridor filtering and fly-to navigation, national track gauge and electrification visualization, junction marker click popups, and comprehensive provenance documentation in `DATA_SOURCES.md`.
+- Why: The user clarified that the Indian Railways mode should map actual GIS railway track data and network corridors across the map rather than only isolated train routes, referencing sources such as HDX, MAPOG GIS, DIVA-GIS, and CRIS RBS.
+- Validation: `npm run build` passed (`tsc -b` and `vite build`, 49 modules transformed); all 10 national corridors and 33+ junctions rendered cleanly; `git diff --check` passed without whitespace errors.
+- Limitations: Track alignments currently cover the 10 primary broad-gauge electrified trunk corridors; regional branch lines and secondary routes remain documented in references for future batch ingestion.
+
 ## 2026-10-11T03:05:00+05:30 — Map Indian Railways Train 17216 corridor and live radar tracker
 
 - Changed: Added interactive Indian Railways corridor mapping for Train 17216 (Dharmavaram–Machilipatnam Express) modeled after RailRadar. Ingested all 22 official station stops (DMM, ATP, GYF, TU, KDP, MOO, YA, PRDT, JMDG, KLKA, BGNP, NDL, GID, MRK, VKN, NRT, GNT, BZA, GDV, GVL, PAV, MTM) with scheduled arrival/departure timings, halt durations, and distance metrics. Generated real corridor alignment coordinates spanning 694 km across Andhra Pradesh. Added live animated GPS train radar pulse marker on the map, journey scrubber slider, timetable station selection with fly-to zoom, and interactive stop popups.
