@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-10T22:00:23+05:30 — Reduce basemap visual noise
+
+- Changed: Switched the detailed standard OSM raster tiles to the lighter CARTO basemap, which uses OpenStreetMap data and keeps roads and labels subordinate to the historical transit layers.
+- Why: Improve route readability and reduce unnecessary map detail.
+- Validation: Production build run after the change.
+- Limitations: The basemap still requires runtime network access and remains a contextual map, not a source for the historical rail geometries.
+
 ## 2026-10-10T21:54:52+05:30 — Simplify to single-map time travel
 
 - Changed: Removed the dual-map and swipe-divider comparison UI. Added one map with an on-map year slider, play/pause time control, milestone fly-to, and single-year network snapshot stats in `src/App.tsx` and `src/styles.css`.
