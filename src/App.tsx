@@ -100,9 +100,10 @@ async function loadOsmRoutes(system: MetroSystemId): Promise<OSMFeatureCollectio
   }
 }
 
-async function hydrateMapWithOsmRoutes(map: Map, system: MetroSystemId | 'all', year: number) {
+async function hydrateMapWithOsmRoutes(map: Map, system: MetroSystemId | 'all', year: number, isCurrent: () => boolean = () => true) {
   const systemsToLoad = system === 'all' ? systems : systems.filter((item) => item.id === system)
   const datasets = await Promise.all(systemsToLoad.map((item) => loadOsmRoutes(item.id)))
+  if (!isCurrent()) return 0
   const features = datasets.flatMap((dataset, index) => systemsToLoad[index].opened <= year ? dataset?.features ?? [] : [])
   const source = map.getSource('routes') as maplibregl.GeoJSONSource | undefined
   if (source) source.setData({ type: 'FeatureCollection', features })
@@ -133,12 +134,13 @@ function addLayers(map: Map, year: number, system: MetroSystemId | 'all', onSele
 
 function MapView({ year, system, mapRef, onSelectStation, onReady, onRouteStatus }: { year: number; system: MetroSystemId | 'all'; mapRef: React.MutableRefObject<Map | null>; onSelectStation: (station: Station) => void; onReady: () => void; onRouteStatus: (status: 'loading' | 'real' | 'unavailable') => void }) {
   const container = useRef<HTMLDivElement>(null)
+  const hydrateVersion = useRef(0)
   useEffect(() => {
     if (!container.current) return
     const map = new maplibregl.Map({ container: container.current, style: mapStyle, center: [78.96, 20.59], zoom: 4.5, minZoom: 3.5, maxZoom: 14 })
     mapRef.current = map
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right')
-    map.on('load', async () => { addLayers(map, year, system, onSelectStation); onReady(); onRouteStatus('loading'); const loaded = await hydrateMapWithOsmRoutes(map, system, year); onRouteStatus(loaded ? 'real' : 'unavailable') })
+    map.on('load', async () => { addLayers(map, year, system, onSelectStation); onReady(); onRouteStatus('loading'); const version = ++hydrateVersion.current; const loaded = await hydrateMapWithOsmRoutes(map, system, year, () => hydrateVersion.current === version); if (hydrateVersion.current === version) onRouteStatus(loaded ? 'real' : 'unavailable') })
     return () => { map.remove(); mapRef.current = null }
     // The map instance owns this lifecycle; parent renders must not recreate it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -155,7 +157,8 @@ function MapView({ year, system, mapRef, onSelectStation, onReady, onRouteStatus
   useEffect(() => {
     if (!mapRef.current || !mapRef.current.isStyleLoaded()) return
     onRouteStatus('loading')
-    hydrateMapWithOsmRoutes(mapRef.current, system, year).then((loaded) => onRouteStatus(loaded ? 'real' : 'unavailable'))
+    const version = ++hydrateVersion.current
+    hydrateMapWithOsmRoutes(mapRef.current, system, year, () => hydrateVersion.current === version).then((loaded) => { if (hydrateVersion.current === version) onRouteStatus(loaded ? 'real' : 'unavailable') })
   }, [year, system, mapRef, onRouteStatus])
   return <div ref={container} className="map-canvas" aria-label={`Historical map for ${year}`} />
 }

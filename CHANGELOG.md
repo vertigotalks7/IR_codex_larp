@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T00:58:00+05:30 — Fix route switching race condition
+
+- Changed: Added versioned route hydration so a slow request from a previously selected metro cannot overwrite the currently selected map. Local route/station data is re-applied only for the active system/year selection.
+- Why: Switching metro systems could leave the map with an empty or stale route layer while asynchronous OSM requests were still completing.
+- Validation: `npm run build` passed; `git diff --check` passed.
+- Limitations: Systems without a verified local snapshot still remain unavailable when their OSM request fails.
+
 ## 2026-10-11T00:42:00+05:30 — Fix data integrity and apply vintage atlas UI
 
 - Changed: Committed the three GTFS source snapshots used by the local rebuild, linked stations to route IDs through `stop_times.txt`, added station line membership to SQLite/export records, updated station details, and restyled the map viewer with warm paper, oxblood, brass, serif, and sepia cartographic treatment.

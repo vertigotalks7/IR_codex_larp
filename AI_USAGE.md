@@ -21,6 +21,7 @@ Codex contributed the first implementation milestone. Human review of the visual
 | 2026-10-10T23:48:00+05:30 | Codex | Make route loading local and deterministic | Added the SQLite canonical store, generated browser export, data build command, and frontend loading from `public/data/routes.json`. | Pending human visual review; further systems still need source snapshots. | `npm run data:build` produced three route features; production build passed. |
 | 2026-10-11T00:12:00+05:30 | Codex | Add Bengaluru and Chennai geometry/stations | Extended GTFS ingestion and the frontend local-data loader to include Bengaluru and Chennai route shapes plus station catalogs. | Pending human visual review; four systems remain to be sourced. | `npm run data:build` produced 14 route shapes and 181 stations; `npm run build` passed. |
 | 2026-10-11T00:42:00+05:30 | Codex | Fix database integrity and vintage visual system | Committed the source snapshots, added stop-times-based station line membership, made data rebuilds self-contained, updated station details, and applied the vintage railway-atlas skin. | Pending human visual review of the new palette and interaction states. | `npm run data:build` produced 14 route shapes and 181 stations; `npm run build` passed. |
+| 2026-10-11T00:58:00+05:30 | Codex | Fix route switching behavior | Added versioned async hydration so stale route requests cannot overwrite the selected metro’s map layer. | Pending human verification by switching systems rapidly. | `npm run build` and `git diff --check` passed. |
 
 ## Template preparation
 
