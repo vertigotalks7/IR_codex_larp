@@ -4,6 +4,7 @@ import { networkModes, ALL_INDIA_CENTER, ALL_INDIA_ZOOM } from './config/network
 import { visibleStationsFor } from './services/transitData'
 import { train17216, type RailwayStationStop } from './data/indianRailways'
 import { nationalCorridors, type RailwayJunction } from './data/nationalRailways'
+import { RAILWAY_ZONES } from './data/railwayZones'
 import { LandingPage } from './components/Landing/LandingPage'
 import { AtlasHeader } from './components/Atlas/AtlasHeader'
 import { AtlasPanel } from './components/Atlas/AtlasPanel'
@@ -105,7 +106,13 @@ export default function App() {
     setSelectedRailwayJunction(null)
 
     if (corridorId === 'all') {
-      mapRef.current?.flyTo({ center: [79.45, 21.0], zoom: 4.8 })
+      mapRef.current?.flyTo({ center: [78.96, 21.5], zoom: 4.8 })
+      return
+    }
+
+    const zone = RAILWAY_ZONES.find((z) => z.id === corridorId)
+    if (zone) {
+      mapRef.current?.flyTo({ center: zone.center, zoom: zone.zoom })
       return
     }
 

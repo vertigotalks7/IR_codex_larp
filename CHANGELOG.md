@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T04:00:00+05:30 — Ingest official Railway_Network_.geojson and build complete Indian Railways GIS network
+
+- Changed: Ingested the official Indian Railways network GIS dataset (`Railway_Network_.geojson`, 83.6 MB) and the HDX OpenStreetMap export (`hotosm_ind_railways_osm_geojson.zip`, 91.9 MB). Built a reproducible data pipeline in `scripts/build-railway-network.mjs` that transforms 119,446 raw GIS track features and 908,000 vertices into 2,390 connected route sections and 2,033 real junction stations. Generated optimized client GeoJSON bundles in `public/data/` (`railway-routes.json`, 6.21 MB and `railway-major-junctions.json`, 0.48 MB) with zone-coded styling, max speeds up to 160 km/h, gauges (Broad, Metre, Narrow), and single/double track lanes. Upgraded `MapView`, `AtlasPanel`, `AtlasHeader`, and `AtlasLegend` to support full national railway network rendering, 16-zone navigation with camera reframing, and interactive segment inspection.
+- Why: The previous sample corridors relied on coarse polygon approximations between a few major cities, which the user flagged as inaccurate. The user provided the official `Railway_Network_.geojson` and HDX archive containing authentic physical track geometry and junctions across the entire country.
+- Validation: Executed `node scripts/build-railway-network.mjs` successfully producing 2,390 route sections and 2,033 junctions; `npm run build` (`tsc -b && vite build`) passed with 50 modules transformed; verified WebGL rendering, popups, and layer toggles.
+- Limitations: Track routes cover operational Broad, Metre, and Narrow gauge tracks from the official IR network snapshot; real-time GPS train positions for trains other than Train 17216 remain simulated.
+
 ## 2026-10-11T03:30:00+05:30 — Integrate national Indian Railways GIS track network and junction dataset
 
 - Changed: Added national Indian Railways GIS track network mapping sourced from Humanitarian Data Exchange (HDX `hotosm_ind_railways`), OpenStreetMap, and CRIS RBS. Implemented 10 major trunk corridors spanning over 11,000 km across India (Delhi–Howrah, Mumbai Central–New Delhi, Grand Trunk Delhi–Chennai, Mumbai–Howrah via Nagpur, Mumbai–Chennai, Howrah–Chennai East Coast, Konkan Railway, Rayalaseema DMM–MTM, Southern Mainline MAS–TVC, and Northern Trunk Delhi–Amritsar) plus 33+ key junction hubs with CRIS station codes, platform counts, and railway divisions. Added interactive corridor filtering and fly-to navigation, national track gauge and electrification visualization, junction marker click popups, and comprehensive provenance documentation in `DATA_SOURCES.md`.

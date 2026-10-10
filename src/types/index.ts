@@ -107,3 +107,46 @@ export interface TrainService {
   stops: RailwayStationStop[]
   coordinates: [number, number][]
 }
+
+export interface RailwayGISRoute {
+  id: string
+  name: string
+  from: string
+  to: string
+  zone: string
+  gauge: string
+  color: string
+  speed: number
+  lanes: number
+  length: number
+  stations: number
+  bridge: boolean
+  tunnel: boolean
+}
+
+export interface RailwayGISJunction {
+  id: string
+  name: string
+  zones: string
+  primaryZone: string
+  color: string
+  connections: number
+}
+
+export interface RailwayZoneInfo {
+  name: string
+  routes: number
+  totalKm: number
+  maxSpeed: number
+  color: string
+}
+
+export interface RailwayMeta {
+  totalRoutes: number
+  totalJunctions: number
+  totalMajorJunctions: number
+  zones: Record<string, RailwayZoneInfo>
+  gauges: string[]
+  colors: Record<string, string>
+  source: string
+}

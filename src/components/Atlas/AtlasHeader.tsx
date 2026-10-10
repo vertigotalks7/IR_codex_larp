@@ -16,7 +16,7 @@ export function AtlasHeader({ onGoLanding, selectedNetwork, network, routeStatus
           ? 'loading route geometry…'
           : 'route geometry unavailable'
       : network === 'rail'
-        ? 'HDX / OSM national GIS tracks · 10 trunk corridors (11,000+ km) & 33+ junctions'
+        ? 'Official Indian Railways GIS network · 2,390 routes · 2,033 junctions across 16 zones'
         : 'reference mode · reviewed geometry pending'
 
   return (

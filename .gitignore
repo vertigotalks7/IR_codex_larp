@@ -25,3 +25,8 @@ Thumbs.db
 
 # Local Stitch credentials and generated route exports are never secrets; keep only the canonical DB/export committed.
 .tmp/
+
+# Raw large GIS files (processed reproducibly by scripts/build-railway-network.mjs into public/data/)
+Railway_Network_.geojson
+*.zip
+data/source/hotosm/

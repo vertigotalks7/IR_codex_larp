@@ -1,0 +1,137 @@
+{
+  "totalRoutes": 2390,
+  "totalJunctions": 2033,
+  "totalMajorJunctions": 1827,
+  "zones": {
+    "Southern Railway": {
+      "name": "Southern Railway",
+      "routes": 162,
+      "totalKm": 5918,
+      "maxSpeed": 130,
+      "color": "#1d4ed8"
+    },
+    "Northern Railway": {
+      "name": "Northern Railway",
+      "routes": 261,
+      "totalKm": 8614,
+      "maxSpeed": 130,
+      "color": "#b91c1c"
+    },
+    "Western Railway": {
+      "name": "Western Railway",
+      "routes": 219,
+      "totalKm": 7532,
+      "maxSpeed": 130,
+      "color": "#d97706"
+    },
+    "South Western Railway": {
+      "name": "South Western Railway",
+      "routes": 120,
+      "totalKm": 4281,
+      "maxSpeed": 115,
+      "color": "#9333ea"
+    },
+    "East Central Railway": {
+      "name": "East Central Railway",
+      "routes": 288,
+      "totalKm": 8165,
+      "maxSpeed": 130,
+      "color": "#4338ca"
+    },
+    "South Central Railway": {
+      "name": "South Central Railway",
+      "routes": 179,
+      "totalKm": 7094,
+      "maxSpeed": 130,
+      "color": "#ea580c"
+    },
+    "North Central Railway": {
+      "name": "North Central Railway",
+      "routes": 105,
+      "totalKm": 4149,
+      "maxSpeed": 160,
+      "color": "#db2777"
+    },
+    "Eastern Railway": {
+      "name": "Eastern Railway",
+      "routes": 400,
+      "totalKm": 10625,
+      "maxSpeed": 130,
+      "color": "#047857"
+    },
+    "North Western Railway": {
+      "name": "North Western Railway",
+      "routes": 131,
+      "totalKm": 7209,
+      "maxSpeed": 130,
+      "color": "#a16207"
+    },
+    "East Coast Railway": {
+      "name": "East Coast Railway",
+      "routes": 101,
+      "totalKm": 3657,
+      "maxSpeed": 130,
+      "color": "#0f766e"
+    },
+    "Central Railway": {
+      "name": "Central Railway",
+      "routes": 106,
+      "totalKm": 3956,
+      "maxSpeed": 130,
+      "color": "#7c3aed"
+    },
+    "Konkan Railway": {
+      "name": "Konkan Railway",
+      "routes": 7,
+      "totalKm": 996,
+      "maxSpeed": 120,
+      "color": "#e11d48"
+    },
+    "Other": {
+      "name": "Other",
+      "routes": 70,
+      "totalKm": 3136,
+      "maxSpeed": 130,
+      "color": "#475569"
+    },
+    "West Central Railway": {
+      "name": "West Central Railway",
+      "routes": 96,
+      "totalKm": 4149,
+      "maxSpeed": 130,
+      "color": "#4d7c0f"
+    },
+    "Northeast Frontier Railway": {
+      "name": "Northeast Frontier Railway",
+      "routes": 145,
+      "totalKm": 5181,
+      "maxSpeed": 110,
+      "color": "#0284c7"
+    }
+  },
+  "gauges": [
+    "Broad Gauge",
+    "Metre Gauge",
+    "Narrow Gauge"
+  ],
+  "colors": {
+    "Southern Railway": "#1d4ed8",
+    "Northern Railway": "#b91c1c",
+    "Western Railway": "#d97706",
+    "Central Railway": "#7c3aed",
+    "Eastern Railway": "#047857",
+    "South Central Railway": "#ea580c",
+    "South Eastern Railway": "#0891b2",
+    "North Central Railway": "#db2777",
+    "North Western Railway": "#a16207",
+    "East Coast Railway": "#0f766e",
+    "East Central Railway": "#4338ca",
+    "West Central Railway": "#4d7c0f",
+    "South Western Railway": "#9333ea",
+    "South East Central Railway": "#c026d3",
+    "Northeast Frontier Railway": "#0284c7",
+    "Konkan Railway": "#e11d48",
+    "Other": "#475569"
+  },
+  "source": "Official Indian Railways GIS Network (Railway_Network_.geojson)"
+}

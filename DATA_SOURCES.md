@@ -58,10 +58,18 @@ The Indian Railways network layer uses real spatial geometry and station junctio
 
 | Dataset / Source | Provider / Format | Coverage & Usage |
 | --- | --- | --- |
-| [India Railways OpenStreetMap Export](https://data.humdata.org/dataset/hotosm_ind_railways) | Humanitarian Data Exchange (HDX) / HOT OSM (GeoJSON, SHP, GPKG) | Over 107,000 national rail features; verified alignments for Golden Quadrilateral trunk corridors and major regional trunk paths. |
+| `Railway_Network_.geojson` | Official Indian Railways GIS / MAPOG (GeoJSON, 83.6 MB) | 119,446 physical railway track features, 2,033 junction hubs across all 18 railway zones, with exact track curves, speeds (up to 160 km/h), track lengths, gauges (Broad, Metre, Narrow), and single/double track lanes. Ingested and assembled into 2,390 connected route sections for hardware-accelerated WebGL rendering in MapLibre. |
+| [India Railways OpenStreetMap Export](https://data.humdata.org/dataset/hotosm_ind_railways) (`hotosm_ind_railways_osm_geojson.zip`) | Humanitarian Data Exchange (HDX) / HOT OSM (GeoJSON, 91.9 MB) | 107,081 national railway features (97,764 rail track ways and 9,317 railway stations) across India. Extracted from OpenStreetMap via QuackOSM/Geofabrik. |
 | [Check Your Railway's Data - RBS](https://rbs.indianrail.gov.in/ShortPath/CheckUrData.jsp) | Centre for Railway Information Systems (CRIS) / Indian Railways | Official line distances, interchange junctions, division boundaries, and zonal railway classifications. |
-| [Geofabrik India Regional Rail Extract](https://download.geofabrik.de/asia/india.html) | OpenStreetMap / Geofabrik (OSM PBF) | Physical railway tracks, sidings, and broad-gauge infrastructure alignments. |
 | [Konkan Railway Infrastructure](https://konkanrailway.com/) | Konkan Railway Corporation Limited (KRCL) | Coastal mainline track corridor (Roha to Mangaluru Jn, 741 km) across Maharashtra, Goa, and Karnataka. |
+
+### National Indian Railways GIS Architecture:
+- Canonical raw GIS files: `Railway_Network_.geojson` (83.6 MB) and `data/source/hotosm/railways.geojson` (91.9 MB).
+- Reproducible optimization pipeline: `scripts/build-railway-network.mjs` ingests the raw line features, cleans out-of-bounds coordinates, simplifies vertices to ~25 m precision using Douglas-Peucker (retaining 100% of authentic track curvature and winding paths), groups micro-segments into 2,390 connected route sections, and extracts 2,033 real junction hubs.
+- Generated client datasets in `public/data/`:
+  - `railway-routes.json` (6.21 MB): 2,390 authentic GIS route sections with zone colors, speed limits, gauges, track lengths, and lane counts.
+  - `railway-major-junctions.json` (0.48 MB) & `railway-junctions.json` (0.53 MB): 2,033 real railway junction hubs with connected lines and zonal affiliations.
+  - `railway-meta.json`: Summary breakdown of routes, route-km, and max speed per zone.
 
 ### National Trunk Corridors Mapped:
 1. **Delhi – Howrah Main Line (`NDLS-HWH`)**: 1,445 km broad-gauge electrified trunk line via Kanpur, Prayagraj, DDU, Gaya, and Asansol.

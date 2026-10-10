@@ -17,6 +17,8 @@ import {
   getTrainMarkerGeoJson,
   findJunctionByCode,
   findCorridorById,
+  preloadRailwayData,
+  isRailwayDataLoaded,
 } from '../../services/railwayService'
 import { train17216, type RailwayStationStop } from '../../data/indianRailways'
 import type { RailwayJunction } from '../../data/nationalRailways'
@@ -62,7 +64,11 @@ function addLayers(
     type: 'line',
     source: 'routes',
     layout: { 'line-cap': 'round', 'line-join': 'round' },
-    paint: { 'line-color': ['get', 'color'], 'line-width': 4.5, 'line-opacity': 0.9 },
+    paint: {
+      'line-color': ['coalesce', ['get', 'color'], '#1d4ed8'],
+      'line-width': ['interpolate', ['linear'], ['zoom'], 4, 1.8, 7, 3, 11, 4.5],
+      'line-opacity': 0.9,
+    },
   })
 
   // Stations / Junctions Layer
@@ -71,10 +77,10 @@ function addLayers(
     type: 'circle',
     source: 'stations',
     paint: {
-      'circle-radius': 6,
-      'circle-color': '#f7f3ea',
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 4, 2.5, 7, 4.5, 11, 6],
+      'circle-color': ['coalesce', ['get', 'color'], '#f7f3ea'],
       'circle-stroke-color': '#10283b',
-      'circle-stroke-width': 2,
+      'circle-stroke-width': 1.5,
     },
   })
 
@@ -117,19 +123,29 @@ function addLayers(
     let content = `<strong>${feature.properties?.name}</strong><br/><span>Route history available in the source record.</span>`
 
     if (isRailway) {
-      const corridorId = feature.properties?.id
-      const corridor = findCorridorById(corridorId)
-      if (corridor) {
+      const p = feature.properties || {}
+      if (p.from && p.to && p.from !== 'Track') {
         content =
-          `<strong>${corridor.name} (${corridor.code})</strong><br/>` +
-          `<span>${corridor.origin} → ${corridor.destination}</span><br/>` +
-          `<small>Zone: <b>${corridor.zone}</b> · Distance: <b>${corridor.distanceKm} km</b><br/>` +
-          `Gauge: ${corridor.gauge} · Electrification: ${corridor.electrification}</small>`
+          `<strong>${p.from} ↔ ${p.to}</strong><br/>` +
+          `<span>Zone: <b>${p.zone}</b> · Gauge: <b>${p.gauge}</b></span><br/>` +
+          `<small>Speed Limit: <b>${p.speed} km/h</b> · Track Length: <b>${p.length} km</b><br/>` +
+          `Track: ${p.lanes === 2 ? 'Double Line' : 'Single Line'} ${p.bridge ? '· Bridge' : ''} ${p.tunnel ? '· Tunnel' : ''}<br/>` +
+          `Source: Official Indian Railways GIS Network</small>`
       } else {
-        content =
-          `<strong>${feature.properties?.name}</strong><br/>` +
-          `<span>Indian Railways verified GIS alignment</span><br/>` +
-          `<small>Source: Humanitarian Data Exchange (HDX) & OpenStreetMap</small>`
+        const corridorId = feature.properties?.id
+        const corridor = findCorridorById(corridorId)
+        if (corridor) {
+          content =
+            `<strong>${corridor.name} (${corridor.code})</strong><br/>` +
+            `<span>${corridor.origin} → ${corridor.destination}</span><br/>` +
+            `<small>Zone: <b>${corridor.zone}</b> · Distance: <b>${corridor.distanceKm} km</b><br/>` +
+            `Gauge: ${corridor.gauge} · Electrification: ${corridor.electrification}</small>`
+        } else {
+          content =
+            `<strong>${feature.properties?.name || 'Railway Track'}</strong><br/>` +
+            `<span>Indian Railways GIS Alignment</span><br/>` +
+            `<small>Source: Official Indian Railways GIS Network</small>`
+        }
       }
     }
 
@@ -147,40 +163,32 @@ function addLayers(
   })
   map.on('click', 'stations', (event) => {
     const feature = event.features?.[0]
-    const id = feature?.properties?.id
-    if (!id) return
+    const p = feature?.properties || {}
+    const id = p.id || ''
 
     // Railway Junction / Stop handling
-    if (id.startsWith('ir-')) {
-      const code = feature.properties?.code ?? id.replace('ir-', '')
+    if (p.kind === 'railway-junction' || id.startsWith('junc-') || id.startsWith('ir-')) {
+      const code = p.code ?? id.replace('ir-', '')
 
       const junction = findJunctionByCode(code)
       if (junction) {
         onSelectRailwayJunction?.(junction)
-        new maplibre.Popup({ closeButton: true, offset: 8 })
-          .setLngLat(event.lngLat)
-          .setHTML(
-            `<strong>${junction.name} (${junction.code})</strong><br/>` +
-              `<span>Zone: <b>${junction.zone}</b> · Division: <b>${junction.division}</b></span><br/>` +
-              `<small>State: ${junction.state} · Platforms: ${junction.platforms}</small>`,
-          )
-          .addTo(map)
-        return
       }
 
       const railwayStop = train17216.stops.find((s) => s.code === code)
       if (railwayStop) {
         onSelectRailwayStop?.(railwayStop)
-        new maplibre.Popup({ closeButton: true, offset: 8 })
-          .setLngLat(event.lngLat)
-          .setHTML(
-            `<strong>${railwayStop.name} (${railwayStop.code})</strong><br/>` +
-              `<span>Arrival: <b>${railwayStop.arrival}</b> · Departure: <b>${railwayStop.departure}</b></span><br/>` +
-              `<small>Distance: ${railwayStop.distanceKm} km · Halt: ${railwayStop.haltMinutes}m</small>`,
-          )
-          .addTo(map)
-        return
       }
+
+      new maplibre.Popup({ closeButton: true, offset: 8 })
+        .setLngLat(event.lngLat)
+        .setHTML(
+          `<strong>${p.name || 'Railway Station'}</strong><br/>` +
+            `<span>Zone: <b>${p.zones || p.zone || p.primaryZone || 'Indian Railways'}</b></span><br/>` +
+            `<small>${p.connections ? `Connected Lines: <b>${p.connections}</b> · ` : ''}${p.platforms ? `Platforms: <b>${p.platforms}</b> · ` : ''}Type: Junction Hub</small>`,
+        )
+        .addTo(map)
+      return
     }
 
     const station = findStationById(id)
@@ -254,19 +262,30 @@ export function MapView({
           const stationSource = createdMap.getSource('stations') as GeoJSONSource | undefined
           const trainSource = createdMap.getSource('train-marker') as GeoJSONSource | undefined
 
-          if (routeSource && showRoutes) {
-            routeSource.setData(getNationalRailwaysTrackGeoJson(selectedCorridorId))
-          }
-          if (stationSource && showStations) {
-            stationSource.setData(getNationalRailwaysJunctionsGeoJson(selectedCorridorId))
+          const applyRail = () => {
+            if (routeSource && showRoutes) {
+              routeSource.setData(getNationalRailwaysTrackGeoJson(selectedCorridorId))
+            }
+            if (stationSource && showStations) {
+              stationSource.setData(getNationalRailwaysJunctionsGeoJson(selectedCorridorId))
+            }
+
+            if (trainSource && (selectedCorridorId === 'all' || selectedCorridorId === 'rayalaseema-scr-dmm-mtm' || selectedCorridorId === 'South Central Railway')) {
+              const { position, bearing } = getTrainPositionAtProgress(trainProgress)
+              trainSource.setData(getTrainMarkerGeoJson(position, bearing))
+            }
+
+            onRouteStatus('real')
           }
 
-          if (trainSource && selectedCorridorId === 'rayalaseema-scr-dmm-mtm') {
-            const { position, bearing } = getTrainPositionAtProgress(trainProgress)
-            trainSource.setData(getTrainMarkerGeoJson(position, bearing))
+          if (isRailwayDataLoaded()) {
+            applyRail()
+          } else {
+            onRouteStatus('loading')
+            preloadRailwayData().then(() => {
+              applyRail()
+            })
           }
-
-          onRouteStatus('real')
           return
         }
 
@@ -308,23 +327,32 @@ export function MapView({
     const trainSource = map.getSource('train-marker') as GeoJSONSource | undefined
 
     if (network === 'rail') {
-      // Real Indian Railways Track Network
-      if (routeSource) {
-        routeSource.setData(showRoutes ? getNationalRailwaysTrackGeoJson(selectedCorridorId) : emptyRouteCollection())
-      }
-      if (stationSource) {
-        stationSource.setData(showStations ? getNationalRailwaysJunctionsGeoJson(selectedCorridorId) : emptyRouteCollection())
+      const applyRail = () => {
+        if (routeSource) {
+          routeSource.setData(showRoutes ? getNationalRailwaysTrackGeoJson(selectedCorridorId) : emptyRouteCollection())
+        }
+        if (stationSource) {
+          stationSource.setData(showStations ? getNationalRailwaysJunctionsGeoJson(selectedCorridorId) : emptyRouteCollection())
+        }
+
+        if (trainSource && (selectedCorridorId === 'all' || selectedCorridorId === 'rayalaseema-scr-dmm-mtm' || selectedCorridorId === 'South Central Railway')) {
+          const { position, bearing } = getTrainPositionAtProgress(trainProgress)
+          trainSource.setData(getTrainMarkerGeoJson(position, bearing))
+        } else if (trainSource) {
+          trainSource.setData(emptyRouteCollection())
+        }
+
+        onRouteStatus('real')
       }
 
-      // Show live train radar marker if viewing the Rayalaseema / 17216 corridor or overall network
-      if (trainSource && (selectedCorridorId === 'all' || selectedCorridorId === 'rayalaseema-scr-dmm-mtm')) {
-        const { position, bearing } = getTrainPositionAtProgress(trainProgress)
-        trainSource.setData(getTrainMarkerGeoJson(position, bearing))
-      } else if (trainSource) {
-        trainSource.setData(emptyRouteCollection())
+      if (isRailwayDataLoaded()) {
+        applyRail()
+      } else {
+        onRouteStatus('loading')
+        preloadRailwayData().then(() => {
+          applyRail()
+        })
       }
-
-      onRouteStatus('real')
       return
     }
 

@@ -1,6 +1,7 @@
 import { systems } from '../../data'
 import { networkModes } from '../../config/networks'
 import { nationalCorridors, type RailwayJunction } from '../../data/nationalRailways'
+import { RAILWAY_ZONES } from '../../data/railwayZones'
 import { train17216, type RailwayStationStop } from '../../data/indianRailways'
 import { findStopForProgress } from '../../services/railwayService'
 import type { MetroSystemId, NetworkMode, Station, RouteStatus, NetworkModeConfig } from '../../types'
@@ -108,60 +109,88 @@ export function AtlasPanel({
       {network === 'rail' && (
         <>
           <div className="panel-close">
-            GIS TRUNK CORRIDORS (OSM / HDX / CRIS) <span>⌃</span>
+            INDIAN RAILWAYS GIS ZONES (OFFICIAL NETWORK) <span>⌃</span>
           </div>
-          <div className="system-filter atlas-systems" role="tablist" aria-label="Filter railway corridor">
-            <button
-              className={selectedCorridorId === 'all' ? 'active' : ''}
-              onClick={() => onCorridorChange('all')}
-            >
-              <i style={{ background: '#d97706' }} />
-              All National Trunks
-              <small>10 corridors</small>
-            </button>
-            {nationalCorridors.map((c) => (
+          <div className="system-filter atlas-systems" role="tablist" aria-label="Filter railway zone">
+            {RAILWAY_ZONES.map((z) => (
               <button
-                key={c.id}
-                className={selectedCorridorId === c.id ? 'active' : ''}
-                onClick={() => onCorridorChange(c.id)}
+                key={z.id}
+                className={selectedCorridorId === z.id ? 'active' : ''}
+                onClick={() => onCorridorChange(z.id)}
               >
-                <i style={{ background: c.color }} />
-                {c.shortName}
-                <small>{c.distanceKm} km</small>
+                <i style={{ background: z.color }} />
+                {z.short}
+                <small>{z.routes} routes</small>
               </button>
             ))}
           </div>
 
-          {currentCorridor && selectedCorridorId !== 'all' && (
-            <div className="railway-card" style={{ marginTop: '8px' }}>
-              <div className="railway-header">
-                <span className="railway-badge">{currentCorridor.code}</span>
-                <span style={{ fontSize: '10px', color: '#6d2f2b', fontWeight: 600 }}>
-                  {currentCorridor.distanceKm} KM
-                </span>
-              </div>
-              <h3 style={{ fontSize: '14px' }}>{currentCorridor.name}</h3>
-              <p>
-                <b>Route:</b> {currentCorridor.origin} → {currentCorridor.destination}
-              </p>
-              <div className="railway-live-metric" style={{ marginTop: '6px' }}>
-                <div>
-                  <strong>{currentCorridor.distanceKm} km</strong>
-                  <span>DISTANCE</span>
-                </div>
-                <div>
-                  <strong>{currentCorridor.zone.split('/')[0]}</strong>
-                  <span>ZONE</span>
-                </div>
-                <div>
-                  <strong>{currentCorridor.majorJunctions.length}</strong>
-                  <span>JUNCTIONS</span>
-                </div>
-              </div>
-              <p style={{ fontSize: '10px', color: '#786751' }}>
-                Gauge: {currentCorridor.gauge} · Traction: {currentCorridor.electrification}
-              </p>
-            </div>
+          {selectedCorridorId !== 'all' && (
+            (() => {
+              const activeZone = RAILWAY_ZONES.find((z) => z.id === selectedCorridorId)
+              const activeCorridor = nationalCorridors.find((c) => c.id === selectedCorridorId)
+              if (activeZone && activeZone.id !== 'all') {
+                return (
+                  <div className="railway-card" style={{ marginTop: '8px' }}>
+                    <div className="railway-header">
+                      <span className="railway-badge">{activeZone.code}</span>
+                      <span style={{ fontSize: '10px', color: '#6d2f2b', fontWeight: 600 }}>
+                        {activeZone.totalKm} KM
+                      </span>
+                    </div>
+                    <h3 style={{ fontSize: '14px' }}>{activeZone.name}</h3>
+                    <div className="railway-live-metric" style={{ marginTop: '6px' }}>
+                      <div>
+                        <strong>{activeZone.routes}</strong>
+                        <span>SECTIONS</span>
+                      </div>
+                      <div>
+                        <strong>{activeZone.totalKm} km</strong>
+                        <span>NETWORK</span>
+                      </div>
+                      <div>
+                        <strong>130 km/h</strong>
+                        <span>MAX SPEED</span>
+                      </div>
+                    </div>
+                    <p style={{ fontSize: '10px', color: '#786751', marginTop: '6px' }}>
+                      Official Indian Railways GIS Dataset · Broad, Metre & Narrow Gauge
+                    </p>
+                  </div>
+                )
+              }
+              if (activeCorridor) {
+                return (
+                  <div className="railway-card" style={{ marginTop: '8px' }}>
+                    <div className="railway-header">
+                      <span className="railway-badge">{activeCorridor.code}</span>
+                      <span style={{ fontSize: '10px', color: '#6d2f2b', fontWeight: 600 }}>
+                        {activeCorridor.distanceKm} KM
+                      </span>
+                    </div>
+                    <h3 style={{ fontSize: '14px' }}>{activeCorridor.name}</h3>
+                    <p>
+                      <b>Route:</b> {activeCorridor.origin} → {activeCorridor.destination}
+                    </p>
+                    <div className="railway-live-metric" style={{ marginTop: '6px' }}>
+                      <div>
+                        <strong>{activeCorridor.distanceKm} km</strong>
+                        <span>DISTANCE</span>
+                      </div>
+                      <div>
+                        <strong>{activeCorridor.zone.split('/')[0]}</strong>
+                        <span>ZONE</span>
+                      </div>
+                      <div>
+                        <strong>{activeCorridor.majorJunctions.length}</strong>
+                        <span>JUNCTIONS</span>
+                      </div>
+                    </div>
+                  </div>
+                )
+              }
+              return null
+            })()
           )}
 
           {/* RailRadar Train 17216 Card */}

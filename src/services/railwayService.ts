@@ -1,10 +1,72 @@
 import { nationalCorridors, nationalJunctions, type RailwayCorridor, type RailwayJunction } from '../data/nationalRailways'
 import { train17216, type RailwayStationStop, type TrainService } from '../data/indianRailways'
+import type { RailwayMeta } from '../types'
 
-export function getNationalRailwaysTrackGeoJson(selectedCorridorId: string = 'all') {
-  const filtered = selectedCorridorId === 'all'
-    ? nationalCorridors
-    : nationalCorridors.filter((c) => c.id === selectedCorridorId)
+let cachedRoutesGeoJson: any | null = null
+let cachedJunctionsGeoJson: any | null = null
+let cachedMeta: RailwayMeta | null = null
+let isPreloading = false
+
+export async function preloadRailwayData(): Promise<{
+  routes: any
+  junctions: any
+  meta: RailwayMeta | null
+}> {
+  if (cachedRoutesGeoJson && cachedJunctionsGeoJson) {
+    return { routes: cachedRoutesGeoJson, junctions: cachedJunctionsGeoJson, meta: cachedMeta }
+  }
+
+  if (isPreloading) {
+    // Wait briefly if already in flight
+    await new Promise((r) => setTimeout(r, 200))
+    if (cachedRoutesGeoJson && cachedJunctionsGeoJson) {
+      return { routes: cachedRoutesGeoJson, junctions: cachedJunctionsGeoJson, meta: cachedMeta }
+    }
+  }
+
+  isPreloading = true
+  try {
+    const [routesRes, junctionsRes, metaRes] = await Promise.all([
+      fetch('/data/railway-routes.json'),
+      fetch('/data/railway-major-junctions.json'),
+      fetch('/data/railway-meta.json').catch(() => null),
+    ])
+
+    if (routesRes.ok) {
+      cachedRoutesGeoJson = await routesRes.json()
+    }
+    if (junctionsRes.ok) {
+      cachedJunctionsGeoJson = await junctionsRes.json()
+    }
+    if (metaRes && metaRes.ok) {
+      cachedMeta = await metaRes.json()
+    }
+  } catch (err) {
+    console.warn('Failed to load official Railway GIS data, fallback to static corridors', err)
+  } finally {
+    isPreloading = false
+  }
+
+  return {
+    routes: cachedRoutesGeoJson || getFallbackTrackGeoJson(),
+    junctions: cachedJunctionsGeoJson || getFallbackJunctionsGeoJson(),
+    meta: cachedMeta,
+  }
+}
+
+export function isRailwayDataLoaded(): boolean {
+  return cachedRoutesGeoJson !== null
+}
+
+export function getRailwayMeta(): RailwayMeta | null {
+  return cachedMeta
+}
+
+function getFallbackTrackGeoJson(selectedCorridorId: string = 'all') {
+  const filtered =
+    selectedCorridorId === 'all'
+      ? nationalCorridors
+      : nationalCorridors.filter((c) => c.id === selectedCorridorId)
 
   return {
     type: 'FeatureCollection' as const,
@@ -13,10 +75,14 @@ export function getNationalRailwaysTrackGeoJson(selectedCorridorId: string = 'al
       properties: {
         id: corridor.id,
         name: corridor.name,
+        from: corridor.origin,
+        to: corridor.destination,
         shortName: corridor.shortName,
         code: corridor.code,
         zone: corridor.zone,
         distanceKm: corridor.distanceKm,
+        length: corridor.distanceKm,
+        speed: 130,
         gauge: corridor.gauge,
         electrification: corridor.electrification,
         color: corridor.color,
@@ -33,10 +99,11 @@ export function getNationalRailwaysTrackGeoJson(selectedCorridorId: string = 'al
   }
 }
 
-export function getNationalRailwaysJunctionsGeoJson(selectedCorridorId: string = 'all') {
-  const filtered = selectedCorridorId === 'all'
-    ? nationalJunctions
-    : nationalJunctions.filter((j) => j.corridors.includes(selectedCorridorId))
+function getFallbackJunctionsGeoJson(selectedCorridorId: string = 'all') {
+  const filtered =
+    selectedCorridorId === 'all'
+      ? nationalJunctions
+      : nationalJunctions.filter((j) => j.corridors.includes(selectedCorridorId))
 
   return {
     type: 'FeatureCollection' as const,
@@ -50,6 +117,7 @@ export function getNationalRailwaysJunctionsGeoJson(selectedCorridorId: string =
         division: junction.division,
         state: junction.state,
         platforms: junction.platforms,
+        connections: junction.corridors.length,
         kind: 'railway-junction',
       },
       geometry: {
@@ -57,6 +125,60 @@ export function getNationalRailwaysJunctionsGeoJson(selectedCorridorId: string =
         coordinates: junction.coordinates,
       },
     })),
+  }
+}
+
+export function getNationalRailwaysTrackGeoJson(
+  filterZoneOrCorridor: string = 'all',
+  gauge: string = 'all',
+) {
+  if (!cachedRoutesGeoJson) {
+    return getFallbackTrackGeoJson(filterZoneOrCorridor)
+  }
+
+  let features = cachedRoutesGeoJson.features as any[]
+
+  if (filterZoneOrCorridor !== 'all') {
+    // Check if matching a zone
+    features = features.filter((f) => {
+      const z = f.properties?.zone
+      if (z === filterZoneOrCorridor) return true
+      // Also support matching corridor code or name if user passed corridor id
+      const cid = f.properties?.id
+      return cid === filterZoneOrCorridor
+    })
+  }
+
+  if (gauge !== 'all') {
+    features = features.filter((f) => f.properties?.gauge === gauge)
+  }
+
+  return {
+    type: 'FeatureCollection' as const,
+    name: 'Indian_Railways_Network_GIS',
+    features,
+  }
+}
+
+export function getNationalRailwaysJunctionsGeoJson(filterZoneOrCorridor: string = 'all') {
+  if (!cachedJunctionsGeoJson) {
+    return getFallbackJunctionsGeoJson(filterZoneOrCorridor)
+  }
+
+  let features = cachedJunctionsGeoJson.features as any[]
+
+  if (filterZoneOrCorridor !== 'all') {
+    features = features.filter((f) => {
+      const zones = f.properties?.zones || ''
+      const primary = f.properties?.primaryZone || ''
+      return primary === filterZoneOrCorridor || zones.includes(filterZoneOrCorridor)
+    })
+  }
+
+  return {
+    type: 'FeatureCollection' as const,
+    name: 'Indian_Railways_Junctions_GIS',
+    features,
   }
 }
 

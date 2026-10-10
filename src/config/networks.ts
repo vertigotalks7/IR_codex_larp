@@ -13,11 +13,11 @@ export const networkModes: NetworkModeConfig[] = [
   {
     id: 'rail',
     name: 'Indian Railways',
-    description: 'National network & Train 17216 Dharmavaram–Machilipatnam corridor',
-    source: 'https://railradar.in/railradar?train=17216',
-    sourceLabel: 'RailRadar train corridor record',
-    center: [79.45, 15.45],
-    zoom: 7.2,
+    description: 'Official GIS track network (2,390 routes, 2,033 junctions) & Train 17216 radar',
+    source: 'DATA_SOURCES.md',
+    sourceLabel: 'Indian Railways GIS Network',
+    center: [78.96, 21.5],
+    zoom: 4.8,
   },
   {
     id: 'suburban',
