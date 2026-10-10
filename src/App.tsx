@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import maplibregl, { type Map } from 'maplibre-gl'
 import { milestones, stations, systems, years, isVisible, type MetroSystemId, type Route, type Station } from './data'
-import { bundledRouteGeometry } from './routeGeometry'
 
 const mapStyle = {
   version: 8 as const,
@@ -21,7 +20,7 @@ function geoJson(items: Route[] | Station[]) {
 
 type OSMFeatureCollection = { type: 'FeatureCollection'; features: { type: 'Feature'; properties: Record<string, string>; geometry: { type: 'LineString'; coordinates: [number, number][] } }[] }
 const osmRouteCache = new globalThis.Map<MetroSystemId, OSMFeatureCollection>()
-const bundledRouteCache = new globalThis.Map<MetroSystemId, OSMFeatureCollection>([['hyderabad', bundledRouteGeometry as unknown as OSMFeatureCollection]])
+const localRouteCache = new globalThis.Map<MetroSystemId, OSMFeatureCollection>()
 
 function emptyRouteCollection(): OSMFeatureCollection {
   return { type: 'FeatureCollection', features: [] }
@@ -30,12 +29,24 @@ function emptyRouteCollection(): OSMFeatureCollection {
 function cachedRouteFeatures(system: MetroSystemId, year: number) {
   const systemInfo = systems.find((item) => item.id === system)
   if (!systemInfo || systemInfo.opened > year) return []
-  return bundledRouteCache.get(system)?.features ?? osmRouteCache.get(system)?.features ?? []
+  return localRouteCache.get(system)?.features ?? osmRouteCache.get(system)?.features ?? []
 }
 
 async function loadOsmRoutes(system: MetroSystemId): Promise<OSMFeatureCollection | null> {
-  const bundled = bundledRouteCache.get(system)
-  if (bundled) return bundled
+  if (system === 'hyderabad') {
+    const local = localRouteCache.get(system)
+    if (local) return local
+    try {
+      const response = await fetch('/data/routes.json', { cache: 'no-store' })
+      if (!response.ok) return null
+      const payload = await response.json() as { features?: OSMFeatureCollection['features'] }
+      const result = { type: 'FeatureCollection' as const, features: payload.features ?? [] }
+      if (result.features.length) localRouteCache.set(system, result)
+      return result.features.length ? result : null
+    } catch {
+      return null
+    }
+  }
   const cached = osmRouteCache.get(system)
   if (cached) return cached
   const systemInfo = systems.find((item) => item.id === system)

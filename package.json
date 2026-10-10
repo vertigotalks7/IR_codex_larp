@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "data:build": "node scripts/build-route-database.mjs"
   },
   "dependencies": {
     "maplibre-gl": "^5.7.0",

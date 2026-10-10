@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-10T23:48:00+05:30 — Add local SQLite route-data pipeline
+
+- Changed: Added a SQLite canonical route database, browser GeoJSON export, `npm run data:build`, and local frontend loading for Hyderabad’s verified HMRL shapes. The map no longer needs a live request to display the bundled Hyderabad geometry.
+- Why: Runtime Overpass requests were unreliable and left the map dependent on external availability.
+- Validation: `npm run data:build` produced three route features; production build run after the architecture change.
+- Limitations: The database currently contains Hyderabad only; the remaining systems still need verified source snapshots added to the same schema.
+
 ## 2026-10-10T23:32:00+05:30 — Remove misleading fallback route lines
 
 - Changed: Added bundled Hyderabad route geometry generated from the public HMRL GTFS feed, changed the map to start with an empty route layer, and removed silent rendering of manual connector paths when OSM geometry is unavailable. Added an explicit unavailable state and warning in the settings rail; added the reproducible GTFS conversion script in `scripts/build-route-geometry.mjs`.

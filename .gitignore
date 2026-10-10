@@ -22,3 +22,5 @@ Thumbs.db
 *.log
 
 # Add entries appropriate to your chosen language or framework.
+
+# Local Stitch credentials and generated route exports are never secrets; keep only the canonical DB/export committed.

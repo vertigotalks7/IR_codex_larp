@@ -34,7 +34,7 @@ The year values in the current sample are network milestone years intended for t
 
 ## Geometry status
 
-Hyderabad now ships with route geometry generated from the published HMRL GTFS `shapes.txt`, joined to `routes.txt` through `trips.txt`. The representative geometry is the longest published shape for each of the three routes and is bundled in `src/routeGeometry.ts`. The source repository documents the required attribution: “Contains data provided by Hyderabad Metro Rail Ltd.”
+Hyderabad now ships with route geometry generated from the published HMRL GTFS `shapes.txt`, joined to `routes.txt` through `trips.txt`. The representative geometry is the longest published shape for each of the three routes. `scripts/build-route-database.mjs` stores those shapes in `data/routes.sqlite` and exports `public/data/routes.json`; the browser loads that local export instead of depending on a live route request. The source repository documents the required attribution: “Contains data provided by Hyderabad Metro Rail Ltd.”
 
 For the remaining systems, the app requests current metro route geometry from OpenStreetMap route relations through the [Overpass API](https://overpass-api.de/). For each selected metro system it queries subway relations within a 30 km radius of the system center and renders the returned way geometries. The query template is:
 
