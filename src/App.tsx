@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { systems, years } from './data'
 import { networkModes, ALL_INDIA_CENTER, ALL_INDIA_ZOOM } from './config/networks'
 import { visibleStationsFor } from './services/transitData'
-import { train17216, type RailwayStationStop } from './data/indianRailways'
 import { nationalCorridors, type RailwayJunction } from './data/nationalRailways'
 import { RAILWAY_ZONES } from './data/railwayZones'
 import { LandingPage } from './components/Landing/LandingPage'
@@ -23,17 +22,12 @@ export default function App() {
   const [system, setSystem] = useState<MetroSystemId | 'all'>('all')
   const [playing, setPlaying] = useState(false)
   const [selectedStation, setSelectedStation] = useState<Station | null>(null)
-  const [selectedRailwayStop, setSelectedRailwayStop] = useState<RailwayStationStop | null>(null)
   const [selectedRailwayJunction, setSelectedRailwayJunction] = useState<RailwayJunction | null>(null)
   const [selectedCorridorId, setSelectedCorridorId] = useState<string>('all')
   const [, setMapReady] = useState(false)
   const [routeStatus, setRouteStatus] = useState<RouteStatus>('loading')
   const [showStations, setShowStations] = useState(true)
   const [showRoutes, setShowRoutes] = useState(true)
-
-  // RailRadar train live tracking state
-  const [trainProgress, setTrainProgress] = useState(0.58)
-  const [isTrainRunning, setIsTrainRunning] = useState(false)
 
   const mapRef = useRef<Map | null>(null)
 
@@ -43,7 +37,7 @@ export default function App() {
 
   const visibleStations = useMemo(() => {
     return visibleStationsFor(system, year)
-  }, [year, system, routeStatus])
+  }, [system, year])
 
   const selectedSystem = systems.find((item) => item.id === system)
   const selectedNetwork = networkModes.find((item) => item.id === network) ?? networkModes[0]
@@ -65,22 +59,9 @@ export default function App() {
     return () => window.clearInterval(timer)
   }, [playing])
 
-  // Live simulation ticker for Indian Railways Train 17216
-  useEffect(() => {
-    if (!isTrainRunning || network !== 'rail') return
-    const interval = window.setInterval(() => {
-      setTrainProgress((prev) => {
-        const next = prev + 0.004
-        return next >= 1 ? 0 : next
-      })
-    }, 500)
-    return () => window.clearInterval(interval)
-  }, [isTrainRunning, network])
-
   const handleNetworkChange = (mode: NetworkMode) => {
     setNetwork(mode)
     setSelectedStation(null)
-    setSelectedRailwayStop(null)
     setSelectedRailwayJunction(null)
     const modeConfig = networkModes.find((item) => item.id === mode)
     if (modeConfig) {
@@ -102,7 +83,6 @@ export default function App() {
 
   const handleCorridorChange = (corridorId: string) => {
     setSelectedCorridorId(corridorId)
-    setSelectedRailwayStop(null)
     setSelectedRailwayJunction(null)
 
     if (corridorId === 'all') {
@@ -132,18 +112,8 @@ export default function App() {
     })
   }
 
-  const handleSelectRailwayStop = (stop: RailwayStationStop) => {
-    setSelectedRailwayStop(stop)
-    setSelectedRailwayJunction(null)
-    mapRef.current?.flyTo({
-      center: stop.coordinates,
-      zoom: 11,
-    })
-  }
-
   const handleSelectRailwayJunction = (junction: RailwayJunction) => {
     setSelectedRailwayJunction(junction)
-    setSelectedRailwayStop(null)
     mapRef.current?.flyTo({
       center: junction.coordinates,
       zoom: 10,
@@ -172,21 +142,20 @@ export default function App() {
           showStations={showStations}
           showRoutes={showRoutes}
           selectedCorridorId={selectedCorridorId}
-          trainProgress={trainProgress}
           onSelectStation={setSelectedStation}
-          onSelectRailwayStop={handleSelectRailwayStop}
           onSelectRailwayJunction={handleSelectRailwayJunction}
           onReady={() => setMapReady(true)}
           onRouteStatus={handleRouteStatus}
         />
 
-        <div className="atlas-title">
+        <div className="atlas-map-caption">
+          <span>{network === 'metro' ? 'Historical Transit Atlas' : 'National Railway GIS Network'}</span>
           <h1>
-            {network === 'rail'
-              ? selectedCorridorId === 'all'
+            {network === 'metro'
+              ? 'India Metro Systems'
+              : network === 'rail'
                 ? 'Indian Railways National Network'
-                : currentCorridor?.name ?? 'Indian Railways Map'
-              : `India ${selectedNetwork.name} Map`}
+                : selectedNetwork.name}
           </h1>
           <p>
             {network === 'metro' ? (
@@ -196,13 +165,25 @@ export default function App() {
             ) : network === 'rail' ? (
               selectedCorridorId === 'all' ? (
                 <>
-                  HDX / OpenStreetMap GIS Track Network <em>· 10 Trunk Corridors (11,000+ km) · 33+ Junctions</em>
+                  Official Indian Railways GIS Network <em>· 2,390 Routes · 2,033 Junctions</em>
                 </>
               ) : (
-                <>
-                  {currentCorridor?.origin} → {currentCorridor?.destination}{' '}
-                  <em>· {currentCorridor?.distanceKm} km · {currentCorridor?.gauge}</em>
-                </>
+                (() => {
+                  const z = RAILWAY_ZONES.find((item) => item.id === selectedCorridorId)
+                  if (z) {
+                    return (
+                      <>
+                        {z.name} <em>· {z.routes} Route Sections · {z.totalKm} km Network</em>
+                      </>
+                    )
+                  }
+                  return (
+                    <>
+                      {currentCorridor?.origin} → {currentCorridor?.destination}{' '}
+                      <em>· {currentCorridor?.distanceKm} km · {currentCorridor?.gauge}</em>
+                    </>
+                  )
+                })()
               )
             ) : (
               selectedNetwork.description
@@ -215,11 +196,6 @@ export default function App() {
           year={year}
           onYearChange={setYear}
           selectedNetwork={selectedNetwork}
-          selectedCorridorId={selectedCorridorId}
-          trainProgress={trainProgress}
-          onTrainProgressChange={setTrainProgress}
-          isTrainRunning={isTrainRunning}
-          onToggleTrainRunning={() => setIsTrainRunning(!isTrainRunning)}
         />
 
         <AtlasLegend network={network} />
@@ -229,7 +205,6 @@ export default function App() {
         network={network}
         system={system}
         selectedStation={selectedStation}
-        selectedRailwayStop={selectedRailwayStop}
         selectedRailwayJunction={selectedRailwayJunction}
         selectedCorridorId={selectedCorridorId}
         selectedNetwork={selectedNetwork}
@@ -237,14 +212,9 @@ export default function App() {
         visibleStationsCount={visibleStations.length}
         showStations={showStations}
         showRoutes={showRoutes}
-        trainProgress={trainProgress}
-        isTrainRunning={isTrainRunning}
-        onToggleTrainRunning={() => setIsTrainRunning(!isTrainRunning)}
-        onTrainProgressChange={setTrainProgress}
         onNetworkChange={handleNetworkChange}
         onSystemChange={handleSystemChange}
         onCorridorChange={handleCorridorChange}
-        onSelectRailwayStop={handleSelectRailwayStop}
         onSelectRailwayJunction={handleSelectRailwayJunction}
         onToggleStations={setShowStations}
         onToggleRoutes={setShowRoutes}
@@ -263,7 +233,7 @@ export default function App() {
       <footer className="atlas-footer">
         Transit Time Machine · India rail overview{' '}
         <span>
-          Track geometry © OpenStreetMap / HDX hotosm_ind_railways ·{' '}
+          Track geometry © Official Indian Railways GIS / OpenStreetMap ·{' '}
           <a
             href="https://data.humdata.org/dataset/hotosm_ind_railways"
             target="_blank"

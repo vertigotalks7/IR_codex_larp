@@ -2,15 +2,12 @@ import { systems } from '../../data'
 import { networkModes } from '../../config/networks'
 import { nationalCorridors, type RailwayJunction } from '../../data/nationalRailways'
 import { RAILWAY_ZONES } from '../../data/railwayZones'
-import { train17216, type RailwayStationStop } from '../../data/indianRailways'
-import { findStopForProgress } from '../../services/railwayService'
 import type { MetroSystemId, NetworkMode, Station, RouteStatus, NetworkModeConfig } from '../../types'
 
 interface AtlasPanelProps {
   network: NetworkMode
   system: MetroSystemId | 'all'
   selectedStation: Station | null
-  selectedRailwayStop: RailwayStationStop | null
   selectedRailwayJunction: RailwayJunction | null
   selectedCorridorId: string
   selectedNetwork: NetworkModeConfig
@@ -18,14 +15,9 @@ interface AtlasPanelProps {
   visibleStationsCount: number
   showStations: boolean
   showRoutes: boolean
-  trainProgress: number
-  isTrainRunning: boolean
-  onToggleTrainRunning: () => void
-  onTrainProgressChange: (progress: number) => void
   onNetworkChange: (mode: NetworkMode) => void
   onSystemChange: (system: MetroSystemId | 'all') => void
   onCorridorChange: (corridorId: string) => void
-  onSelectRailwayStop: (stop: RailwayStationStop) => void
   onSelectRailwayJunction: (junction: RailwayJunction) => void
   onToggleStations: (show: boolean) => void
   onToggleRoutes: (show: boolean) => void
@@ -35,7 +27,6 @@ export function AtlasPanel({
   network,
   system,
   selectedStation,
-  selectedRailwayStop,
   selectedRailwayJunction,
   selectedCorridorId,
   selectedNetwork,
@@ -43,19 +34,12 @@ export function AtlasPanel({
   visibleStationsCount,
   showStations,
   showRoutes,
-  trainProgress,
-  isTrainRunning,
-  onToggleTrainRunning,
-  onTrainProgressChange,
   onNetworkChange,
   onSystemChange,
   onCorridorChange,
-  onSelectRailwayStop,
   onToggleStations,
   onToggleRoutes,
 }: AtlasPanelProps) {
-  const currentProgressSegment = findStopForProgress(trainProgress)
-  const currentKm = Math.round(trainProgress * train17216.distanceKm)
   const currentCorridor = nationalCorridors.find((c) => c.id === selectedCorridorId)
 
   return (
@@ -192,95 +176,6 @@ export function AtlasPanel({
               return null
             })()
           )}
-
-          {/* RailRadar Train 17216 Card */}
-          {(selectedCorridorId === 'all' || selectedCorridorId === 'rayalaseema-scr-dmm-mtm') && (
-            <>
-              <div className="settings-divider" />
-              <div className="panel-close">
-                LIVE TRAIN RADAR (TRAIN 17216) <span>⌃</span>
-              </div>
-              <div className="railway-card">
-                <div className="railway-header">
-                  <span className="railway-badge">{train17216.number} EXP</span>
-                  <span className="railway-status-pill">
-                    <i /> ON TIME
-                  </span>
-                </div>
-                <h3>{train17216.name}</h3>
-                <p>
-                  {train17216.origin} → {train17216.destination}
-                </p>
-
-                <div className="railway-live-metric">
-                  <div>
-                    <strong>{currentKm} km</strong>
-                    <span>COVERED</span>
-                  </div>
-                  <div>
-                    <strong>~74 km/h</strong>
-                    <span>SPEED</span>
-                  </div>
-                  <div>
-                    <strong>{train17216.stops.length}</strong>
-                    <span>HALTS</span>
-                  </div>
-                </div>
-
-                <div className="rail-radar-ctrl">
-                  <div className="rail-radar-actions">
-                    <span>
-                      Next:{' '}
-                      <b>
-                        {currentProgressSegment.nextStop
-                          ? `${currentProgressSegment.nextStop.name} (${currentProgressSegment.nextStop.code})`
-                          : 'Arrived at MTM'}
-                      </b>
-                    </span>
-                    <button onClick={onToggleTrainRunning}>
-                      {isTrainRunning ? 'Ⅱ Pause' : '▶ Track Live'}
-                    </button>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.005"
-                    value={trainProgress}
-                    onChange={(e) => onTrainProgressChange(Number(e.target.value))}
-                    aria-label="Train journey progress"
-                  />
-                </div>
-              </div>
-
-              <div className="panel-close" style={{ marginTop: '10px' }}>
-                STATION TIMETABLE (22 STOPS) <span>⌃</span>
-              </div>
-              <div className="railway-stop-list" role="list">
-                {train17216.stops.map((stop) => {
-                  const isSelected = selectedRailwayStop?.code === stop.code
-                  const isPassed = stop.distanceKm <= currentKm
-                  return (
-                    <button
-                      key={stop.code}
-                      className={`railway-stop-item ${isSelected ? 'active' : ''}`}
-                      onClick={() => onSelectRailwayStop(stop)}
-                      title={`${stop.name} (${stop.code}) - ${stop.arrival} / ${stop.departure}`}
-                    >
-                      <span className="railway-stop-code">
-                        {isPassed ? '✓ ' : ''}
-                        {stop.code}
-                      </span>
-                      <span className="railway-stop-name">{stop.name}</span>
-                      <span className="railway-stop-time">
-                        {stop.arrival === 'Start' ? stop.departure : stop.arrival}
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
-            </>
-          )}
         </>
       )}
 
@@ -323,25 +218,11 @@ export function AtlasPanel({
         <div>
           <strong>
             {network === 'metro'
-              ? routeStatus === 'real'
-                ? 'GTFS'
-                : routeStatus === 'loading'
-                  ? '…'
-                  : '—'
-              : network === 'rail'
-                ? 'GIS/HDX'
-                : 'REF'}
-          </strong>
-          <span>map source</span>
-        </div>
-        <div>
-          <strong>
-            {network === 'metro'
               ? visibleStationsCount
               : network === 'rail'
                 ? selectedCorridorId === 'all'
-                  ? '33+ junc'
-                  : currentCorridor?.majorJunctions.length ?? '—'
+                  ? '2,033'
+                  : 'Junctions'
                 : '—'}
           </strong>
           <span>{network === 'metro' ? 'stations in view' : 'junctions'}</span>
@@ -352,11 +233,11 @@ export function AtlasPanel({
               ? systems.length
               : network === 'rail'
                 ? selectedCorridorId === 'all'
-                  ? '10 lines'
-                  : '1 corridor'
+                  ? '2,390'
+                  : '1 zone'
                 : '1'}
           </strong>
-          <span>{network === 'metro' ? 'systems' : 'rail corridor'}</span>
+          <span>{network === 'metro' ? 'systems' : 'rail routes'}</span>
         </div>
       </div>
 
@@ -406,29 +287,6 @@ export function AtlasPanel({
             rel="noreferrer"
           >
             CRIS / RBS Railway Record ↗
-          </a>
-        </div>
-      )}
-
-      {network === 'rail' && selectedRailwayStop && !selectedRailwayJunction && (
-        <div className="atlas-selection">
-          <small>SELECTED RAILWAY STATION</small>
-          <strong>
-            {selectedRailwayStop.name} ({selectedRailwayStop.code})
-          </strong>
-          <span>
-            Arr: <b>{selectedRailwayStop.arrival}</b> · Dep: <b>{selectedRailwayStop.departure}</b> (Day {selectedRailwayStop.day})
-          </span>
-          <span>
-            Distance: {selectedRailwayStop.distanceKm} km from Dharmavaram · Halt:{' '}
-            {selectedRailwayStop.haltMinutes} min
-          </span>
-          <a
-            href={`https://railradar.in/railradar?train=17216&date=${train17216.date}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            RailRadar live status ↗
           </a>
         </div>
       )}

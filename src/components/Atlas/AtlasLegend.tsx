@@ -28,9 +28,6 @@ export function AtlasLegend({ network }: AtlasLegendProps) {
           <span>
             <i className="legend-dot" /> 2,033 Junction Stations
           </span>
-          <span>
-            <i className="legend-dot train-dot" /> Live Train GPS Marker
-          </span>
           <small>Official Indian Railways GIS (Railway_Network_.geojson)</small>
         </>
       )}

@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T04:20:00+05:30 — Remove legacy Train 17216 radar overlay and clean map view
+
+- Changed: Removed the legacy floating Train 17216 radar card, progress scrubber, and artificial red GPS pulse marker from `AtlasTimeSlider`, `MapView`, `AtlasPanel`, and `AtlasLegend`. The Indian Railways mode now presents an unobstructed, full-screen cartographic atlas of the authentic national GIS track network across all 16 railway zones and 2,033 junctions. `AtlasTimeSlider` now returns null in non-metro modes so that no floating banners obscure the geography or track lines.
+- Why: The floating Train 17216 card and red pulse marker were temporary demo artifacts from an earlier single-corridor test that remained visible over the map after the full national GIS dataset was ingested. The user requested removing this irregularity.
+- Validation: `npm run build` passed (`tsc -b && vite build`) in 4.25s with 50 modules transformed; verified that the map canvas and sidebar are clean and unobstructed in Indian Railways mode; `git diff --check` passed.
+- Limitations: None identified in these checks.
+
 ## 2026-10-11T04:00:00+05:30 — Ingest official Railway_Network_.geojson and build complete Indian Railways GIS network
 
 - Changed: Ingested the official Indian Railways network GIS dataset (`Railway_Network_.geojson`, 83.6 MB) and the HDX OpenStreetMap export (`hotosm_ind_railways_osm_geojson.zip`, 91.9 MB). Built a reproducible data pipeline in `scripts/build-railway-network.mjs` that transforms 119,446 raw GIS track features and 908,000 vertices into 2,390 connected route sections and 2,033 real junction stations. Generated optimized client GeoJSON bundles in `public/data/` (`railway-routes.json`, 6.21 MB and `railway-major-junctions.json`, 0.48 MB) with zone-coded styling, max speeds up to 160 km/h, gauges (Broad, Metre, Narrow), and single/double track lanes. Upgraded `MapView`, `AtlasPanel`, `AtlasHeader`, and `AtlasLegend` to support full national railway network rendering, 16-zone navigation with camera reframing, and interactive segment inspection.

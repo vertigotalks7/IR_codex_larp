@@ -13,14 +13,11 @@ import {
 import {
   getNationalRailwaysTrackGeoJson,
   getNationalRailwaysJunctionsGeoJson,
-  getTrainPositionAtProgress,
-  getTrainMarkerGeoJson,
   findJunctionByCode,
   findCorridorById,
   preloadRailwayData,
   isRailwayDataLoaded,
 } from '../../services/railwayService'
-import { train17216, type RailwayStationStop } from '../../data/indianRailways'
 import type { RailwayJunction } from '../../data/nationalRailways'
 import type { MetroSystemId, NetworkMode, Station, RouteStatus } from '../../types'
 
@@ -35,9 +32,7 @@ interface MapViewProps {
   showStations?: boolean
   showRoutes?: boolean
   selectedCorridorId?: string
-  trainProgress?: number
   onSelectStation: (station: Station) => void
-  onSelectRailwayStop?: (stop: RailwayStationStop) => void
   onSelectRailwayJunction?: (junction: RailwayJunction) => void
   onReady: () => void
   onRouteStatus: (status: RouteStatus) => void
@@ -49,14 +44,12 @@ function addLayers(
   year: number,
   system: MetroSystemId | 'all',
   onSelectStation: (station: Station) => void,
-  onSelectRailwayStop: ((stop: RailwayStationStop) => void) | undefined,
   onSelectRailwayJunction: ((junction: RailwayJunction) => void) | undefined,
   network: NetworkMode,
 ) {
   const visibleStations = network === 'metro' ? visibleStationsFor(system, year) : []
   map.addSource('routes', { type: 'geojson', data: emptyRouteCollection() })
   map.addSource('stations', { type: 'geojson', data: geoJson(visibleStations) })
-  map.addSource('train-marker', { type: 'geojson', data: emptyRouteCollection() })
 
   // Railway & Metro Route Lines
   map.addLayer({
@@ -81,31 +74,6 @@ function addLayers(
       'circle-color': ['coalesce', ['get', 'color'], '#f7f3ea'],
       'circle-stroke-color': '#10283b',
       'circle-stroke-width': 1.5,
-    },
-  })
-
-  // Live Train Radar Pulse Layer (Outer glow)
-  map.addLayer({
-    id: 'train-marker-pulse',
-    type: 'circle',
-    source: 'train-marker',
-    paint: {
-      'circle-radius': 14,
-      'circle-color': '#e11d48',
-      'circle-opacity': 0.35,
-    },
-  })
-
-  // Live Train Radar Dot Layer (Inner marker)
-  map.addLayer({
-    id: 'train-marker-dot',
-    type: 'circle',
-    source: 'train-marker',
-    paint: {
-      'circle-radius': 7,
-      'circle-color': '#e11d48',
-      'circle-stroke-color': '#ffffff',
-      'circle-stroke-width': 2.5,
     },
   })
 
@@ -166,18 +134,12 @@ function addLayers(
     const p = feature?.properties || {}
     const id = p.id || ''
 
-    // Railway Junction / Stop handling
+    // Railway Junction / Station handling
     if (p.kind === 'railway-junction' || id.startsWith('junc-') || id.startsWith('ir-')) {
       const code = p.code ?? id.replace('ir-', '')
-
       const junction = findJunctionByCode(code)
       if (junction) {
         onSelectRailwayJunction?.(junction)
-      }
-
-      const railwayStop = train17216.stops.find((s) => s.code === code)
-      if (railwayStop) {
-        onSelectRailwayStop?.(railwayStop)
       }
 
       new maplibre.Popup({ closeButton: true, offset: 8 })
@@ -204,9 +166,7 @@ export function MapView({
   showStations = true,
   showRoutes = true,
   selectedCorridorId = 'all',
-  trainProgress = 0.58,
   onSelectStation,
-  onSelectRailwayStop,
   onSelectRailwayJunction,
   onReady,
   onRouteStatus,
@@ -215,8 +175,6 @@ export function MapView({
   const hydrateVersion = useRef(0)
   const stationSelectRef = useRef(onSelectStation)
   stationSelectRef.current = onSelectStation
-  const railStopSelectRef = useRef(onSelectRailwayStop)
-  railStopSelectRef.current = onSelectRailwayStop
   const railJunctionSelectRef = useRef(onSelectRailwayJunction)
   railJunctionSelectRef.current = onSelectRailwayJunction
 
@@ -228,7 +186,7 @@ export function MapView({
 
     void loadMapLibre().then((maplibre) => {
       if (!container.current || disposed) return
-      const initialCenter: [number, number] = network === 'rail' ? [79.45, 21.0] : [78.96, 20.59]
+      const initialCenter: [number, number] = network === 'rail' ? [78.96, 21.5] : [78.96, 20.59]
       const initialZoom = network === 'rail' ? 4.8 : 4.5
 
       const createdMap = new maplibre.Map({
@@ -251,7 +209,6 @@ export function MapView({
           year,
           system,
           (station) => stationSelectRef.current(station),
-          (stop) => railStopSelectRef.current?.(stop),
           (junction) => railJunctionSelectRef.current?.(junction),
           network,
         )
@@ -260,7 +217,6 @@ export function MapView({
         if (network === 'rail') {
           const routeSource = createdMap.getSource('routes') as GeoJSONSource | undefined
           const stationSource = createdMap.getSource('stations') as GeoJSONSource | undefined
-          const trainSource = createdMap.getSource('train-marker') as GeoJSONSource | undefined
 
           const applyRail = () => {
             if (routeSource && showRoutes) {
@@ -269,12 +225,6 @@ export function MapView({
             if (stationSource && showStations) {
               stationSource.setData(getNationalRailwaysJunctionsGeoJson(selectedCorridorId))
             }
-
-            if (trainSource && (selectedCorridorId === 'all' || selectedCorridorId === 'rayalaseema-scr-dmm-mtm' || selectedCorridorId === 'South Central Railway')) {
-              const { position, bearing } = getTrainPositionAtProgress(trainProgress)
-              trainSource.setData(getTrainMarkerGeoJson(position, bearing))
-            }
-
             onRouteStatus('real')
           }
 
@@ -324,7 +274,6 @@ export function MapView({
 
     const routeSource = map.getSource('routes') as GeoJSONSource | undefined
     const stationSource = map.getSource('stations') as GeoJSONSource | undefined
-    const trainSource = map.getSource('train-marker') as GeoJSONSource | undefined
 
     if (network === 'rail') {
       const applyRail = () => {
@@ -334,14 +283,6 @@ export function MapView({
         if (stationSource) {
           stationSource.setData(showStations ? getNationalRailwaysJunctionsGeoJson(selectedCorridorId) : emptyRouteCollection())
         }
-
-        if (trainSource && (selectedCorridorId === 'all' || selectedCorridorId === 'rayalaseema-scr-dmm-mtm' || selectedCorridorId === 'South Central Railway')) {
-          const { position, bearing } = getTrainPositionAtProgress(trainProgress)
-          trainSource.setData(getTrainMarkerGeoJson(position, bearing))
-        } else if (trainSource) {
-          trainSource.setData(emptyRouteCollection())
-        }
-
         onRouteStatus('real')
       }
 
@@ -354,11 +295,6 @@ export function MapView({
         })
       }
       return
-    }
-
-    // Non-rail modes: clear train marker
-    if (trainSource) {
-      trainSource.setData(emptyRouteCollection())
     }
 
     if (network !== 'metro') {
@@ -398,7 +334,7 @@ export function MapView({
         }
       })
     }
-  }, [year, system, network, selectedCorridorId, trainProgress, showStations, showRoutes, mapRef, onRouteStatus])
+  }, [year, system, network, selectedCorridorId, showStations, showRoutes, mapRef, onRouteStatus])
 
   return (
     <div
