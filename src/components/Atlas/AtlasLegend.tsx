@@ -32,7 +32,19 @@ export function AtlasLegend({ network }: AtlasLegendProps) {
         </>
       )}
 
-      {network !== 'metro' && network !== 'rail' && (
+      {network === 'suburban' && (
+        <>
+          <span>
+            <i className="legend-line" style={{ background: '#0284c7' }} /> Suburban Rail Corridors
+          </span>
+          <span>
+            <i className="legend-dot" style={{ background: '#0284c7', borderColor: '#0369a1' }} /> 572 Commuter Stations
+          </span>
+          <small>DataMeet Railways & Official IR GIS Alignment</small>
+        </>
+      )}
+
+      {network !== 'metro' && network !== 'rail' && network !== 'suburban' && (
         <>
           <span>
             <i className="legend-line rail" /> Reference-map mode

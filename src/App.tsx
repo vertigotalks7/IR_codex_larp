@@ -4,6 +4,7 @@ import { networkModes, ALL_INDIA_CENTER, ALL_INDIA_ZOOM } from './config/network
 import { visibleStationsFor } from './services/transitData'
 import { nationalCorridors, type RailwayJunction } from './data/nationalRailways'
 import { RAILWAY_ZONES } from './data/railwayZones'
+import { SUBURBAN_DIVISIONS } from './data/suburbanDivisions'
 import { LandingPage } from './components/Landing/LandingPage'
 import { AtlasHeader } from './components/Atlas/AtlasHeader'
 import { AtlasPanel } from './components/Atlas/AtlasPanel'
@@ -24,6 +25,7 @@ export default function App() {
   const [selectedStation, setSelectedStation] = useState<Station | null>(null)
   const [selectedRailwayJunction, setSelectedRailwayJunction] = useState<RailwayJunction | null>(null)
   const [selectedCorridorId, setSelectedCorridorId] = useState<string>('all')
+  const [selectedSuburbanId, setSelectedSuburbanId] = useState<string>('mumbai')
   const [, setMapReady] = useState(false)
   const [routeStatus, setRouteStatus] = useState<RouteStatus>('loading')
   const [showStations, setShowStations] = useState(true)
@@ -63,9 +65,30 @@ export default function App() {
     setNetwork(mode)
     setSelectedStation(null)
     setSelectedRailwayJunction(null)
+    if (mode === 'suburban') {
+      const activeDiv = SUBURBAN_DIVISIONS.find((d) => d.id === selectedSuburbanId)
+      if (activeDiv) {
+        mapRef.current?.flyTo({ center: activeDiv.center, zoom: activeDiv.zoom })
+        return
+      }
+    }
     const modeConfig = networkModes.find((item) => item.id === mode)
     if (modeConfig) {
       mapRef.current?.flyTo({ center: modeConfig.center, zoom: modeConfig.zoom })
+    }
+  }
+
+  const handleSuburbanDivisionChange = (divisionId: string) => {
+    setSelectedSuburbanId(divisionId)
+    setSelectedStation(null)
+    setSelectedRailwayJunction(null)
+    if (divisionId === 'all') {
+      mapRef.current?.flyTo({ center: ALL_INDIA_CENTER, zoom: ALL_INDIA_ZOOM })
+      return
+    }
+    const division = SUBURBAN_DIVISIONS.find((d) => d.id === divisionId)
+    if (division) {
+      mapRef.current?.flyTo({ center: division.center, zoom: division.zoom })
     }
   }
 
@@ -142,6 +165,7 @@ export default function App() {
           showStations={showStations}
           showRoutes={showRoutes}
           selectedCorridorId={selectedCorridorId}
+          selectedSuburbanId={selectedSuburbanId}
           onSelectStation={setSelectedStation}
           onSelectRailwayJunction={handleSelectRailwayJunction}
           onReady={() => setMapReady(true)}
@@ -149,13 +173,26 @@ export default function App() {
         />
 
         <div className="atlas-map-caption">
-          <span>{network === 'metro' ? 'Historical Transit Atlas' : 'National Railway GIS Network'}</span>
+          <span>
+            {network === 'metro'
+              ? 'Historical Transit Atlas'
+              : network === 'rail'
+                ? 'National Railway GIS Network'
+                : network === 'suburban'
+                  ? 'Suburban Commuter Transit Network'
+                  : 'Reference Transit Network'}
+          </span>
           <h1>
             {network === 'metro'
               ? 'India Metro Systems'
               : network === 'rail'
                 ? 'Indian Railways National Network'
-                : selectedNetwork.name}
+                : network === 'suburban'
+                  ? (() => {
+                      const activeDiv = SUBURBAN_DIVISIONS.find((d) => d.id === selectedSuburbanId)
+                      return activeDiv ? activeDiv.name : 'Indian Suburban Railway Network'
+                    })()
+                  : selectedNetwork.name}
           </h1>
           <p>
             {network === 'metro' ? (
@@ -185,6 +222,22 @@ export default function App() {
                   )
                 })()
               )
+            ) : network === 'suburban' ? (
+              (() => {
+                const activeDiv = SUBURBAN_DIVISIONS.find((d) => d.id === selectedSuburbanId)
+                if (activeDiv) {
+                  return (
+                    <>
+                      {activeDiv.operator} <em>· {activeDiv.dailyRidership} Daily Riders · {activeDiv.routeKm} km Route</em>
+                    </>
+                  )
+                }
+                return (
+                  <>
+                    All 6 Major Suburban Divisions <em>· 572 Commuter Stations · 201 Route Sections</em>
+                  </>
+                )
+              })()
             ) : (
               selectedNetwork.description
             )}
@@ -207,6 +260,7 @@ export default function App() {
         selectedStation={selectedStation}
         selectedRailwayJunction={selectedRailwayJunction}
         selectedCorridorId={selectedCorridorId}
+        selectedSuburbanId={selectedSuburbanId}
         selectedNetwork={selectedNetwork}
         routeStatus={routeStatus}
         visibleStationsCount={visibleStations.length}
@@ -215,6 +269,7 @@ export default function App() {
         onNetworkChange={handleNetworkChange}
         onSystemChange={handleSystemChange}
         onCorridorChange={handleCorridorChange}
+        onSuburbanDivisionChange={handleSuburbanDivisionChange}
         onSelectRailwayJunction={handleSelectRailwayJunction}
         onToggleStations={setShowStations}
         onToggleRoutes={setShowRoutes}

@@ -17,6 +17,10 @@ import {
   findCorridorById,
   preloadRailwayData,
   isRailwayDataLoaded,
+  preloadSuburbanData,
+  isSuburbanDataLoaded,
+  getSuburbanTracksGeoJson,
+  getSuburbanStationsGeoJson,
 } from '../../services/railwayService'
 import type { RailwayJunction } from '../../data/nationalRailways'
 import type { MetroSystemId, NetworkMode, Station, RouteStatus } from '../../types'
@@ -32,6 +36,7 @@ interface MapViewProps {
   showStations?: boolean
   showRoutes?: boolean
   selectedCorridorId?: string
+  selectedSuburbanId?: string
   onSelectStation: (station: Station) => void
   onSelectRailwayJunction?: (junction: RailwayJunction) => void
   onReady: () => void
@@ -87,8 +92,27 @@ function addLayers(
     const feature = event.features?.[0]
     if (!feature) return
 
+    const isSuburban =
+      feature.properties?.system === 'suburban' || feature.properties?.kind === 'suburban-rail'
     const isRailway = feature.properties?.system === 'rail'
     let content = `<strong>${feature.properties?.name}</strong><br/><span>Route history available in the source record.</span>`
+
+    if (isSuburban) {
+      const p = feature.properties || {}
+      content =
+        `<strong>${p.name || 'Suburban Rail Track'}</strong><br/>` +
+        `<span>${p.divisionName || 'Suburban Network'}</span><br/>` +
+        `<small>Zone: <b>${p.zone || 'Indian Railways'}</b> · Gauge: <b>${p.gauge || 'Broad Gauge'}</b><br/>` +
+        `Track: ${p.lanes === 4 ? 'Quadruple Track (4 Lines)' : p.lanes === 2 ? 'Double Line' : 'Single Line'} ${p.bridge ? '· Bridge' : ''} ${p.tunnel ? '· Tunnel' : ''}<br/>` +
+        `Speed Limit: <b>${p.speed || 100} km/h</b> · Length: <b>${p.length || '—'} km</b><br/>` +
+        `Source: DataMeet Railways & Official IR GIS Alignment</small>`
+
+      new maplibre.Popup({ closeButton: true, offset: 8 })
+        .setLngLat(event.lngLat)
+        .setHTML(content)
+        .addTo(map)
+      return
+    }
 
     if (isRailway) {
       const p = feature.properties || {}
@@ -134,6 +158,21 @@ function addLayers(
     const p = feature?.properties || {}
     const id = p.id || ''
 
+    // Suburban Commuter Station handling
+    if (p.kind === 'suburban-station') {
+      new maplibre.Popup({ closeButton: true, offset: 8 })
+        .setLngLat(event.lngLat)
+        .setHTML(
+          `<strong>${p.name} (${p.code})</strong><br/>` +
+            `<span>${p.divisionName || 'Suburban Rail'} · ${p.divisionCity || p.state || 'India'}</span><br/>` +
+            `<small>Zone: <b>${p.zone} (${p.zoneCode || ''})</b> · ${p.isJunction ? 'Type: <b>Junction / Terminal</b><br/>' : 'Type: <b>Commuter Station</b><br/>'}` +
+            `${p.address ? `Address: <b>${p.address}</b><br/>` : ''}` +
+            `Source: CRIS Code Reference & DataMeet</small>`,
+        )
+        .addTo(map)
+      return
+    }
+
     // Railway Junction / Station handling
     if (p.kind === 'railway-junction' || id.startsWith('junc-') || id.startsWith('ir-')) {
       const code = p.code ?? id.replace('ir-', '')
@@ -166,6 +205,7 @@ export function MapView({
   showStations = true,
   showRoutes = true,
   selectedCorridorId = 'all',
+  selectedSuburbanId = 'mumbai',
   onSelectStation,
   onSelectRailwayJunction,
   onReady,
@@ -186,8 +226,9 @@ export function MapView({
 
     void loadMapLibre().then((maplibre) => {
       if (!container.current || disposed) return
-      const initialCenter: [number, number] = network === 'rail' ? [78.96, 21.5] : [78.96, 20.59]
-      const initialZoom = network === 'rail' ? 4.8 : 4.5
+      const initialCenter: [number, number] =
+        network === 'rail' ? [78.96, 21.5] : network === 'suburban' ? [72.88, 19.08] : [78.96, 20.59]
+      const initialZoom = network === 'rail' ? 4.8 : network === 'suburban' ? 9.5 : 4.5
 
       const createdMap = new maplibre.Map({
         container: container.current,
@@ -234,6 +275,31 @@ export function MapView({
             onRouteStatus('loading')
             preloadRailwayData().then(() => {
               applyRail()
+            })
+          }
+          return
+        }
+
+        if (network === 'suburban') {
+          const routeSource = createdMap.getSource('routes') as GeoJSONSource | undefined
+          const stationSource = createdMap.getSource('stations') as GeoJSONSource | undefined
+
+          const applySuburban = () => {
+            if (routeSource && showRoutes) {
+              routeSource.setData(getSuburbanTracksGeoJson(selectedSuburbanId))
+            }
+            if (stationSource && showStations) {
+              stationSource.setData(getSuburbanStationsGeoJson(selectedSuburbanId))
+            }
+            onRouteStatus('real')
+          }
+
+          if (isSuburbanDataLoaded()) {
+            applySuburban()
+          } else {
+            onRouteStatus('loading')
+            preloadSuburbanData().then(() => {
+              applySuburban()
             })
           }
           return
@@ -297,6 +363,28 @@ export function MapView({
       return
     }
 
+    if (network === 'suburban') {
+      const applySuburban = () => {
+        if (routeSource) {
+          routeSource.setData(showRoutes ? getSuburbanTracksGeoJson(selectedSuburbanId) : emptyRouteCollection())
+        }
+        if (stationSource) {
+          stationSource.setData(showStations ? getSuburbanStationsGeoJson(selectedSuburbanId) : emptyRouteCollection())
+        }
+        onRouteStatus('real')
+      }
+
+      if (isSuburbanDataLoaded()) {
+        applySuburban()
+      } else {
+        onRouteStatus('loading')
+        preloadSuburbanData().then(() => {
+          applySuburban()
+        })
+      }
+      return
+    }
+
     if (network !== 'metro') {
       ++hydrateVersion.current
       routeSource?.setData(emptyRouteCollection())
@@ -334,7 +422,7 @@ export function MapView({
         }
       })
     }
-  }, [year, system, network, selectedCorridorId, showStations, showRoutes, mapRef, onRouteStatus])
+  }, [year, system, network, selectedCorridorId, selectedSuburbanId, showStations, showRoutes, mapRef, onRouteStatus])
 
   return (
     <div

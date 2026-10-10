@@ -22,11 +22,11 @@ export const networkModes: NetworkModeConfig[] = [
   {
     id: 'suburban',
     name: 'Suburban Rail',
-    description: 'Commuter networks and city rail references',
-    source: 'https://irfca.org/faq/faq-map-suburban.html',
-    sourceLabel: 'Suburban route maps',
+    description: '6 Commuter networks (572 stations, 201 routes) across Mumbai, Kolkata, Chennai, Delhi NCR, Hyderabad & Pune',
+    source: 'https://github.com/datameet/railways',
+    sourceLabel: 'DataMeet Railways & CRIS Reference',
     center: [72.88, 19.08],
-    zoom: 8.5,
+    zoom: 9.8,
   },
   {
     id: 'nhsrcl',

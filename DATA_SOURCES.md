@@ -83,6 +83,17 @@ The Indian Railways network layer uses real spatial geometry and station junctio
 9. **Southern Mainline (`MAS-TVC`)**: 920 km corridor via Katpadi, Jolarpettai, Salem, Erode, Coimbatore, Palakkad, Thrissur, Ernakulam (Kochi), Kollam, and Thiruvananthapuram.
 10. **Northern Trunk (`NDLS-ASR`)**: 448 km mainline via Panipat, Ambala Cantt, Ludhiana, Jalandhar, and Amritsar.
 
+### Suburban Rail Networks & DataMeet Station Catalog:
+- **DataMeet Railways Repository**: Sourced from [datameet/railways](https://github.com/datameet/railways) (`stations.json`, 1.82 MB and `trains.json`, 14.42 MB). Contains 8,990 standard Indian Railways stations cross-referenced with official Centre for Railway Information Systems (CRIS) alpha codes, English station names, zonal designations, state affiliations, and city addresses.
+- **Cross-Verification with Network GIS**: Cross-referenced DataMeet station records against `Railway_Network_.geojson` (2,033 major junctions) and the national OSM export (9,317 railway features). Extracted 8,697 validated stations within India's spatial bounding box (`public/data/railway-stations-datameet.json`, 2.26 MB) and 402 major junction hubs (`public/data/railway-junctions-datameet.json`).
+- **6 Populated Suburban Rail Divisions**: Extracted 201 authentic suburban track routes (`public/data/suburban-routes.json`, 0.29 MB) and 572 commuter stations (`public/data/suburban-stations.json`, 0.21 MB) across 6 major Indian metropolitan areas:
+  1. **Mumbai Suburban Railway** (Central Railway & Western Railway): 465 route-km, 7.5M+ daily ridership, 25 kV AC OHE. Covers Western Line, Central Main Line, Harbour Line, Trans-Harbour Line, and Nerul-Uran Line.
+  2. **Kolkata Suburban Railway** (Eastern Railway & South Eastern Railway): 1,501 route-km, 3.5M+ daily ridership, 25 kV AC OHE. Covers Howrah Division (Main & Chord), Sealdah Division (North & South), and Circular Railway.
+  3. **Chennai Suburban Railway** (Southern Railway): 212 route-km, 1.2M+ daily ridership, 25 kV AC OHE. Covers South Line (Beach–Chengalpattu), West Line (Central–Arakkonam), North Line (Central–Gummidipoondi), and MRTS (Beach–Velachery).
+  4. **Delhi NCR Suburban / EMU Network** (Northern Railway): 340 route-km, 350k+ daily ridership, 25 kV AC OHE. Covers Delhi Ring Railway, Delhi–Ghaziabad–Aligarh, Delhi–Panipat, Delhi–Palwal, and Delhi–Rohtak.
+  5. **Hyderabad MMTS** (South Central Railway): 50 route-km, 160k+ daily ridership, 25 kV AC OHE. Covers Falaknuma–Secunderabad–Lingampalli, Hyderabad–Lingampalli, and Secunderabad–Bolarum–Medchal.
+  6. **Pune Suburban Railway** (Central Railway): 63 route-km, 100k+ daily ridership, 25 kV AC OHE. Covers Pune–Shivajinagar–Chinchwad–Talegaon–Lonavala corridor.
+
 High-speed rail will start with the Mumbai–Ahmedabad corridor only after a source-reviewed project geometry is added from [NHSRCL feasibility material](https://nhsrcl.in/en/project/feasibility-study-report). Other corridors are status records only until official alignments are published. The complete data contract and source priority are in [ATLAS_ARCHITECTURE.md](ATLAS_ARCHITECTURE.md).
 
 ## Kochi Metro source status

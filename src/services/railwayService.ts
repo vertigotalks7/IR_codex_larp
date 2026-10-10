@@ -1,5 +1,6 @@
 import { nationalCorridors, nationalJunctions, type RailwayCorridor, type RailwayJunction } from '../data/nationalRailways'
 import { train17216, type RailwayStationStop, type TrainService } from '../data/indianRailways'
+import { SUBURBAN_DIVISIONS, type SuburbanDivision } from '../data/suburbanDivisions'
 import type { RailwayMeta } from '../types'
 
 let cachedRoutesGeoJson: any | null = null
@@ -302,4 +303,117 @@ export function findJunctionByCode(code: string): RailwayJunction | undefined {
 }
 export function findCorridorById(id: string): RailwayCorridor | undefined {
   return nationalCorridors.find((c) => c.id === id)
+}
+
+let cachedSuburbanRoutesGeoJson: any | null = null
+let cachedSuburbanStationsGeoJson: any | null = null
+let isSuburbanPreloading = false
+
+let cachedDatameetStationsGeoJson: any | null = null
+let isDatameetPreloading = false
+
+export async function preloadSuburbanData(): Promise<{
+  routes: any
+  stations: any
+}> {
+  if (cachedSuburbanRoutesGeoJson && cachedSuburbanStationsGeoJson) {
+    return { routes: cachedSuburbanRoutesGeoJson, stations: cachedSuburbanStationsGeoJson }
+  }
+
+  if (isSuburbanPreloading) {
+    await new Promise((r) => setTimeout(r, 200))
+    if (cachedSuburbanRoutesGeoJson && cachedSuburbanStationsGeoJson) {
+      return { routes: cachedSuburbanRoutesGeoJson, stations: cachedSuburbanStationsGeoJson }
+    }
+  }
+
+  isSuburbanPreloading = true
+  try {
+    const [routesRes, stationsRes] = await Promise.all([
+      fetch('/data/suburban-routes.json'),
+      fetch('/data/suburban-stations.json'),
+    ])
+
+    if (routesRes.ok) {
+      cachedSuburbanRoutesGeoJson = await routesRes.json()
+    }
+    if (stationsRes.ok) {
+      cachedSuburbanStationsGeoJson = await stationsRes.json()
+    }
+  } catch (err) {
+    console.warn('Failed to load Suburban Rail data', err)
+  } finally {
+    isSuburbanPreloading = false
+  }
+
+  return {
+    routes: cachedSuburbanRoutesGeoJson || { type: 'FeatureCollection', features: [] },
+    stations: cachedSuburbanStationsGeoJson || { type: 'FeatureCollection', features: [] },
+  }
+}
+
+export function isSuburbanDataLoaded(): boolean {
+  return cachedSuburbanRoutesGeoJson !== null && cachedSuburbanStationsGeoJson !== null
+}
+
+export function getSuburbanTracksGeoJson(divisionId: string = 'all') {
+  if (!cachedSuburbanRoutesGeoJson) {
+    return { type: 'FeatureCollection' as const, features: [] }
+  }
+
+  let features = cachedSuburbanRoutesGeoJson.features as any[]
+  if (divisionId !== 'all') {
+    features = features.filter((f) => f.properties?.divisionId === divisionId)
+  }
+
+  return {
+    type: 'FeatureCollection' as const,
+    name: 'Indian_Suburban_Railway_Network_GIS',
+    features,
+  }
+}
+
+export function getSuburbanStationsGeoJson(divisionId: string = 'all') {
+  if (!cachedSuburbanStationsGeoJson) {
+    return { type: 'FeatureCollection' as const, features: [] }
+  }
+
+  let features = cachedSuburbanStationsGeoJson.features as any[]
+  if (divisionId !== 'all') {
+    features = features.filter((f) => f.properties?.divisionId === divisionId)
+  }
+
+  return {
+    type: 'FeatureCollection' as const,
+    name: 'Indian_Suburban_Railway_Stations',
+    features,
+  }
+}
+
+export function getSuburbanDivisions(): SuburbanDivision[] {
+  return SUBURBAN_DIVISIONS
+}
+
+export function findSuburbanDivisionById(id: string): SuburbanDivision | undefined {
+  return SUBURBAN_DIVISIONS.find((d) => d.id === id)
+}
+
+export async function preloadDatameetStations(): Promise<any> {
+  if (cachedDatameetStationsGeoJson) return cachedDatameetStationsGeoJson
+  if (isDatameetPreloading) {
+    await new Promise((r) => setTimeout(r, 200))
+    if (cachedDatameetStationsGeoJson) return cachedDatameetStationsGeoJson
+  }
+  isDatameetPreloading = true
+  try {
+    const res = await fetch('/data/railway-stations-datameet.json')
+    if (res.ok) {
+      cachedDatameetStationsGeoJson = await res.json()
+    }
+  } catch (err) {
+    console.warn('Failed to load DataMeet station catalog', err)
+  } finally {
+    isDatameetPreloading = false
+  }
+  return cachedDatameetStationsGeoJson || { type: 'FeatureCollection', features: [] }
 }

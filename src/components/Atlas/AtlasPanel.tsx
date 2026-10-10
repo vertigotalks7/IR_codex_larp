@@ -2,6 +2,7 @@ import { systems } from '../../data'
 import { networkModes } from '../../config/networks'
 import { nationalCorridors, type RailwayJunction } from '../../data/nationalRailways'
 import { RAILWAY_ZONES } from '../../data/railwayZones'
+import { SUBURBAN_DIVISIONS } from '../../data/suburbanDivisions'
 import type { MetroSystemId, NetworkMode, Station, RouteStatus, NetworkModeConfig } from '../../types'
 
 interface AtlasPanelProps {
@@ -10,6 +11,7 @@ interface AtlasPanelProps {
   selectedStation: Station | null
   selectedRailwayJunction: RailwayJunction | null
   selectedCorridorId: string
+  selectedSuburbanId?: string
   selectedNetwork: NetworkModeConfig
   routeStatus: RouteStatus
   visibleStationsCount: number
@@ -18,6 +20,7 @@ interface AtlasPanelProps {
   onNetworkChange: (mode: NetworkMode) => void
   onSystemChange: (system: MetroSystemId | 'all') => void
   onCorridorChange: (corridorId: string) => void
+  onSuburbanDivisionChange?: (divisionId: string) => void
   onSelectRailwayJunction: (junction: RailwayJunction) => void
   onToggleStations: (show: boolean) => void
   onToggleRoutes: (show: boolean) => void
@@ -29,6 +32,7 @@ export function AtlasPanel({
   selectedStation,
   selectedRailwayJunction,
   selectedCorridorId,
+  selectedSuburbanId = 'mumbai',
   selectedNetwork,
   routeStatus,
   visibleStationsCount,
@@ -37,6 +41,7 @@ export function AtlasPanel({
   onNetworkChange,
   onSystemChange,
   onCorridorChange,
+  onSuburbanDivisionChange,
   onToggleStations,
   onToggleRoutes,
 }: AtlasPanelProps) {
@@ -179,7 +184,105 @@ export function AtlasPanel({
         </>
       )}
 
-      {network !== 'metro' && network !== 'rail' && (
+      {network === 'suburban' && (
+        <>
+          <div className="panel-close">
+            SUBURBAN DIVISIONS (COMMUTER NETWORKS) <span>⌃</span>
+          </div>
+          <div className="system-filter atlas-systems" role="tablist" aria-label="Filter suburban division">
+            <button
+              className={selectedSuburbanId === 'all' ? 'active' : ''}
+              onClick={() => onSuburbanDivisionChange?.('all')}
+            >
+              <i style={{ background: '#0284c7' }} />
+              All Divisions
+              <small>6 networks</small>
+            </button>
+            {SUBURBAN_DIVISIONS.map((d) => (
+              <button
+                key={d.id}
+                className={selectedSuburbanId === d.id ? 'active' : ''}
+                onClick={() => onSuburbanDivisionChange?.(d.id)}
+              >
+                <i style={{ background: d.color }} />
+                {d.shortName}
+                <small>{d.dailyRidership}</small>
+              </button>
+            ))}
+          </div>
+
+          {(() => {
+            const activeDivision = SUBURBAN_DIVISIONS.find((d) => d.id === selectedSuburbanId)
+            if (activeDivision) {
+              return (
+                <div className="railway-card" style={{ marginTop: '8px' }}>
+                  <div className="railway-header">
+                    <span className="railway-badge" style={{ background: activeDivision.color, color: '#fff' }}>
+                      {activeDivision.city.toUpperCase()}
+                    </span>
+                    <span style={{ fontSize: '10px', color: '#6d2f2b', fontWeight: 600 }}>
+                      {activeDivision.routeKm} KM ROUTE
+                    </span>
+                  </div>
+                  <h3 style={{ fontSize: '14px' }}>{activeDivision.name}</h3>
+                  <p style={{ fontSize: '11px', color: '#453a2f', margin: '4px 0' }}>
+                    <b>Operator:</b> {activeDivision.operator}
+                  </p>
+                  <div className="railway-live-metric" style={{ marginTop: '6px' }}>
+                    <div>
+                      <strong>{activeDivision.dailyRidership}</strong>
+                      <span>DAILY RIDERS</span>
+                    </div>
+                    <div>
+                      <strong>{activeDivision.routeKm} km</strong>
+                      <span>ROUTE-KM</span>
+                    </div>
+                    <div>
+                      <strong>{activeDivision.lines.length}</strong>
+                      <span>MAIN LINES</span>
+                    </div>
+                  </div>
+                  <div style={{ marginTop: '6px', fontSize: '10px', color: '#594d3f' }}>
+                    <b>Key Lines:</b> {activeDivision.lines.join(' · ')}
+                  </div>
+                  <p style={{ fontSize: '10px', color: '#786751', marginTop: '6px' }}>
+                    Traction: <b>{activeDivision.electrification}</b> · Gauge: <b>{activeDivision.gauge}</b><br/>
+                    Source: DataMeet Railways & CRIS Station Directory
+                  </p>
+                </div>
+              )
+            }
+            return (
+              <div className="railway-card" style={{ marginTop: '8px' }}>
+                <div className="railway-header">
+                  <span className="railway-badge" style={{ background: '#0284c7', color: '#fff' }}>ALL INDIA</span>
+                  <span style={{ fontSize: '10px', color: '#6d2f2b', fontWeight: 600 }}>6 DIVISIONS</span>
+                </div>
+                <h3 style={{ fontSize: '14px' }}>National Suburban Commuter Networks</h3>
+                <div className="railway-live-metric" style={{ marginTop: '6px' }}>
+                  <div>
+                    <strong>12.8M+</strong>
+                    <span>DAILY RIDERS</span>
+                  </div>
+                  <div>
+                    <strong>2,631 km</strong>
+                    <span>TOTAL ROUTE</span>
+                  </div>
+                  <div>
+                    <strong>572</strong>
+                    <span>STATIONS</span>
+                  </div>
+                </div>
+                <p style={{ fontSize: '10px', color: '#786751', marginTop: '6px' }}>
+                  Mumbai (CR/WR), Kolkata (ER/SER), Chennai (SR), Delhi NCR (NR), Hyderabad MMTS (SCR), and Pune (CR).
+                </p>
+              </div>
+            )
+          })()}
+        </>
+      )}
+
+      {network !== 'metro' && network !== 'rail' && network !== 'suburban' && (
         <div className="network-reference">
           <small>{selectedNetwork.description}</small>
           <p>
@@ -223,9 +326,19 @@ export function AtlasPanel({
                 ? selectedCorridorId === 'all'
                   ? '2,033'
                   : 'Junctions'
-                : '—'}
+                : network === 'suburban'
+                  ? '572'
+                  : '—'}
           </strong>
-          <span>{network === 'metro' ? 'stations in view' : 'junctions'}</span>
+          <span>
+            {network === 'metro'
+              ? 'stations in view'
+              : network === 'rail'
+                ? 'junctions'
+                : network === 'suburban'
+                  ? 'commuter stations'
+                  : 'stations'}
+          </span>
         </div>
         <div>
           <strong>
@@ -235,9 +348,21 @@ export function AtlasPanel({
                 ? selectedCorridorId === 'all'
                   ? '2,390'
                   : '1 zone'
-                : '1'}
+                : network === 'suburban'
+                  ? selectedSuburbanId === 'all'
+                    ? '201'
+                    : '1 division'
+                  : '1'}
           </strong>
-          <span>{network === 'metro' ? 'systems' : 'rail routes'}</span>
+          <span>
+            {network === 'metro'
+              ? 'systems'
+              : network === 'rail'
+                ? 'rail routes'
+                : network === 'suburban'
+                  ? 'suburban routes'
+                  : 'networks'}
+          </span>
         </div>
       </div>
 

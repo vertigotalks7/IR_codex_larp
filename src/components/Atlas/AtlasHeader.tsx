@@ -17,7 +17,9 @@ export function AtlasHeader({ onGoLanding, selectedNetwork, network, routeStatus
           : 'route geometry unavailable'
       : network === 'rail'
         ? 'Official Indian Railways GIS network · 2,390 routes · 2,033 junctions across 16 zones'
-        : 'reference mode · reviewed geometry pending'
+        : network === 'suburban'
+          ? '6 Suburban Divisions · 572 commuter stations · Mumbai, Kolkata, Chennai, Delhi NCR, Hyderabad & Pune'
+          : 'reference mode · reviewed geometry pending'
 
   return (
     <header className="atlas-topbar">
