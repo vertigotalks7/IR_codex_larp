@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T01:36:00+05:30 — Make route rendering local and reproducible
+
+- Changed: Removed runtime Overpass route retrieval from the map. Only reviewed local route snapshots now render, and systems without a snapshot explicitly show an unavailable state.
+- Why: A live third-party query can fail, drift over time, or return incomplete geometry. It cannot meet the atlas’s source-snapshot and historical-audit standard.
+- Validation: `npm run build` and `git diff --check` passed.
+- Limitations: Delhi, Kochi, Mumbai, and Pune require reviewed local source snapshots before their route lines can render.
+
 ## 2026-10-11T01:20:00+05:30 — Add atlas landing shell and national rail data architecture
 
 - Changed: Added a landing-page-first product shell with honest Metro, Indian Railways, and High-Speed Rail entry states; documented the national source hierarchy and data contract; extended the SQLite schema for sources, infrastructure segments, historical events, projects, and services.

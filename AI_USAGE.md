@@ -23,6 +23,7 @@ Codex contributed the first implementation milestone. Human review of the visual
 | 2026-10-11T00:42:00+05:30 | Codex | Fix database integrity and vintage visual system | Committed the source snapshots, added stop-times-based station line membership, made data rebuilds self-contained, updated station details, and applied the vintage railway-atlas skin. | Pending human visual review of the new palette and interaction states. | `npm run data:build` produced 14 route shapes and 181 stations; `npm run build` passed. |
 | 2026-10-11T00:58:00+05:30 | Codex | Fix route switching behavior | Added versioned async hydration so stale route requests cannot overwrite the selected metro’s map layer. | Pending human verification by switching systems rapidly. | `npm run build` and `git diff --check` passed. |
 | 2026-10-11T01:20:00+05:30 | Codex with three Terra research agents | Plan the national rail expansion | Added landing-page shell and documented source hierarchy/data model for metro history, national rail, and high-speed projects; prepared SQLite tables for future verified records. | Pending review of source licensing and expansion order. | `npm run data:build`, `npm run build`, and `git diff --check` passed. |
+| 2026-10-11T01:36:00+05:30 | Codex | Remove nondeterministic route fallback | Replaced runtime Overpass route loading with reviewed local route snapshots only and recorded Kochi’s official GTFS availability/status. | Pending source-package retrieval for four metros. | `npm run build` and `git diff --check` passed. |
 
 ## Template preparation
 

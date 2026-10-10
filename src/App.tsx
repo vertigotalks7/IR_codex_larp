@@ -21,7 +21,6 @@ function geoJson(items: Route[] | Station[]) {
 type OSMFeatureCollection = { type: 'FeatureCollection'; features: { type: 'Feature'; properties: Record<string, string>; geometry: { type: 'LineString'; coordinates: [number, number][] } }[] }
 type LocalStationFeature = { type: 'Feature'; properties: Record<string, string>; geometry: { type: 'Point'; coordinates: [number, number] } }
 type LocalTransitData = { features: OSMFeatureCollection['features']; stations: LocalStationFeature[] }
-const osmRouteCache = new globalThis.Map<MetroSystemId, OSMFeatureCollection>()
 const localRouteCache = new globalThis.Map<MetroSystemId, OSMFeatureCollection>()
 const localStationCache = new globalThis.Map<MetroSystemId, Station[]>()
 let localTransitDataPromise: Promise<LocalTransitData | null> | null = null
@@ -33,7 +32,7 @@ function emptyRouteCollection(): OSMFeatureCollection {
 function cachedRouteFeatures(system: MetroSystemId, year: number) {
   const systemInfo = systems.find((item) => item.id === system)
   if (!systemInfo || systemInfo.opened > year) return []
-  return localRouteCache.get(system)?.features ?? osmRouteCache.get(system)?.features ?? []
+  return localRouteCache.get(system)?.features ?? []
 }
 
 function visibleStationsFor(system: MetroSystemId | 'all', year: number) {
@@ -69,40 +68,16 @@ async function loadLocalTransitData() {
   return localTransitDataPromise
 }
 
-async function loadOsmRoutes(system: MetroSystemId): Promise<OSMFeatureCollection | null> {
+async function loadBundledRoutes(system: MetroSystemId): Promise<OSMFeatureCollection | null> {
   await loadLocalTransitData()
   const local = localRouteCache.get(system)
   if (local) return local
-  const cached = osmRouteCache.get(system)
-  if (cached) return cached
-  const systemInfo = systems.find((item) => item.id === system)
-  if (!systemInfo) return null
-  const [longitude, latitude] = systemInfo.center
-  const query = `[out:json][timeout:30];relation["route"="subway"](around:30000,${latitude},${longitude});out body geom;`
-  const controller = new AbortController()
-  const timeout = window.setTimeout(() => controller.abort(), 20000)
-  try {
-    const response = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`, { signal: controller.signal })
-    if (!response.ok) return null
-    const payload = await response.json() as { elements?: { id: number; tags?: Record<string, string>; members?: { type: string; geometry?: { lon: number; lat: number }[] }[] }[] }
-    const features = (payload.elements ?? []).flatMap((relation) => (relation.members ?? []).filter((member) => member.type === 'way' && member.geometry && member.geometry.length > 1).map((member) => ({
-      type: 'Feature' as const,
-      properties: { id: String(relation.id), name: relation.tags?.name ?? relation.tags?.ref ?? 'Metro route', color: relation.tags?.colour ?? systemInfo.color, system },
-      geometry: { type: 'LineString' as const, coordinates: member.geometry!.map((point) => [point.lon, point.lat] as [number, number]) },
-    })))
-    const result = { type: 'FeatureCollection' as const, features }
-    if (features.length) osmRouteCache.set(system, result)
-    return features.length ? result : null
-  } catch {
-    return null
-  } finally {
-    window.clearTimeout(timeout)
-  }
+  return null
 }
 
-async function hydrateMapWithOsmRoutes(map: Map, system: MetroSystemId | 'all', year: number, isCurrent: () => boolean = () => true) {
+async function hydrateMapWithBundledRoutes(map: Map, system: MetroSystemId | 'all', year: number, isCurrent: () => boolean = () => true) {
   const systemsToLoad = system === 'all' ? systems : systems.filter((item) => item.id === system)
-  const datasets = await Promise.all(systemsToLoad.map((item) => loadOsmRoutes(item.id)))
+  const datasets = await Promise.all(systemsToLoad.map((item) => loadBundledRoutes(item.id)))
   if (!isCurrent()) return 0
   const features = datasets.flatMap((dataset, index) => systemsToLoad[index].opened <= year ? dataset?.features ?? [] : [])
   const source = map.getSource('routes') as maplibregl.GeoJSONSource | undefined
@@ -140,7 +115,7 @@ function MapView({ year, system, mapRef, onSelectStation, onReady, onRouteStatus
     const map = new maplibregl.Map({ container: container.current, style: mapStyle, center: [78.96, 20.59], zoom: 4.5, minZoom: 3.5, maxZoom: 14 })
     mapRef.current = map
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right')
-    map.on('load', async () => { addLayers(map, year, system, onSelectStation); onReady(); onRouteStatus('loading'); const version = ++hydrateVersion.current; const loaded = await hydrateMapWithOsmRoutes(map, system, year, () => hydrateVersion.current === version); if (hydrateVersion.current === version) onRouteStatus(loaded ? 'real' : 'unavailable') })
+    map.on('load', async () => { addLayers(map, year, system, onSelectStation); onReady(); onRouteStatus('loading'); const version = ++hydrateVersion.current; const loaded = await hydrateMapWithBundledRoutes(map, system, year, () => hydrateVersion.current === version); if (hydrateVersion.current === version) onRouteStatus(loaded ? 'real' : 'unavailable') })
     return () => { map.remove(); mapRef.current = null }
     // The map instance owns this lifecycle; parent renders must not recreate it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -158,7 +133,7 @@ function MapView({ year, system, mapRef, onSelectStation, onReady, onRouteStatus
     if (!mapRef.current || !mapRef.current.isStyleLoaded()) return
     onRouteStatus('loading')
     const version = ++hydrateVersion.current
-    hydrateMapWithOsmRoutes(mapRef.current, system, year, () => hydrateVersion.current === version).then((loaded) => { if (hydrateVersion.current === version) onRouteStatus(loaded ? 'real' : 'unavailable') })
+    hydrateMapWithBundledRoutes(mapRef.current, system, year, () => hydrateVersion.current === version).then((loaded) => { if (hydrateVersion.current === version) onRouteStatus(loaded ? 'real' : 'unavailable') })
   }, [year, system, mapRef, onRouteStatus])
   return <div ref={container} className="map-canvas" aria-label={`Historical map for ${year}`} />
 }
