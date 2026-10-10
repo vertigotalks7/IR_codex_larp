@@ -17,6 +17,7 @@ Codex contributed the first implementation milestone. Human review of the visual
 | 2026-10-10T22:41:51+05:30 | Codex | Rehaul for Indian metro systems | Reworked the UI and data model for seven Indian metro systems, multiple colored line families, India-scale navigation, system filters, and source-linked metadata. | Pending | `npm run build` passed. |
 | 2026-10-10T22:57:24+05:30 | Codex | Map-first atlas UI overhaul | Reworked the page into a full-viewport map viewer with dark cartographic chrome, a right settings rail, compact legend, historical strip, gradient atlas badge, and responsive controls inspired by the supplied references. | Pending | `npm run build` passed. |
 | 2026-10-10T23:06:48+05:30 | Codex | Replace connector paths with OSM route geometry | Added an Overpass loader and session cache for current metro subway relation geometry, visible source status, explicit fallback handling, and corrected the bottom-control overlap. | Pending | `npm run build` passed. |
+| 2026-10-10T23:32:00+05:30 | Codex | Eliminate false fallback routes | Added a generated Hyderabad GTFS geometry bundle and changed unavailable OSM data to render no route layer instead of straight connectors; updated source and limitation documentation. | Pending human visual review of Hyderabad geometry and unavailable states. | `npm run build` passed; bundle contains three HMRL route features. |
 
 ## Template preparation
 

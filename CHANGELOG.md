@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-10T23:32:00+05:30 — Remove misleading fallback route lines
+
+- Changed: Added bundled Hyderabad route geometry generated from the public HMRL GTFS feed, changed the map to start with an empty route layer, and removed silent rendering of manual connector paths when OSM geometry is unavailable. Added an explicit unavailable state and warning in the settings rail; added the reproducible GTFS conversion script in `scripts/build-route-geometry.mjs`.
+- Why: The screenshots showed straight station-to-station connectors instead of actual alignments, making the map look like cached or fabricated route data.
+- Validation: `npm run build` passed after bundling three Hyderabad GTFS route shapes.
+- Limitations: Only Hyderabad is bundled as verified GTFS geometry in this milestone. Other systems need their own static GTFS/OSM geometry snapshots before they can show routes without runtime Overpass access.
+
 ## 2026-10-10T23:06:48+05:30 — Load real metro route geometry
 
 - Changed: Added a cached Overpass/OSM route-relation loader for selected metro systems, replaced the default route layer with returned way geometries when available, added route-source status in the atlas chrome, and separated the compact fallback paths from the real route state. Moved the time slider above the milestone strip to remove the bottom overlap.

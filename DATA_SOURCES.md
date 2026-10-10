@@ -34,7 +34,9 @@ The year values in the current sample are network milestone years intended for t
 
 ## Geometry status
 
-The app now requests real current metro route geometry from OpenStreetMap route relations through the [Overpass API](https://overpass-api.de/). For each selected metro system it queries subway relations within a 30 km radius of the system center and renders the returned way geometries. The query template is:
+Hyderabad now ships with route geometry generated from the published HMRL GTFS `shapes.txt`, joined to `routes.txt` through `trips.txt`. The representative geometry is the longest published shape for each of the three routes and is bundled in `src/routeGeometry.ts`. The source repository documents the required attribution: “Contains data provided by Hyderabad Metro Rail Ltd.”
+
+For the remaining systems, the app requests current metro route geometry from OpenStreetMap route relations through the [Overpass API](https://overpass-api.de/). For each selected metro system it queries subway relations within a 30 km radius of the system center and renders the returned way geometries. The query template is:
 
 ```text
 [out:json][timeout:30];
@@ -42,7 +44,7 @@ relation["route"="subway"](around:30000,<lat>,<lon>);
 out body geom;
 ```
 
-The browser caches successful results for the session. If Overpass is unavailable, the UI explicitly reports `overview fallback` and uses the compact fallback paths; it does not claim those paths are exact. OSM geometry is current-day geometry, so the historical slider gates systems by opening year but does not reconstruct every historical extension yet.
+The browser caches successful OSM results for the session. If Overpass is unavailable, the UI reports `route geometry unavailable` and intentionally renders no route line; the old compact station-to-station connectors are not used as a fallback. OSM and bundled GTFS geometry represent current/published alignments, so the historical slider gates systems by opening year but does not reconstruct every historical extension yet.
 
 The Delhi station points in the current sample are source-backed. The station samples for other systems are representative endpoints linked to their public operator/feed sources. Complete station-by-station GTFS shapes and dated extensions remain the next data milestone before presenting the map as a survey-accurate national atlas.
 
