@@ -4,11 +4,11 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
-No participant AI usage has been recorded yet. Replace the placeholder row as you build. Mark human review as pending until someone has reviewed the contribution.
+Codex contributed the first implementation milestone. Human review of the visual interaction remains pending.
 
 | Date and time with timezone | Tool / model, if known | Task | Assistance and affected files | Human review / corrections | Validation and result |
 | --- | --- | --- | --- | --- | --- |
-| TODO | Codex | TODO | TODO | Pending | TODO |
+| 2026-10-10T21:50:13+05:30 | Codex | Historical comparison foundation | Created the Vite/React/TypeScript app, canonical dated sample data, MapLibre views, comparison controls, playback, inspection panels, and documentation updates. | Pending | `npm run build` passed; local HTTP smoke request was blocked by managed socket policy. |
 
 ## Template preparation
 

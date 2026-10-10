@@ -1,6 +1,6 @@
-# DevDay Exchange Community Hackathon: Kochi
+# Transit Time Machine · India's Historical Railway Atlas
 
-A repository template for participants at the 10–11 October 2026 hackathon. It contains event rules and documentation scaffolding; build your project from scratch at the event.
+An interactive, source-backed Delhi transit atlas for comparing how a network changes over time. The map is the interface: drag the swipe handle, select two years, inspect the stations that changed, or play the historical milestones.
 
 **[Event and registration on Luma](https://luma.com/z10nz8gp)** · **[Event rules](RULES.md)** · **[Agent instructions](AGENTS.md)**
 
@@ -19,7 +19,7 @@ A repository template for participants at the 10–11 October 2026 hackathon. It
 
 Keep your approved Luma QR code ready for entry, and bring your laptop and charger. Eligible checked-in participants will receive Codex credits and OpenAI API credits.
 
-## Use this template
+## Project overview
 
 1. Select **Use this template → Create a new repository** on GitHub. Create your own project repository and clone it.
 2. Read [RULES.md](RULES.md) and [AGENTS.md](AGENTS.md) before building. Begin project implementation at the event.
@@ -27,30 +27,27 @@ Keep your approved Luma QR code ready for entry, and bring your laptop and charg
 4. Record meaningful changes in [CHANGELOG.md](CHANGELOG.md) and your Codex usage in [AI_USAGE.md](AI_USAGE.md). Commit after completed milestones; aim for a meaningful checkpoint about every 30 minutes.
 5. Complete [SUBMISSION.md](SUBMISSION.md) with your code repository, short project description, and working demo. Follow submission instructions announced by the organizers.
 
-This template has no application code or required technology stack. The documentation and commit cadence are repository workflow guidance; the event participation rules are in [RULES.md](RULES.md).
+The implementation was built from scratch during the event. The event rules are in [RULES.md](RULES.md).
 
 ## Project overview — complete during the event
 
-- **Project name:** TODO
-- **Short description:** TODO — what it does, who it helps, and why it matters.
-- **Team:** TODO — participant names and GitHub handles; maximum 4 members.
-- **Working demo:** TODO — link or local demo instructions.
-- **Technology stack:** TODO
+- **Project name:** Transit Time Machine
+- **Short description:** Compare a small, source-backed Delhi rail and metro network across dated snapshots.
+- **Working demo:** Run locally with the commands below.
+- **Technology stack:** Vite, React, TypeScript, MapLibre GL JS, OpenStreetMap raster tiles.
 
 ### Run the project
 
-Replace these placeholders with commands that actually work for your project:
-
-1. Prerequisites and versions: TODO
-2. Dependency installation: TODO
-3. Environment setup: TODO — list required variable names and provide a sanitized `.env.example` if needed.
-4. Start the project: TODO
-5. Run checks or tests: TODO
+1. Prerequisites: Node.js 20+ and npm.
+2. Install dependencies: `npm install`
+3. Start the app: `npm run dev`
+4. Open the printed local URL, then drag the center handle, change years, click a station, and try Playback mode.
+5. Production check: `npm run build`
 
 ### Current status
 
-- Working features: TODO
-- Known limitations: TODO
-- Libraries, APIs, and public datasets used: TODO — include source links and applicable attribution.
+- Working features: synchronized MapLibre map views, swipe and dual comparison, date-aware route/station filtering, change inspection, station details, milestone playback, and source links.
+- Known limitations: the current dataset is intentionally a small Delhi sample; live train tracking, national coverage, and a server-side API adapter are not implemented yet. OSM tiles require network access at runtime.
+- Libraries and sources: [MapLibre GL JS](https://maplibre.org/), [OpenStreetMap tiles](https://www.openstreetmap.org/copyright), [Delhi Metro Rail Corporation](https://delhimetrorail.com/), [NCRTC](https://ncrtc.in/), and the [New Delhi station reference](https://en.wikipedia.org/wiki/New_Delhi_railway_station).
 
 See [AI_USAGE.md](AI_USAGE.md) for AI assistance and [CHANGELOG.md](CHANGELOG.md) for the development record.
