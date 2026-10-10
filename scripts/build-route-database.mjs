@@ -4,9 +4,9 @@ import { DatabaseSync } from 'node:sqlite'
 
 const root = process.cwd()
 const sourceFeeds = [
-  { id: 'hyderabad', name: 'Hyderabad Metro', city: 'Hyderabad', operator: 'Hyderabad Metro Rail', opened: 2017, source: 'https://hmrl.co.in/open-data/', directory: path.join(root, '.tmp', 'feeds', 'hmrl', 'hmrl-gtfs-main') },
-  { id: 'bengaluru', name: 'Namma Metro', city: 'Bengaluru', operator: 'Bangalore Metro Rail Corporation', opened: 2011, source: 'https://github.com/Vonter/bmrcl-gtfs', directory: path.join(root, '.tmp', 'feeds', 'bmrcl') },
-  { id: 'chennai', name: 'Chennai Metro', city: 'Chennai', operator: 'Chennai Metro Rail', opened: 2015, source: 'https://github.com/ungalsoththu/ChennaiGTFS', directory: path.join(root, '.tmp', 'feeds', 'cmrl') },
+  { id: 'hyderabad', name: 'Hyderabad Metro', city: 'Hyderabad', operator: 'Hyderabad Metro Rail', opened: 2017, source: 'https://hmrl.co.in/open-data/', directory: path.join(root, 'data', 'source', 'hyderabad') },
+  { id: 'bengaluru', name: 'Namma Metro', city: 'Bengaluru', operator: 'Bangalore Metro Rail Corporation', opened: 2011, source: 'https://github.com/Vonter/bmrcl-gtfs', directory: path.join(root, 'data', 'source', 'bengaluru') },
+  { id: 'chennai', name: 'Chennai Metro', city: 'Chennai', operator: 'Chennai Metro Rail', opened: 2015, source: 'https://github.com/ungalsoththu/ChennaiGTFS', directory: path.join(root, 'data', 'source', 'chennai') },
 ]
 
 function parseCsv(filePath) {
@@ -29,7 +29,20 @@ function readFeed(feed) {
   const trips = parseCsv(path.join(feed.directory, 'trips.txt'))
   const shapes = parseCsv(path.join(feed.directory, 'shapes.txt'))
   const stops = parseCsv(path.join(feed.directory, 'stops.txt'))
+  const stopTimes = parseCsv(path.join(feed.directory, 'stop_times.txt'))
   const routeById = new Map(routes.map((route) => [route.route_id, route]))
+  const tripToRoute = new Map(trips.map((trip) => [trip.trip_id, trip.route_id]))
+  const stopById = new Map(stops.map((stop) => [stop.stop_id, stop]))
+  const stationLines = new Map()
+  for (const stopTime of stopTimes) {
+    const stop = stopById.get(stopTime.stop_id)
+    const routeId = tripToRoute.get(stopTime.trip_id)
+    if (!stop || !routeId) continue
+    const stationId = stop.parent_station || stop.stop_id
+    const lines = stationLines.get(stationId) ?? []
+    if (!lines.includes(routeId)) lines.push(routeId)
+    stationLines.set(stationId, lines)
+  }
   const shapeToRoute = new Map(trips.map((trip) => [trip.shape_id, trip.route_id]))
   const grouped = new Map()
   for (const point of shapes) {
@@ -58,12 +71,12 @@ function readFeed(feed) {
     const stationId = stop.parent_station || stop.stop_id
     if (!stationRows.has(stationId)) stationRows.set(stationId, stop)
   }
-  const stationFeatures = [...stationRows.values()].map((stop) => ({ type: 'Feature', properties: { id: `${feed.id}-${stop.stop_id}`, name: stop.stop_name, system: feed.id, opened: String(feed.opened), city: feed.city, source: feed.source, coordinateSource: feed.source }, geometry: { type: 'Point', coordinates: [Number(stop.stop_lon), Number(stop.stop_lat)] } }))
+  const stationFeatures = [...stationRows.values()].map((stop) => ({ type: 'Feature', properties: { id: `${feed.id}-${stop.stop_id}`, name: stop.stop_name, system: feed.id, opened: String(feed.opened), city: feed.city, source: feed.source, coordinateSource: feed.source, lines: JSON.stringify(stationLines.get(stop.stop_id) ?? []) }, geometry: { type: 'Point', coordinates: [Number(stop.stop_lon), Number(stop.stop_lat)] } }))
   return { feed, routes: routeFeatures, stations: stationFeatures }
 }
 
 const loadedFeeds = sourceFeeds.filter((feed) => fs.existsSync(path.join(feed.directory, 'routes.txt')))
-if (!loadedFeeds.length) throw new Error('No GTFS feed directories found under .tmp/feeds')
+if (!loadedFeeds.length) throw new Error('No GTFS feed directories found under data/source')
 const snapshots = loadedFeeds.map(readFeed)
 const databasePath = path.join(root, 'data', 'routes.sqlite')
 const exportPath = path.join(root, 'public', 'data', 'routes.json')
@@ -75,13 +88,13 @@ database.exec(`
   CREATE TABLE systems (id TEXT PRIMARY KEY, name TEXT NOT NULL, city TEXT NOT NULL, operator TEXT NOT NULL, source_url TEXT NOT NULL, retrieved_at TEXT NOT NULL);
   CREATE TABLE lines (id TEXT PRIMARY KEY, system_id TEXT NOT NULL REFERENCES systems(id), name TEXT NOT NULL, color TEXT NOT NULL, opened_year INTEGER NOT NULL, source_url TEXT NOT NULL);
   CREATE TABLE route_shapes (id TEXT PRIMARY KEY, line_id TEXT NOT NULL REFERENCES lines(id), geometry_geojson TEXT NOT NULL, point_count INTEGER NOT NULL, source_type TEXT NOT NULL, source_url TEXT NOT NULL, retrieved_at TEXT NOT NULL);
-  CREATE TABLE stations (id TEXT PRIMARY KEY, system_id TEXT NOT NULL REFERENCES systems(id), name TEXT NOT NULL, latitude REAL NOT NULL, longitude REAL NOT NULL, opened_year INTEGER NOT NULL, source_url TEXT NOT NULL, coordinate_source TEXT NOT NULL);
+  CREATE TABLE stations (id TEXT PRIMARY KEY, system_id TEXT NOT NULL REFERENCES systems(id), name TEXT NOT NULL, latitude REAL NOT NULL, longitude REAL NOT NULL, opened_year INTEGER NOT NULL, line_ids TEXT NOT NULL, source_url TEXT NOT NULL, coordinate_source TEXT NOT NULL);
 `)
 const retrievedAt = new Date().toISOString()
 const insertSystem = database.prepare('INSERT INTO systems VALUES (?, ?, ?, ?, ?, ?)')
 const insertLine = database.prepare('INSERT INTO lines VALUES (?, ?, ?, ?, ?, ?)')
 const insertShape = database.prepare('INSERT INTO route_shapes VALUES (?, ?, ?, ?, ?, ?, ?)')
-const insertStation = database.prepare('INSERT INTO stations VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+const insertStation = database.prepare('INSERT INTO stations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
 for (const snapshot of snapshots) {
   const { feed } = snapshot
   insertSystem.run(feed.id, feed.name, feed.city, feed.operator, feed.source, retrievedAt)
@@ -89,16 +102,16 @@ for (const snapshot of snapshots) {
     insertLine.run(feature.properties.id, feed.id, feature.properties.name, feature.properties.color, feed.opened, feed.source)
     insertShape.run(feature.properties.id, feature.properties.id, JSON.stringify(feature.geometry), feature.geometry.coordinates.length, 'gtfs', feed.source, retrievedAt)
   }
-  for (const feature of snapshot.stations) insertStation.run(feature.properties.id, feed.id, feature.properties.name, feature.geometry.coordinates[1], feature.geometry.coordinates[0], feed.opened, feature.properties.source, feature.properties.coordinateSource)
+  for (const feature of snapshot.stations) insertStation.run(feature.properties.id, feed.id, feature.properties.name, feature.geometry.coordinates[1], feature.geometry.coordinates[0], feed.opened, feature.properties.lines, feature.properties.source, feature.properties.coordinateSource)
 }
 const routeRows = database.prepare('SELECT route_shapes.id, lines.system_id, lines.name, lines.color, lines.opened_year, route_shapes.geometry_geojson, route_shapes.source_type, route_shapes.source_url, route_shapes.retrieved_at FROM route_shapes JOIN lines ON lines.id = route_shapes.line_id ORDER BY lines.system_id, lines.id').all()
-const stationRows = database.prepare('SELECT id, system_id, name, longitude, latitude, opened_year, source_url, coordinate_source FROM stations ORDER BY system_id, name').all()
+const stationRows = database.prepare('SELECT id, system_id, name, longitude, latitude, opened_year, line_ids, source_url, coordinate_source FROM stations ORDER BY system_id, name').all()
 const exportData = {
   schemaVersion: 2,
   generatedAt: retrievedAt,
   systems: snapshots.map(({ feed }) => ({ id: feed.id, name: feed.name, source: feed.source })),
   features: routeRows.map((row) => ({ type: 'Feature', properties: { id: row.id, system: row.system_id, name: row.name, color: row.color, opened: row.opened_year, sourceType: row.source_type, source: row.source_url, retrievedAt: row.retrieved_at }, geometry: JSON.parse(row.geometry_geojson) })),
-  stations: stationRows.map((row) => ({ type: 'Feature', properties: { id: row.id, system: row.system_id, name: row.name, opened: row.opened_year, source: row.source_url, coordinateSource: row.coordinate_source }, geometry: { type: 'Point', coordinates: [row.longitude, row.latitude] } })),
+  stations: stationRows.map((row) => ({ type: 'Feature', properties: { id: row.id, system: row.system_id, name: row.name, opened: row.opened_year, lines: row.line_ids, source: row.source_url, coordinateSource: row.coordinate_source }, geometry: { type: 'Point', coordinates: [row.longitude, row.latitude] } })),
 }
 fs.writeFileSync(exportPath, `${JSON.stringify(exportData)}\n`)
 database.close()

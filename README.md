@@ -48,7 +48,7 @@ The implementation was built from scratch during the event. The event rules are 
 
 - Working features: India-scale map-first atlas viewer, dark settings rail, seven metro-system filters, multiple colored line families, compact historical time slider, station details, milestone playback, and source links.
 - Known limitations: Hyderabad, Bengaluru, and Chennai now load verified GTFS route shapes and station catalogs from the local SQLite/GeoJSON data bundle; Delhi, Kochi, Mumbai, and Pune still use OSM when available and show no route layer when it is unavailable. Complete station-by-station GTFS geometry and dated extensions are still being added city by city. Live train tracking and non-metro rail modes are not implemented yet. OSM tiles and some route data require network access at runtime.
-- Data pipeline: Run `npm run data:build` to rebuild `data/routes.sqlite` and the browser export at `public/data/routes.json` from the bundled source geometry. SQLite is the canonical local store; the frontend reads the generated export for fast browser loading.
+- Data pipeline: Run `npm run data:build` to rebuild `data/routes.sqlite` and the browser export at `public/data/routes.json` from the committed GTFS source snapshots in `data/source/`. SQLite is the canonical local store; the frontend reads the generated export for fast browser loading.
 - Libraries and sources: [MapLibre GL JS](https://maplibre.org/), [OpenStreetMap tiles](https://www.openstreetmap.org/copyright), and the system-specific feeds documented in [DATA_SOURCES.md](DATA_SOURCES.md).
 
 See [AI_USAGE.md](AI_USAGE.md) for AI assistance and [CHANGELOG.md](CHANGELOG.md) for the development record.

@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T00:42:00+05:30 — Fix data integrity and apply vintage atlas UI
+
+- Changed: Committed the three GTFS source snapshots used by the local rebuild, linked stations to route IDs through `stop_times.txt`, added station line membership to SQLite/export records, updated station details, and restyled the map viewer with warm paper, oxblood, brass, serif, and sepia cartographic treatment.
+- Why: The prior database had coordinates but incomplete provenance/linkage, the rebuild depended on deleted temporary files, and the dark neon chrome did not match the requested vintage atlas direction.
+- Validation: `npm run data:build` produced 14 route shapes and 181 stations, with 179 station records carrying line membership; `npm run build` passed.
+- Limitations: The committed source snapshots cover Hyderabad, Bengaluru, and Chennai. Delhi, Kochi, Mumbai, and Pune still need validated source snapshots.
+
 ## 2026-10-11T00:12:00+05:30 — Import Bengaluru and Chennai route/station catalogs
 
 - Changed: Extended the local SQLite pipeline to ingest Hyderabad, Bengaluru, and Chennai GTFS feeds, including 14 route shapes and 181 station records. The frontend now reads local routes and stations for all three systems, replacing the two-station samples.

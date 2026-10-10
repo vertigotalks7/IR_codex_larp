@@ -47,3 +47,54 @@ body:has(.atlas-shell) { background: #111318; overflow: hidden; }
 .atlas-time { left: 50%; bottom: 112px; width: min(430px, calc(100% - 370px)); transform: translateX(-50%); background: #111318ed; border: 1px solid #363b47; color: #cbd0da; }.atlas-time .time-control-heading strong { color: #ff73c4; }.atlas-time input { accent-color: #d44c9a; }.atlas-time .time-ticks { color: #777e8a; }.atlas-legend { position: fixed; z-index: 20; left: 14px; bottom: 22px; display: grid; gap: 9px; width: 190px; padding: 14px 13px; color: #bdc3cf; background: #111318ed; border: 1px solid #2d323d; box-shadow: 0 5px 20px #0004; font-size: 11px; }.atlas-legend strong { color: #7d8490; font: 10px 'DM Mono', monospace; letter-spacing: .12em; }.atlas-legend span { display: flex; align-items: center; gap: 7px; }.atlas-legend small { color: #686f7c; font-size: 9px; margin-top: 5px; }.atlas-milestones { position: fixed; z-index: 20; left: 230px; bottom: 18px; width: min(550px, calc(100% - 650px)); padding: 10px 12px; background: #111318ed; border: 1px solid #2d323d; }.milestone-strip-head { display: flex; justify-content: space-between; color: #858c99; font: 9px 'DM Mono', monospace; letter-spacing: .12em; }.milestone-strip-head button { color: #ff8bd0; border: 0; background: transparent; font: 10px 'DM Mono', monospace; }.milestone-strip { display: flex; gap: 4px; margin-top: 8px; }.milestone-strip button { flex: 1; min-width: 0; text-align: left; border: 0; border-top: 2px solid #3b404c; background: transparent; padding: 7px 4px 2px; color: #77808e; }.milestone-strip button.active, .milestone-strip button:hover { border-top-color: #f05ca8; color: #fff; }.milestone-strip b, .milestone-strip span { display: block; }.milestone-strip b { font: 11px 'DM Mono', monospace; color: #f05ca8; }.milestone-strip span { font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }.atlas-footer { position: fixed; z-index: 20; right: 328px; top: auto; bottom: 5px; color: #717784; font-size: 9px; }.atlas-footer span { margin-left: 12px; }.atlas-footer a { color: #a7adba; }
 @media (max-width: 800px) { body:has(.atlas-shell) { overflow: auto; }.atlas-panel { width: min(310px, 84vw); }.atlas-title { left: 18px; top: 72px; }.atlas-title h1 { font-size: 24px; }.atlas-time { left: 18px; transform: none; bottom: 112px; width: calc(100% - 36px); }.atlas-legend { bottom: 16px; left: 12px; width: 158px; }.atlas-milestones { left: 180px; right: 12px; bottom: 16px; width: auto; }.atlas-footer { display: none; }.atlas-map .maplibregl-ctrl-bottom-right { right: 12px; bottom: 270px; }.atlas-status { display: none; }.atlas-top-actions { margin-left: auto; } }
 .route-warning { margin: 14px 2px 0; padding: 10px; border-left: 2px solid #f05ca8; color: #aeb4c0; font-size: 11px; line-height: 1.45; }
+
+/* Vintage railway atlas skin: warm paper, ink, brass, and oxblood accents. */
+body:has(.atlas-shell) { background: #d8cdb8; }
+.atlas-shell { color: #2d241c; background: #d8cdb8; }
+.atlas-map { background: #d4cbb9; }
+.atlas-map .maplibregl-canvas { filter: sepia(.16) saturate(.84) contrast(.96); }
+.atlas-map .maplibregl-ctrl-group { background: #eee5d2; border: 1px solid #94836b; box-shadow: 2px 2px 0 #493b2d33; }
+.atlas-map .maplibregl-ctrl button { filter: none; color: #493b2d; }
+.atlas-topbar { top: 16px; left: 18px; right: 18px; }
+.atlas-logo { color: #f7efdf; background: #6d2f2b; border: 1px solid #3f1e1d; border-radius: 2px; box-shadow: 3px 3px 0 #3f2d2055; font-family: Georgia, serif; }
+.atlas-logo span { background: #b89452; color: #2d241c; }
+.atlas-logo strong span { color: #e3bd72; }
+.atlas-status { color: #5e4b39; font-family: 'DM Mono', monospace; }
+.atlas-status i { background: #a56b32; }
+.atlas-status small { color: #786751; }
+.atlas-top-actions button { border-color: #94836b; background: #eee5d2; color: #493b2d; border-radius: 2px; box-shadow: 2px 2px 0 #493b2d33; }
+.atlas-title { color: #2d241c; text-shadow: 0 1px 0 #f8f0e0; }
+.atlas-title h1 { font-family: Georgia, 'Times New Roman', serif; font-weight: 600; letter-spacing: -.035em; }
+.atlas-title p { color: #594a3a; font-family: 'DM Mono', monospace; }
+.atlas-title em { color: #8b5b36; }
+.atlas-panel { background: #eee5d2f5; border-left: 1px solid #94836b; box-shadow: -7px 0 20px #493b2d26; }
+.panel-close { color: #6a5743; }
+.panel-close span { color: #9a866b; }
+.atlas-systems button { border-color: #c0af94; background: #e5dac5; color: #5a4938; border-radius: 2px; }
+.atlas-systems button.active { background: #e4c985; color: #2d241c; border-color: #6d2f2b; box-shadow: inset 3px 0 0 #6d2f2b; }
+.atlas-systems button small { color: #88745c; }
+.settings-divider { background: #c3b295; }
+.toggle-row { color: #5a4938; border-bottom-color: #d0c1a8; }
+.toggle-row input { accent-color: #6d2f2b; }
+.atlas-stats div { background: #e3d7c1; border-color: #c0af94; }
+.atlas-stats strong { color: #2d241c; }
+.atlas-stats span { color: #88745c; }
+.atlas-selection { background: #e5d7bf; border-color: #a56b32; }
+.atlas-selection small { color: #6d2f2b; }
+.atlas-selection strong { color: #2d241c; }
+.atlas-selection span { color: #6f5c47; }
+.atlas-selection a { color: #6d2f2b; }
+.route-warning { border-left-color: #6d2f2b; color: #6a5743; background: #e6d9c4; }
+.atlas-time, .atlas-milestones, .atlas-legend { color: #493b2d; background: #eee5d2f5; border-color: #94836b; box-shadow: 3px 3px 0 #493b2d22; }
+.atlas-time .time-control-heading strong { color: #6d2f2b; }
+.atlas-time input { accent-color: #6d2f2b; }
+.atlas-time .time-ticks, .atlas-legend small { color: #88745c; }
+.atlas-legend strong, .milestone-strip-head { color: #6a5743; }
+.atlas-milestones { font-family: 'DM Mono', monospace; }
+.milestone-strip-head button { color: #6d2f2b; }
+.milestone-strip button { border-top-color: #bca989; color: #88745c; }
+.milestone-strip button.active, .milestone-strip button:hover { border-top-color: #6d2f2b; color: #2d241c; }
+.milestone-strip b { color: #6d2f2b; }
+.atlas-footer { color: #786751; }
+.atlas-footer a { color: #6d2f2b; }
+@media (max-width: 800px) { .atlas-panel { background: #eee5d2; } }
