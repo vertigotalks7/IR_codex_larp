@@ -3,7 +3,15 @@ import { milestones, stations, systems, years, isVisible, type MetroSystemId, ty
 
 type Map = import('maplibre-gl').Map
 type GeoJSONSource = import('maplibre-gl').GeoJSONSource
+type NetworkMode = 'metro' | 'rail' | 'suburban' | 'nhsrcl'
 let maplibrePromise: Promise<typeof import('maplibre-gl')> | null = null
+
+const networkModes: { id: NetworkMode; name: string; description: string; source: string; sourceLabel: string; center: [number, number]; zoom: number }[] = [
+  { id: 'metro', name: 'Metro', description: 'Verified city-metro geometry and stations', source: 'DATA_SOURCES.md', sourceLabel: 'Atlas source ledger', center: [78.96, 20.59], zoom: 4.5 },
+  { id: 'rail', name: 'Indian Railways', description: 'National network reference layer', source: 'https://surveyofindia.gov.in/pages/railway-map-of-india', sourceLabel: 'Survey of India map', center: [78.96, 20.59], zoom: 4.5 },
+  { id: 'suburban', name: 'Suburban Rail', description: 'Commuter networks and city rail references', source: 'https://irfca.org/faq/faq-map-suburban.html', sourceLabel: 'Suburban route maps', center: [72.88, 19.08], zoom: 8.5 },
+  { id: 'nhsrcl', name: 'NHSRCL', description: 'High-speed project records and corridor studies', source: 'https://nhsrcl.in/en/project/feasibility-study-report', sourceLabel: 'NHSRCL project material', center: [73.25, 20.5], zoom: 5.5 },
+]
 
 function loadMapLibre() {
   maplibrePromise ??= import('maplibre-gl')
@@ -95,8 +103,8 @@ async function hydrateMapWithBundledRoutes(map: Map, system: MetroSystemId | 'al
   return features.length
 }
 
-function addLayers(map: Map, maplibre: typeof import('maplibre-gl'), year: number, system: MetroSystemId | 'all', onSelectStation: (station: Station) => void) {
-  const visibleStations = visibleStationsFor(system, year)
+function addLayers(map: Map, maplibre: typeof import('maplibre-gl'), year: number, system: MetroSystemId | 'all', onSelectStation: (station: Station) => void, showMetro: boolean) {
+  const visibleStations = showMetro ? visibleStationsFor(system, year) : []
   map.addSource('routes', { type: 'geojson', data: emptyRouteCollection() })
   map.addSource('stations', { type: 'geojson', data: geoJson(visibleStations) })
   map.addLayer({ id: 'routes', type: 'line', source: 'routes', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': ['get', 'color'], 'line-width': 5, 'line-opacity': 0.88 } })
@@ -115,7 +123,7 @@ function addLayers(map: Map, maplibre: typeof import('maplibre-gl'), year: numbe
   })
 }
 
-function MapView({ year, system, mapRef, onSelectStation, onReady, onRouteStatus }: { year: number; system: MetroSystemId | 'all'; mapRef: React.MutableRefObject<Map | null>; onSelectStation: (station: Station) => void; onReady: () => void; onRouteStatus: (status: 'loading' | 'real' | 'unavailable') => void }) {
+function MapView({ year, system, network, mapRef, onSelectStation, onReady, onRouteStatus }: { year: number; system: MetroSystemId | 'all'; network: NetworkMode; mapRef: React.MutableRefObject<Map | null>; onSelectStation: (station: Station) => void; onReady: () => void; onRouteStatus: (status: 'loading' | 'real' | 'unavailable') => void }) {
   const container = useRef<HTMLDivElement>(null)
   const hydrateVersion = useRef(0)
   useEffect(() => {
@@ -128,7 +136,7 @@ function MapView({ year, system, mapRef, onSelectStation, onReady, onRouteStatus
       map = createdMap
       mapRef.current = createdMap
       createdMap.addControl(new maplibre.NavigationControl({ showCompass: false }), 'bottom-right')
-      createdMap.on('load', async () => { addLayers(createdMap, maplibre, year, system, onSelectStation); onReady(); onRouteStatus('loading'); const version = ++hydrateVersion.current; const loaded = await hydrateMapWithBundledRoutes(createdMap, system, year, () => hydrateVersion.current === version); if (hydrateVersion.current === version) onRouteStatus(loaded ? 'real' : 'unavailable') })
+      createdMap.on('load', async () => { addLayers(createdMap, maplibre, year, system, onSelectStation, network === 'metro'); onReady(); if (network !== 'metro') { onRouteStatus('unavailable'); return }; onRouteStatus('loading'); const version = ++hydrateVersion.current; const loaded = await hydrateMapWithBundledRoutes(createdMap, system, year, () => hydrateVersion.current === version); if (hydrateVersion.current === version) onRouteStatus(loaded ? 'real' : 'unavailable') })
     })
     return () => { disposed = true; map?.remove(); mapRef.current = null }
     // The map instance owns this lifecycle; parent renders must not recreate it.
@@ -139,16 +147,25 @@ function MapView({ year, system, mapRef, onSelectStation, onReady, onRouteStatus
     if (!map || !map.isStyleLoaded()) return
     const routeSource = map.getSource('routes') as GeoJSONSource | undefined
     const stationSource = map.getSource('stations') as GeoJSONSource | undefined
-    const realFeatures = system === 'all' ? systems.flatMap((item) => cachedRouteFeatures(item.id, year)) : cachedRouteFeatures(system, year)
+    const realFeatures = network === 'metro' ? (system === 'all' ? systems.flatMap((item) => cachedRouteFeatures(item.id, year)) : cachedRouteFeatures(system, year)) : []
     if (routeSource) routeSource.setData(realFeatures.length ? { type: 'FeatureCollection', features: realFeatures } : emptyRouteCollection())
-    if (stationSource) stationSource.setData(geoJson(visibleStationsFor(system, year)))
-  }, [year, system, mapRef])
+    if (stationSource) stationSource.setData(geoJson(network === 'metro' ? visibleStationsFor(system, year) : []))
+  }, [year, system, network, mapRef])
   useEffect(() => {
     if (!mapRef.current || !mapRef.current.isStyleLoaded()) return
+    if (network !== 'metro') {
+      ++hydrateVersion.current
+      const routeSource = mapRef.current.getSource('routes') as GeoJSONSource | undefined
+      const stationSource = mapRef.current.getSource('stations') as GeoJSONSource | undefined
+      routeSource?.setData(emptyRouteCollection())
+      stationSource?.setData(geoJson([]))
+      onRouteStatus('unavailable')
+      return
+    }
     onRouteStatus('loading')
     const version = ++hydrateVersion.current
     hydrateMapWithBundledRoutes(mapRef.current, system, year, () => hydrateVersion.current === version).then((loaded) => { if (hydrateVersion.current === version) onRouteStatus(loaded ? 'real' : 'unavailable') })
-  }, [year, system, mapRef, onRouteStatus])
+  }, [year, system, network, mapRef, onRouteStatus])
   return <div ref={container} className="map-canvas" aria-label={`Historical map for ${year}`} />
 }
 
@@ -156,6 +173,7 @@ function Stat({ value, label }: { value: string | number; label: string }) { ret
 
 export default function App() {
   const [page, setPage] = useState<'landing' | 'atlas'>('landing')
+  const [network, setNetwork] = useState<NetworkMode>('metro')
   const [year, setYear] = useState(2022)
   const [system, setSystem] = useState<MetroSystemId | 'all'>('all')
   const [playing, setPlaying] = useState(false)
@@ -167,6 +185,7 @@ export default function App() {
   const visibleStations = useMemo(() => visibleStationsFor(system, year), [year, system, routeStatus])
   const latestMilestone = [...milestones].reverse().find((milestone) => milestone.year <= year)
   const selectedSystem = systems.find((item) => item.id === system)
+  const selectedNetwork = networkModes.find((item) => item.id === network)!
 
   useEffect(() => {
     if (!playing) return
@@ -190,10 +209,10 @@ export default function App() {
   </main>
 
   return <main className="atlas-shell">
-    <header className="atlas-topbar"><button className="atlas-logo" onClick={() => setPage('landing')}><span>↔</span><strong>Metro<span>Atlas</span></strong></button><div className="atlas-status"><i /> India · Metro network <small>{routeStatus === 'real' ? 'verified route geometry loaded' : routeStatus === 'loading' ? 'loading route geometry…' : 'route geometry unavailable'}</small></div><div className="atlas-top-actions"><button>⌕</button><button>⚙</button></div></header>
-    <section className="atlas-map"><MapView year={year} system={system} mapRef={mapRef} onSelectStation={setSelectedStation} onReady={() => setMapReady(true)} onRouteStatus={handleRouteStatus} /><div className="atlas-title"><h1>India Metro Map</h1><p>{selectedSystem?.name ?? 'All metro systems'} <em>· {year}</em></p></div><div className="map-time-control atlas-time"><div className="time-control-heading"><span>Network growth</span><strong>{year}</strong></div><input aria-label="Historical year" type="range" min="2002" max="2024" step="1" value={year} onChange={(event) => setYear(Number(event.target.value))} /><div className="time-ticks"><span>2002</span><span>2010</span><span>2017</span><span>2024</span></div></div><div className="atlas-legend"><strong>LEGEND</strong><span><i className="legend-line metro" /> Metro lines</span><span><i className="legend-dot" /> Imported station</span><small>© OpenStreetMap contributors · GTFS/OSM route geometry</small></div></section>
-    <aside className="atlas-panel"><div className="panel-close">METRO SYSTEMS <span>⌃</span></div><div className="system-filter atlas-systems" role="tablist" aria-label="Filter metro system"><button className={system === 'all' ? 'active' : ''} onClick={() => setSystem('all')}><i style={{ background: '#8e4b38' }} />All India</button>{systems.map((item) => <button key={item.id} className={system === item.id ? 'active' : ''} onClick={() => { setSystem(item.id); mapRef.current?.flyTo({ center: item.center, zoom: 10 }) }}><i style={{ background: item.color }} />{item.name}<small>{item.lines.length} lines</small></button>)}</div><div className="settings-divider" /><div className="panel-close">MAP DETAILS <span>⌃</span></div><label className="toggle-row"><span>Show line labels</span><input type="checkbox" defaultChecked /></label><label className="toggle-row"><span>Show station samples</span><input type="checkbox" defaultChecked /></label><div className="atlas-stats"><div><strong>{routeStatus === 'real' ? 'GTFS/OSM' : routeStatus === 'loading' ? '…' : '—'}</strong><span>route source</span></div><div><strong>{visibleStations.length}</strong><span>stations in view</span></div><div><strong>{systems.length}</strong><span>systems mapped</span></div></div>{routeStatus === 'unavailable' && <p className="route-warning">No verified route geometry is bundled for this selection yet. Straight connector lines are intentionally hidden.</p>}{selectedStation && <div className="atlas-selection"><small>SELECTED STATION</small><strong>{selectedStation.name}</strong><span>{selectedStation.city} · Opened {selectedStation.opened}{selectedStation.lines.length ? ` · ${selectedStation.lines.length} line${selectedStation.lines.length === 1 ? '' : 's'}` : ''}</span><a href={selectedStation.source} target="_blank" rel="noreferrer">Opening/source record ↗</a><a href={selectedStation.coordinateSource} target="_blank" rel="noreferrer">Coordinate source ↗</a></div>}</aside>
-    <div className="atlas-milestones"><div className="milestone-strip-head"><span>HISTORICAL THREAD</span><button onClick={() => setPlaying(!playing)}>{playing ? 'Ⅱ Pause' : '▶ Play'}</button></div><div className="milestone-strip">{milestones.map((milestone) => <button key={milestone.year} className={year === milestone.year ? 'active' : ''} onClick={() => { setYear(milestone.year); mapRef.current?.flyTo({ center: milestone.coordinates, zoom: system === 'all' ? 5 : 10 }) }}><b>{milestone.year}</b><span>{milestone.label}</span></button>)}</div></div>
+    <header className="atlas-topbar"><button className="atlas-logo" onClick={() => setPage('landing')}><span>↔</span><strong>Transit<span>Atlas</span></strong></button><div className="atlas-status"><i /> India · {selectedNetwork.name}<small>{network === 'metro' ? (routeStatus === 'real' ? 'verified route geometry loaded' : routeStatus === 'loading' ? 'loading route geometry…' : 'route geometry unavailable') : 'reference mode · reviewed geometry pending'}</small></div><div className="atlas-top-actions"><button>⌕</button><button>⚙</button></div></header>
+    <section className="atlas-map"><MapView year={year} system={system} network={network} mapRef={mapRef} onSelectStation={setSelectedStation} onReady={() => setMapReady(true)} onRouteStatus={handleRouteStatus} /><div className="atlas-title"><h1>India {selectedNetwork.name} Map</h1><p>{network === 'metro' ? <>{selectedSystem?.name ?? 'All metro systems'} <em>· {year}</em></> : selectedNetwork.description}</p></div>{network === 'metro' ? <div className="map-time-control atlas-time"><div className="time-control-heading"><span>Network growth</span><strong>{year}</strong></div><input aria-label="Historical year" type="range" min="2002" max="2024" step="1" value={year} onChange={(event) => setYear(Number(event.target.value))} /><div className="time-ticks"><span>2002</span><span>2010</span><span>2017</span><span>2024</span></div></div> : <div className="map-time-control atlas-time reference-card"><span>REFERENCE MODE</span><strong>{selectedNetwork.name}</strong><a href={selectedNetwork.source} target="_blank" rel="noreferrer">{selectedNetwork.sourceLabel} ↗</a></div>}<div className="atlas-legend"><strong>LEGEND</strong>{network === 'metro' ? <><span><i className="legend-line metro" /> Metro lines</span><span><i className="legend-dot" /> Imported station</span><small>© OpenStreetMap contributors · GTFS route geometry</small></> : <><span><i className="legend-line rail" /> Reference-map mode</span><small>Interactive geometry is added only after source review.</small></>}</div></section>
+    <aside className="atlas-panel"><div className="panel-close">NETWORK LAYER <span>⌃</span></div><div className="network-switch" role="tablist" aria-label="Choose network layer">{networkModes.map((item) => <button key={item.id} className={network === item.id ? 'active' : ''} onClick={() => { setNetwork(item.id); setSelectedStation(null); mapRef.current?.flyTo({ center: item.center, zoom: item.zoom }) }}>{item.name}</button>)}</div><div className="settings-divider" />{network === 'metro' ? <><div className="panel-close">METRO SYSTEMS <span>⌃</span></div><div className="system-filter atlas-systems" role="tablist" aria-label="Filter metro system"><button className={system === 'all' ? 'active' : ''} onClick={() => setSystem('all')}><i style={{ background: '#8e4b38' }} />All India</button>{systems.map((item) => <button key={item.id} className={system === item.id ? 'active' : ''} onClick={() => { setSystem(item.id); mapRef.current?.flyTo({ center: item.center, zoom: 10 }) }}><i style={{ background: item.color }} />{item.name}<small>{item.lines.length} lines</small></button>)}</div></> : <div className="network-reference"><small>{selectedNetwork.description}</small><p>The map keeps metro routes hidden in this mode. Browse the referenced source while a reviewed local geometry snapshot is prepared.</p><a href={selectedNetwork.source} target="_blank" rel="noreferrer">Open {selectedNetwork.sourceLabel} ↗</a></div>}<div className="settings-divider" /><div className="panel-close">MAP DETAILS <span>⌃</span></div>{network === 'metro' && <><label className="toggle-row"><span>Show line labels</span><input type="checkbox" defaultChecked /></label><label className="toggle-row"><span>Show station samples</span><input type="checkbox" defaultChecked /></label></>}<div className="atlas-stats"><div><strong>{network === 'metro' ? (routeStatus === 'real' ? 'GTFS' : routeStatus === 'loading' ? '…' : '—') : 'REF'}</strong><span>map source</span></div><div><strong>{network === 'metro' ? visibleStations.length : '—'}</strong><span>{network === 'metro' ? 'stations in view' : 'local lines'}</span></div><div><strong>{network === 'metro' ? systems.length : '1'}</strong><span>{network === 'metro' ? 'systems mapped' : 'network mode'}</span></div></div>{network === 'metro' && routeStatus === 'unavailable' && <p className="route-warning">No verified route geometry is bundled for this selection yet. Straight connector lines are intentionally hidden.</p>}{selectedStation && <div className="atlas-selection"><small>SELECTED STATION</small><strong>{selectedStation.name}</strong><span>{selectedStation.city} · Opened {selectedStation.opened}{selectedStation.lines.length ? ` · ${selectedStation.lines.length} line${selectedStation.lines.length === 1 ? '' : 's'}` : ''}</span><a href={selectedStation.source} target="_blank" rel="noreferrer">Opening/source record ↗</a><a href={selectedStation.coordinateSource} target="_blank" rel="noreferrer">Coordinate source ↗</a></div>}</aside>
+    {network === 'metro' && <div className="atlas-milestones"><div className="milestone-strip-head"><span>HISTORICAL THREAD</span><button onClick={() => setPlaying(!playing)}>{playing ? 'Ⅱ Pause' : '▶ Play'}</button></div><div className="milestone-strip">{milestones.map((milestone) => <button key={milestone.year} className={year === milestone.year ? 'active' : ''} onClick={() => { setYear(milestone.year); mapRef.current?.flyTo({ center: milestone.coordinates, zoom: system === 'all' ? 5 : 10 }) }}><b>{milestone.year}</b><span>{milestone.label}</span></button>)}</div></div>}
     <footer className="atlas-footer">Transit Time Machine · India metro overview <span>Map tiles © OpenStreetMap contributors · <a href="https://delhimetrorail.com/pages/about-us/present-network" target="_blank" rel="noreferrer">Sources</a></span></footer>
   </main>
 }

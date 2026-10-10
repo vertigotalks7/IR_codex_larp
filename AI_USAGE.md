@@ -25,6 +25,7 @@ Codex contributed the first implementation milestone. Human review of the visual
 | 2026-10-11T01:20:00+05:30 | Codex with three Terra research agents | Plan the national rail expansion | Added landing-page shell and documented source hierarchy/data model for metro history, national rail, and high-speed projects; prepared SQLite tables for future verified records. | Pending review of source licensing and expansion order. | `npm run data:build`, `npm run build`, and `git diff --check` passed. |
 | 2026-10-11T01:36:00+05:30 | Codex | Remove nondeterministic route fallback | Replaced runtime Overpass route loading with reviewed local route snapshots only and recorded Kochi’s official GTFS availability/status. | Pending source-package retrieval for four metros. | `npm run build` and `git diff --check` passed. |
 | 2026-10-11T02:08:00+05:30 | Codex | Improve map loading and add source-map access | Deferred MapLibre behind the atlas entry and added links to national, suburban, and high-speed source maps. | The linked references are not interactive geometry layers. | `npm run build` passed with MapLibre emitted separately. |
+| 2026-10-11T02:28:00+05:30 | Codex | Add network-mode switching | Added separate Metro, Indian Railways, Suburban Rail, and NHSRCL modes and ensured Metro overlays clear outside Metro mode. | Non-metro modes remain references until geometry imports are reviewed. | `npm run build` and `git diff --check` passed. |
 
 ## Template preparation
 

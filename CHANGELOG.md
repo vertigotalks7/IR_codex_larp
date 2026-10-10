@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T02:28:00+05:30 — Add in-map network switcher
+
+- Changed: Added distinct Metro, Indian Railways, Suburban Rail, and NHSRCL modes in the atlas sidebar. Each updates the title, map scope, panel copy, and source link; switching away from Metro clears its routes and stations.
+- Why: The atlas needs a coherent multi-network navigation model before those networks receive reviewed geometry imports.
+- Validation: `npm run build` and `git diff --check` passed.
+- Limitations: Indian Railways, Suburban Rail, and NHSRCL modes are source-reference views until local, reviewed line geometry is added.
+
 ## 2026-10-11T02:08:00+05:30 — Split map engine and add rail source shelf
 
 - Changed: Deferred MapLibre loading until the metro atlas opens, reducing the initial JavaScript bundle from roughly 1.3 MB to 243 KB. Added a landing-page source shelf for the national Indian Railways map, suburban route-map archive, and NHSRCL project material.
