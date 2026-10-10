@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T05:15:00+05:30 — Resolve topbar UI text overlap and prune dead route artifacts
+
+- Changed: Removed redundant `.atlas-map-caption` container from `src/App.tsx` that previously rendered unstyled text at `(0, 0)`, eliminating the dark faded text overlapping with the `.atlas-topbar` and TransitAtlas logo. Deleted obsolete `src/routeGeometry.ts` (30.2 KB unused static constants) and its legacy generation script `scripts/build-route-geometry.mjs`. Completed architectural audit on runtime data usage, clarifying that `data/routes.sqlite` is an offline build cache and the application runs entirely client-side without a backend server.
+- Why: The user reported a visual inconsistency with faded black text overlapping the TransitAtlas logo and requested an architectural review of runtime data usage, the SQLite database, and the external `yashveeeeeeer/india-geodata` repository.
+- Validation: `npm run build` (`tsc -b && vite build`) passed cleanly in 3.96s with 51 modules transformed; `git diff --check` passed with no whitespace errors; verified map canvas has no overlapping text.
+- Limitations: None.
+
 ## 2026-10-11T04:50:00+05:30 — Ingest DataMeet station database and activate 6 Indian Suburban Rail divisions
 
 - Changed: Ingested DataMeet's Indian Railways station dataset (`https://github.com/datameet/railways`) comprising 8,990 station records cross-verified with official CRIS alpha codes, English station names, railway zones, state classifications, and city addresses. Cross-checked with existing 2,033-junction GIS network and generated an expanded catalog of 8,697 stations (`railway-stations-datameet.json`, 2.26 MB) and 402 major junction hubs. Populated the previously empty Suburban Rail mode (`network === 'suburban'`) with 6 authentic commuter divisions: Mumbai Suburban (CR/WR · 465 km · 7.5M daily riders), Kolkata Suburban (ER/SER · 1,501 km · 3.5M daily riders), Chennai Suburban (SR · 212 km · 1.2M daily riders), Delhi NCR Suburban (NR · 340 km), Hyderabad MMTS (SCR · 50 km), and Pune Suburban (CR · 63 km). Extracted 201 authentic suburban routes (`suburban-routes.json`, 0.29 MB) and 572 commuter stations (`suburban-stations.json`, 0.21 MB). Upgraded `MapView`, `AtlasPanel`, `AtlasHeader`, and `AtlasLegend` with division switcher buttons, division stats cards (daily ridership, operator, route-km, main lines), dynamic camera fly-to framing, and interactive station inspection popups.
