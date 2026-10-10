@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-10T22:09:21+05:30 — Restore standard OSM basemap
+
+- Changed: Restored the original OpenStreetMap raster tiles, opacity, and attribution in `src/App.tsx`.
+- Why: The original map provided the clearest geographic context in the working demo.
+- Validation: Production build run after the change.
+- Limitations: This basemap is visually denser than the experimental light variants.
+
 ## 2026-10-10T22:03:43+05:30 — Restore landmark context
 
 - Changed: Replaced the overly sparse CARTO Light basemap with CARTO Voyager and restored full tile opacity in `src/App.tsx`.

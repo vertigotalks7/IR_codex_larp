@@ -48,6 +48,6 @@ The implementation was built from scratch during the event. The event rules are 
 
 - Working features: a single MapLibre map with a compact historical time slider, date-aware route/station filtering, station details, milestone playback, and source links.
 - Known limitations: the current dataset is intentionally a small Delhi sample; live train tracking, national coverage, and a server-side API adapter are not implemented yet. OSM tiles require network access at runtime.
-- Libraries and sources: [MapLibre GL JS](https://maplibre.org/), [CARTO Voyager basemap](https://carto.com/basemaps/) built from [OpenStreetMap data](https://www.openstreetmap.org/copyright), [Delhi Metro Rail Corporation](https://delhimetrorail.com/), [NCRTC](https://ncrtc.in/), and the [New Delhi station reference](https://en.wikipedia.org/wiki/New_Delhi_railway_station).
+- Libraries and sources: [MapLibre GL JS](https://maplibre.org/), [OpenStreetMap tiles](https://www.openstreetmap.org/copyright), [Delhi Metro Rail Corporation](https://delhimetrorail.com/), [NCRTC](https://ncrtc.in/), and the [New Delhi station reference](https://en.wikipedia.org/wiki/New_Delhi_railway_station).
 
 See [AI_USAGE.md](AI_USAGE.md) for AI assistance and [CHANGELOG.md](CHANGELOG.md) for the development record.

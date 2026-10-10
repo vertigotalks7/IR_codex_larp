@@ -12,6 +12,7 @@ Codex contributed the first implementation milestone. Human review of the visual
 | 2026-10-10T21:54:52+05:30 | Codex | Single-map time control refinement | Removed dual/swipe comparison and rewired the UI around one MapLibre map with an on-map historical slider, playback, milestone navigation, and updated docs. | Pending | Production build run after the change. |
 | 2026-10-10T22:00:23+05:30 | Codex | Basemap readability refinement | Switched the detailed OSM raster basemap to a quieter CARTO light basemap and updated attribution documentation. | Pending | `npm run build` passed. |
 | 2026-10-10T22:03:43+05:30 | Codex | Restore landmark context | Replaced the too-sparse CARTO Light tiles with CARTO Voyager and restored full tile opacity so streets and labels remain visible. | Pending | `npm run build` passed. |
+| 2026-10-10T22:09:21+05:30 | Codex | Restore original basemap | Reverted the basemap to the original standard OpenStreetMap tiles and original opacity after the alternative styles remained too sparse or unreliable. | Pending | `npm run build` passed. |
 
 ## Template preparation
 
