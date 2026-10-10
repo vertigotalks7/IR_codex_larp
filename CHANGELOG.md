@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T02:08:00+05:30 — Split map engine and add rail source shelf
+
+- Changed: Deferred MapLibre loading until the metro atlas opens, reducing the initial JavaScript bundle from roughly 1.3 MB to 243 KB. Added a landing-page source shelf for the national Indian Railways map, suburban route-map archive, and NHSRCL project material.
+- Why: National and high-speed geometry must be source-reviewed before it becomes an interactive layer; external map references remain useful now without delaying the landing page or loading a national OSM extract.
+- Validation: `npm run build` passed; the production build emitted a separate MapLibre chunk.
+- Limitations: The source shelf is reference material, not yet an interactive national/suburban/high-speed network layer.
+
 ## 2026-10-11T01:36:00+05:30 — Make route rendering local and reproducible
 
 - Changed: Removed runtime Overpass route retrieval from the map. Only reviewed local route snapshots now render, and systems without a snapshot explicitly show an unavailable state.

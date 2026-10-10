@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import maplibregl, { type Map } from 'maplibre-gl'
 import { milestones, stations, systems, years, isVisible, type MetroSystemId, type Route, type Station } from './data'
+
+type Map = import('maplibre-gl').Map
+type GeoJSONSource = import('maplibre-gl').GeoJSONSource
+let maplibrePromise: Promise<typeof import('maplibre-gl')> | null = null
+
+function loadMapLibre() {
+  maplibrePromise ??= import('maplibre-gl')
+  return maplibrePromise
+}
 
 const mapStyle = {
   version: 8 as const,
@@ -80,14 +88,14 @@ async function hydrateMapWithBundledRoutes(map: Map, system: MetroSystemId | 'al
   const datasets = await Promise.all(systemsToLoad.map((item) => loadBundledRoutes(item.id)))
   if (!isCurrent()) return 0
   const features = datasets.flatMap((dataset, index) => systemsToLoad[index].opened <= year ? dataset?.features ?? [] : [])
-  const source = map.getSource('routes') as maplibregl.GeoJSONSource | undefined
+  const source = map.getSource('routes') as GeoJSONSource | undefined
   if (source) source.setData({ type: 'FeatureCollection', features })
-  const stationSource = map.getSource('stations') as maplibregl.GeoJSONSource | undefined
+  const stationSource = map.getSource('stations') as GeoJSONSource | undefined
   if (stationSource) stationSource.setData(geoJson(visibleStationsFor(system, year)))
   return features.length
 }
 
-function addLayers(map: Map, year: number, system: MetroSystemId | 'all', onSelectStation: (station: Station) => void) {
+function addLayers(map: Map, maplibre: typeof import('maplibre-gl'), year: number, system: MetroSystemId | 'all', onSelectStation: (station: Station) => void) {
   const visibleStations = visibleStationsFor(system, year)
   map.addSource('routes', { type: 'geojson', data: emptyRouteCollection() })
   map.addSource('stations', { type: 'geojson', data: geoJson(visibleStations) })
@@ -98,7 +106,7 @@ function addLayers(map: Map, year: number, system: MetroSystemId | 'all', onSele
   map.on('click', 'routes', (event) => {
     const feature = event.features?.[0]
     if (!feature) return
-    new maplibregl.Popup({ closeButton: true, offset: 8 }).setLngLat(event.lngLat).setHTML(`<strong>${feature.properties?.name}</strong><br/><span>Route history available in the source record.</span>`).addTo(map)
+    new maplibre.Popup({ closeButton: true, offset: 8 }).setLngLat(event.lngLat).setHTML(`<strong>${feature.properties?.name}</strong><br/><span>Route history available in the source record.</span>`).addTo(map)
   })
   map.on('click', 'stations', (event) => {
     const id = event.features?.[0]?.properties?.id
@@ -112,19 +120,25 @@ function MapView({ year, system, mapRef, onSelectStation, onReady, onRouteStatus
   const hydrateVersion = useRef(0)
   useEffect(() => {
     if (!container.current) return
-    const map = new maplibregl.Map({ container: container.current, style: mapStyle, center: [78.96, 20.59], zoom: 4.5, minZoom: 3.5, maxZoom: 14 })
-    mapRef.current = map
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right')
-    map.on('load', async () => { addLayers(map, year, system, onSelectStation); onReady(); onRouteStatus('loading'); const version = ++hydrateVersion.current; const loaded = await hydrateMapWithBundledRoutes(map, system, year, () => hydrateVersion.current === version); if (hydrateVersion.current === version) onRouteStatus(loaded ? 'real' : 'unavailable') })
-    return () => { map.remove(); mapRef.current = null }
+    let disposed = false
+    let map: Map | null = null
+    void loadMapLibre().then((maplibre) => {
+      if (!container.current || disposed) return
+      const createdMap = new maplibre.Map({ container: container.current, style: mapStyle, center: [78.96, 20.59], zoom: 4.5, minZoom: 3.5, maxZoom: 14 })
+      map = createdMap
+      mapRef.current = createdMap
+      createdMap.addControl(new maplibre.NavigationControl({ showCompass: false }), 'bottom-right')
+      createdMap.on('load', async () => { addLayers(createdMap, maplibre, year, system, onSelectStation); onReady(); onRouteStatus('loading'); const version = ++hydrateVersion.current; const loaded = await hydrateMapWithBundledRoutes(createdMap, system, year, () => hydrateVersion.current === version); if (hydrateVersion.current === version) onRouteStatus(loaded ? 'real' : 'unavailable') })
+    })
+    return () => { disposed = true; map?.remove(); mapRef.current = null }
     // The map instance owns this lifecycle; parent renders must not recreate it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   useEffect(() => {
     const map = mapRef.current
     if (!map || !map.isStyleLoaded()) return
-    const routeSource = map.getSource('routes') as maplibregl.GeoJSONSource | undefined
-    const stationSource = map.getSource('stations') as maplibregl.GeoJSONSource | undefined
+    const routeSource = map.getSource('routes') as GeoJSONSource | undefined
+    const stationSource = map.getSource('stations') as GeoJSONSource | undefined
     const realFeatures = system === 'all' ? systems.flatMap((item) => cachedRouteFeatures(item.id, year)) : cachedRouteFeatures(system, year)
     if (routeSource) routeSource.setData(realFeatures.length ? { type: 'FeatureCollection', features: realFeatures } : emptyRouteCollection())
     if (stationSource) stationSource.setData(geoJson(visibleStationsFor(system, year)))
@@ -171,6 +185,7 @@ export default function App() {
     <section className="landing-hero"><p className="landing-kicker">A living cartography of movement</p><h1>Travel through India’s <em>railway history.</em></h1><p className="landing-intro">Explore metro growth today, then follow the expanding story of conventional rail and high-speed corridors as their source archives are verified and added.</p><div className="landing-actions"><button className="landing-primary" onClick={() => setPage('atlas')}>Enter metro atlas <span>→</span></button><a href="#data-ledger">View data ledger ↓</a></div></section>
     <section className="landing-modes" aria-label="Atlas modes"><article><span className="mode-number">01</span><h2>City metros</h2><p>Interactive network geometry and station records for verified systems.</p><button onClick={() => setPage('atlas')}>Open atlas →</button></article><article><span className="mode-number">02</span><h2>Indian Railways</h2><p>National routes, services, junctions, and historic layers.</p><small>Source audit in progress</small></article><article><span className="mode-number">03</span><h2>High-speed rail</h2><p>Project corridors, milestones, and opening timelines.</p><small>Project records in review</small></article></section>
     <section className="landing-ledger" id="data-ledger"><div><p className="landing-kicker">Data ledger</p><h2>Nothing on the map is a guess.</h2></div><div className="ledger-grid"><p><strong>3</strong><span>verified metro source snapshots</span></p><p><strong>14</strong><span>GTFS route shapes available offline</span></p><p><strong>181</strong><span>station records with source links</span></p></div></section>
+    <section className="landing-map-shelf" aria-labelledby="source-maps-title"><div><p className="landing-kicker">Source map shelf</p><h2 id="source-maps-title">Rail references, kept separate from live layers.</h2><p>These source maps are available while their geometry is reviewed for the interactive atlas.</p></div><nav><a href="https://surveyofindia.gov.in/pages/railway-map-of-india" target="_blank" rel="noreferrer"><span>01</span><strong>Indian Railways</strong><small>Survey of India national map ↗</small></a><a href="https://irfca.org/faq/faq-map-suburban.html" target="_blank" rel="noreferrer"><span>02</span><strong>Suburban rail</strong><small>Mumbai, Chennai, Kolkata and more ↗</small></a><a href="https://nhsrcl.in/en/project/feasibility-study-report" target="_blank" rel="noreferrer"><span>03</span><strong>NHSRCL</strong><small>Mumbai–Ahmedabad project material ↗</small></a></nav></section>
     <footer className="landing-footer"><span>Transit Time Machine · India rail research project</span><button onClick={() => setPage('atlas')}>Metro atlas</button></footer>
   </main>
 
