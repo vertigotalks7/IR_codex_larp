@@ -19,8 +19,12 @@ function geoJson(items: Route[] | Station[]) {
 }
 
 type OSMFeatureCollection = { type: 'FeatureCollection'; features: { type: 'Feature'; properties: Record<string, string>; geometry: { type: 'LineString'; coordinates: [number, number][] } }[] }
+type LocalStationFeature = { type: 'Feature'; properties: Record<string, string>; geometry: { type: 'Point'; coordinates: [number, number] } }
+type LocalTransitData = { features: OSMFeatureCollection['features']; stations: LocalStationFeature[] }
 const osmRouteCache = new globalThis.Map<MetroSystemId, OSMFeatureCollection>()
 const localRouteCache = new globalThis.Map<MetroSystemId, OSMFeatureCollection>()
+const localStationCache = new globalThis.Map<MetroSystemId, Station[]>()
+let localTransitDataPromise: Promise<LocalTransitData | null> | null = null
 
 function emptyRouteCollection(): OSMFeatureCollection {
   return { type: 'FeatureCollection', features: [] }
@@ -32,21 +36,43 @@ function cachedRouteFeatures(system: MetroSystemId, year: number) {
   return localRouteCache.get(system)?.features ?? osmRouteCache.get(system)?.features ?? []
 }
 
-async function loadOsmRoutes(system: MetroSystemId): Promise<OSMFeatureCollection | null> {
-  if (system === 'hyderabad') {
-    const local = localRouteCache.get(system)
-    if (local) return local
-    try {
-      const response = await fetch('/data/routes.json', { cache: 'no-store' })
-      if (!response.ok) return null
-      const payload = await response.json() as { features?: OSMFeatureCollection['features'] }
-      const result = { type: 'FeatureCollection' as const, features: payload.features ?? [] }
-      if (result.features.length) localRouteCache.set(system, result)
-      return result.features.length ? result : null
-    } catch {
-      return null
+function visibleStationsFor(system: MetroSystemId | 'all', year: number) {
+  const importedSystems = new Set(localStationCache.keys())
+  const imported = [...localStationCache.values()].flat()
+  const sourceStations = stations.filter((station) => !importedSystems.has(station.system)).concat(imported)
+  return sourceStations.filter((station) => isVisible(station.opened, year, 'operational') && (system === 'all' || station.system === system))
+}
+
+async function loadLocalTransitData() {
+  if (!localTransitDataPromise) localTransitDataPromise = fetch('/data/routes.json', { cache: 'no-store' }).then(async (response) => {
+    if (!response.ok) return null
+    const payload = await response.json() as LocalTransitData
+    for (const system of systems.map((item) => item.id)) {
+      const features = payload.features?.filter((feature) => feature.properties.system === system) ?? []
+      if (features.length) localRouteCache.set(system, { type: 'FeatureCollection', features })
+      const importedStations = (payload.stations ?? []).filter((station) => station.properties.system === system).map((station) => ({
+        id: station.properties.id,
+        name: station.properties.name,
+        city: station.properties.city ?? systems.find((item) => item.id === system)?.city ?? '',
+        kind: 'metro' as const,
+        opened: Number(station.properties.opened),
+        coordinates: station.geometry.coordinates,
+        lines: [],
+        system,
+        source: station.properties.source,
+        coordinateSource: station.properties.coordinateSource,
+      }))
+      if (importedStations.length) localStationCache.set(system, importedStations)
     }
-  }
+    return payload
+  }).catch(() => null)
+  return localTransitDataPromise
+}
+
+async function loadOsmRoutes(system: MetroSystemId): Promise<OSMFeatureCollection | null> {
+  await loadLocalTransitData()
+  const local = localRouteCache.get(system)
+  if (local) return local
   const cached = osmRouteCache.get(system)
   if (cached) return cached
   const systemInfo = systems.find((item) => item.id === system)
@@ -80,11 +106,13 @@ async function hydrateMapWithOsmRoutes(map: Map, system: MetroSystemId | 'all', 
   const features = datasets.flatMap((dataset, index) => systemsToLoad[index].opened <= year ? dataset?.features ?? [] : [])
   const source = map.getSource('routes') as maplibregl.GeoJSONSource | undefined
   if (source) source.setData({ type: 'FeatureCollection', features })
+  const stationSource = map.getSource('stations') as maplibregl.GeoJSONSource | undefined
+  if (stationSource) stationSource.setData(geoJson(visibleStationsFor(system, year)))
   return features.length
 }
 
 function addLayers(map: Map, year: number, system: MetroSystemId | 'all', onSelectStation: (station: Station) => void) {
-  const visibleStations = stations.filter((station) => isVisible(station.opened, year, 'operational') && (system === 'all' || station.system === system))
+  const visibleStations = visibleStationsFor(system, year)
   map.addSource('routes', { type: 'geojson', data: emptyRouteCollection() })
   map.addSource('stations', { type: 'geojson', data: geoJson(visibleStations) })
   map.addLayer({ id: 'routes', type: 'line', source: 'routes', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': ['get', 'color'], 'line-width': 5, 'line-opacity': 0.88 } })
@@ -98,7 +126,7 @@ function addLayers(map: Map, year: number, system: MetroSystemId | 'all', onSele
   })
   map.on('click', 'stations', (event) => {
     const id = event.features?.[0]?.properties?.id
-    const station = stations.find((item) => item.id === id)
+    const station = [...stations, ...[...localStationCache.values()].flat()].find((item) => item.id === id)
     if (station) onSelectStation(station)
   })
 }
@@ -122,7 +150,7 @@ function MapView({ year, system, mapRef, onSelectStation, onReady, onRouteStatus
     const stationSource = map.getSource('stations') as maplibregl.GeoJSONSource | undefined
     const realFeatures = system === 'all' ? systems.flatMap((item) => cachedRouteFeatures(item.id, year)) : cachedRouteFeatures(system, year)
     if (routeSource) routeSource.setData(realFeatures.length ? { type: 'FeatureCollection', features: realFeatures } : emptyRouteCollection())
-    if (stationSource) stationSource.setData(geoJson(stations.filter((station) => isVisible(station.opened, year, 'operational') && (system === 'all' || station.system === system))))
+    if (stationSource) stationSource.setData(geoJson(visibleStationsFor(system, year)))
   }, [year, system, mapRef])
   useEffect(() => {
     if (!mapRef.current || !mapRef.current.isStyleLoaded()) return
@@ -143,7 +171,7 @@ export default function App() {
   const [mapReady, setMapReady] = useState(false)
   const [routeStatus, setRouteStatus] = useState<'loading' | 'real' | 'unavailable'>('loading')
   const handleRouteStatus = useCallback((status: 'loading' | 'real' | 'unavailable') => setRouteStatus(status), [])
-  const visibleStations = useMemo(() => stations.filter((station) => isVisible(station.opened, year, 'operational') && (system === 'all' || station.system === system)), [year, system])
+  const visibleStations = useMemo(() => visibleStationsFor(system, year), [year, system, routeStatus])
   const latestMilestone = [...milestones].reverse().find((milestone) => milestone.year <= year)
   const selectedSystem = systems.find((item) => item.id === system)
 

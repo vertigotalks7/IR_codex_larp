@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T00:12:00+05:30 — Import Bengaluru and Chennai route/station catalogs
+
+- Changed: Extended the local SQLite pipeline to ingest Hyderabad, Bengaluru, and Chennai GTFS feeds, including 14 route shapes and 181 station records. The frontend now reads local routes and stations for all three systems, replacing the two-station samples.
+- Why: Only Hyderabad had real local geometry; the other visible metro systems still showed sparse samples or depended on Overpass.
+- Validation: `npm run data:build` generated 14 route shapes and 181 stations; `npm run build` passed.
+- Limitations: Delhi, Kochi, Mumbai, and Pune still require validated static feeds or snapshots.
+
 ## 2026-10-10T23:48:00+05:30 — Add local SQLite route-data pipeline
 
 - Changed: Added a SQLite canonical route database, browser GeoJSON export, `npm run data:build`, and local frontend loading for Hyderabad’s verified HMRL shapes. The map no longer needs a live request to display the bundled Hyderabad geometry.

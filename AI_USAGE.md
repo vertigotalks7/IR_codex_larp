@@ -19,6 +19,7 @@ Codex contributed the first implementation milestone. Human review of the visual
 | 2026-10-10T23:06:48+05:30 | Codex | Replace connector paths with OSM route geometry | Added an Overpass loader and session cache for current metro subway relation geometry, visible source status, explicit fallback handling, and corrected the bottom-control overlap. | Pending | `npm run build` passed. |
 | 2026-10-10T23:32:00+05:30 | Codex | Eliminate false fallback routes | Added a generated Hyderabad GTFS geometry bundle and changed unavailable OSM data to render no route layer instead of straight connectors; updated source and limitation documentation. | Pending human visual review of Hyderabad geometry and unavailable states. | `npm run build` passed; bundle contains three HMRL route features. |
 | 2026-10-10T23:48:00+05:30 | Codex | Make route loading local and deterministic | Added the SQLite canonical store, generated browser export, data build command, and frontend loading from `public/data/routes.json`. | Pending human visual review; further systems still need source snapshots. | `npm run data:build` produced three route features; production build passed. |
+| 2026-10-11T00:12:00+05:30 | Codex | Add Bengaluru and Chennai geometry/stations | Extended GTFS ingestion and the frontend local-data loader to include Bengaluru and Chennai route shapes plus station catalogs. | Pending human visual review; four systems remain to be sourced. | `npm run data:build` produced 14 route shapes and 181 stations; `npm run build` passed. |
 
 ## Template preparation
 
