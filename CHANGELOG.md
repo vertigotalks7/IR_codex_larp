@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-10T22:16:42+05:30 — Replace demo station points with sourced coordinates
+
+- Changed: Updated the seven displayed station points with coordinate values from the published Delhi Metro station dataset, updated the sampled Yellow Line connectors to use those points, added visible opening/coordinate source links to station details, and added `DATA_SOURCES.md` with source, license, refresh, and accuracy notes.
+- Why: Make the visible sample traceable instead of presenting hand-entered coordinates as authoritative.
+- Validation: Production build run after the data update.
+- Limitations: The sample still does not contain complete centerline geometry or station-by-station opening evidence for the full Delhi network; limitations are documented in `DATA_SOURCES.md`.
+
 ## 2026-10-10T22:09:21+05:30 — Restore standard OSM basemap
 
 - Changed: Restored the original OpenStreetMap raster tiles, opacity, and attribution in `src/App.tsx`.

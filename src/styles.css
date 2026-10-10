@@ -33,4 +33,5 @@ footer { display: flex; justify-content: space-between; gap: 20px; padding: 25px
 .snapshot-stats { border-top: 0; padding-top: 18px; margin-top: 22px; }
 .dataset-note, .milestone-copy { color: var(--muted); font-size: 11px; line-height: 1.5; margin: 20px 0 0; }
 .milestone-copy { margin: 22px 0; max-width: 320px; }
+.detail-links { display: grid; gap: 7px; margin-top: 14px; }.detail-links a { font-size: 11px; }
 @media (max-width: 800px) { .map-time-control { bottom: 12px; }.single-map { height: 510px; } }
