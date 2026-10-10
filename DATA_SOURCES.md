@@ -34,7 +34,17 @@ The year values in the current sample are network milestone years intended for t
 
 ## Geometry status
 
-The Delhi station points in the current sample are source-backed. The cross-city colored lines are system-level overview connectors so the India map can establish the product shape without pretending that a handful of points are complete rail alignments. They must be replaced with complete GTFS `shapes.txt` or OSM route geometries, and the station samples expanded, before presenting the map as a survey-accurate national atlas.
+The app now requests real current metro route geometry from OpenStreetMap route relations through the [Overpass API](https://overpass-api.de/). For each selected metro system it queries subway relations within a 30 km radius of the system center and renders the returned way geometries. The query template is:
+
+```text
+[out:json][timeout:30];
+relation["route"="subway"](around:30000,<lat>,<lon>);
+out body geom;
+```
+
+The browser caches successful results for the session. If Overpass is unavailable, the UI explicitly reports `overview fallback` and uses the compact fallback paths; it does not claim those paths are exact. OSM geometry is current-day geometry, so the historical slider gates systems by opening year but does not reconstruct every historical extension yet.
+
+The Delhi station points in the current sample are source-backed. The station samples for other systems are representative endpoints linked to their public operator/feed sources. Complete station-by-station GTFS shapes and dated extensions remain the next data milestone before presenting the map as a survey-accurate national atlas.
 
 ## Reproduction notes
 

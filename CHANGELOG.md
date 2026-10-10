@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-10T23:06:48+05:30 — Load real metro route geometry
+
+- Changed: Added a cached Overpass/OSM route-relation loader for selected metro systems, replaced the default route layer with returned way geometries when available, added route-source status in the atlas chrome, and separated the compact fallback paths from the real route state. Moved the time slider above the milestone strip to remove the bottom overlap.
+- Why: Stop presenting station-to-station connector lines as route maps and make route provenance visible in the interface.
+- Validation: `npm run build` passed.
+- Limitations: OSM is current-day geometry; Overpass requires runtime network access; historical extensions and complete GTFS shapes are not reconstructed yet.
+
 ## 2026-10-10T22:57:24+05:30 — Rehaul UI as a map-first atlas viewer
 
 - Changed: Replaced the dashboard-like page layout with a full-viewport map viewer: gradient atlas badge, dark settings rail, system filter list, compact map legend, persistent historical strip, and responsive mobile controls in `src/App.tsx` and `src/styles.css`.

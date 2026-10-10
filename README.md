@@ -47,7 +47,7 @@ The implementation was built from scratch during the event. The event rules are 
 ### Current status
 
 - Working features: India-scale map-first atlas viewer, dark settings rail, seven metro-system filters, multiple colored line families, compact historical time slider, station details, milestone playback, and source links.
-- Known limitations: the current metro overview uses source-linked system/line metadata and a small station sample; complete station-by-station GTFS geometry is being added city by city. Live train tracking and non-metro rail modes are not implemented yet. OSM tiles require network access at runtime.
+- Known limitations: current metro route geometry is loaded from OSM subway relations when Overpass is reachable, with an explicitly labelled overview fallback; complete station-by-station GTFS geometry and dated extensions are still being added city by city. Live train tracking and non-metro rail modes are not implemented yet. OSM tiles and route data require network access at runtime.
 - Libraries and sources: [MapLibre GL JS](https://maplibre.org/), [OpenStreetMap tiles](https://www.openstreetmap.org/copyright), and the system-specific feeds documented in [DATA_SOURCES.md](DATA_SOURCES.md).
 
 See [AI_USAGE.md](AI_USAGE.md) for AI assistance and [CHANGELOG.md](CHANGELOG.md) for the development record.

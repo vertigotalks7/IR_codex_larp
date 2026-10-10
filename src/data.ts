@@ -9,6 +9,7 @@ export type MetroSystem = {
   opened: number
   lines: string[]
   color: string
+  center: [number, number]
   source: string
   dataSource: string
 }
@@ -41,13 +42,13 @@ export type Route = {
 }
 
 export const systems: MetroSystem[] = [
-  { id: 'delhi', name: 'Delhi Metro', city: 'Delhi NCR', opened: 2002, lines: ['Yellow', 'Blue', 'Magenta'], color: '#f2c94c', source: 'https://delhimetrorail.com/pages/about-us/present-network', dataSource: 'https://otd.delhi.gov.in/data/staticDMRC/' },
-  { id: 'bengaluru', name: 'Namma Metro', city: 'Bengaluru', opened: 2011, lines: ['Purple', 'Green'], color: '#9b59b6', source: 'https://english.bmrc.co.in/', dataSource: 'https://github.com/Vonter/bmrcl-gtfs' },
-  { id: 'chennai', name: 'Chennai Metro', city: 'Chennai', opened: 2015, lines: ['Blue', 'Green'], color: '#2f80ed', source: 'https://chennaimetrorail.org/', dataSource: 'https://github.com/ungalsoththu/ChennaiGTFS' },
-  { id: 'hyderabad', name: 'Hyderabad Metro', city: 'Hyderabad', opened: 2017, lines: ['Red', 'Blue', 'Green'], color: '#e74c3c', source: 'https://hmrl.co.in/', dataSource: 'https://mobilitydatabase.org/feeds/gtfs/mdb-2457' },
-  { id: 'kochi', name: 'Kochi Metro', city: 'Kochi', opened: 2017, lines: ['Blue'], color: '#00a6a6', source: 'https://kochimetro.org/', dataSource: 'https://www.urbanmobilityindia.in/Upload/Conference/e1180c5c-edea-4c77-9efb-59c56f8d8aa3.pdf' },
-  { id: 'mumbai', name: 'Mumbai Metro', city: 'Mumbai', opened: 2014, lines: ['Blue', 'Red', 'Yellow'], color: '#f2994a', source: 'https://www.mmrda.maharashtra.gov.in/', dataSource: 'https://www.metro2go.in/data-sources' },
-  { id: 'pune', name: 'Pune Metro', city: 'Pune', opened: 2022, lines: ['Purple', 'Aqua'], color: '#27ae60', source: 'https://www.punemetrorail.org/', dataSource: 'https://www.punemetrorail.org/' },
+  { id: 'delhi', name: 'Delhi Metro', city: 'Delhi NCR', opened: 2002, lines: ['Yellow', 'Blue', 'Magenta'], color: '#f2c94c', center: [77.21, 28.62], source: 'https://delhimetrorail.com/pages/about-us/present-network', dataSource: 'https://otd.delhi.gov.in/data/staticDMRC/' },
+  { id: 'bengaluru', name: 'Namma Metro', city: 'Bengaluru', opened: 2011, lines: ['Purple', 'Green'], color: '#9b59b6', center: [77.59, 12.98], source: 'https://english.bmrc.co.in/', dataSource: 'https://github.com/Vonter/bmrcl-gtfs' },
+  { id: 'chennai', name: 'Chennai Metro', city: 'Chennai', opened: 2015, lines: ['Blue', 'Green'], color: '#2f80ed', center: [80.24, 13.05], source: 'https://chennaimetrorail.org/', dataSource: 'https://github.com/ungalsoththu/ChennaiGTFS' },
+  { id: 'hyderabad', name: 'Hyderabad Metro', city: 'Hyderabad', opened: 2017, lines: ['Red', 'Blue', 'Green'], color: '#e74c3c', center: [78.47, 17.41], source: 'https://hmrl.co.in/', dataSource: 'https://mobilitydatabase.org/feeds/gtfs/mdb-2457' },
+  { id: 'kochi', name: 'Kochi Metro', city: 'Kochi', opened: 2017, lines: ['Blue'], color: '#00a6a6', center: [76.32, 10.03], source: 'https://kochimetro.org/', dataSource: 'https://www.urbanmobilityindia.in/Upload/Conference/e1180c5c-edea-4c77-9efb-59c56f8d8aa3.pdf' },
+  { id: 'mumbai', name: 'Mumbai Metro', city: 'Mumbai', opened: 2014, lines: ['Blue', 'Red', 'Yellow'], color: '#f2994a', center: [72.88, 19.14], source: 'https://www.mmrda.maharashtra.gov.in/', dataSource: 'https://www.metro2go.in/data-sources' },
+  { id: 'pune', name: 'Pune Metro', city: 'Pune', opened: 2022, lines: ['Purple', 'Aqua'], color: '#27ae60', center: [73.86, 18.54], source: 'https://www.punemetrorail.org/', dataSource: 'https://www.punemetrorail.org/' },
 ]
 
 export const stations: Station[] = [
