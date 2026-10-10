@@ -1,6 +1,20 @@
 # Transit Time Machine data sources
 
-The current app is a deliberately small Delhi sample. This file records exactly where the data comes from and where the current implementation is still approximate.
+The current app is an India-wide metro overview with seven systems. This file records exactly where the metadata comes from and where the current implementation is still approximate.
+
+## India metro system sources
+
+The system selector and line families in `src/data.ts` are linked to these operator or public-feed sources:
+
+| System | Operator / source | Data status in this build |
+| --- | --- | --- |
+| Delhi Metro | [DMRC network](https://delhimetrorail.com/pages/about-us/present-network) · [DMRC static GTFS](https://otd.delhi.gov.in/data/staticDMRC/) | Source-backed sample stations and line metadata |
+| Namma Metro | [BMRCL](https://english.bmrc.co.in/) · [BMRCL GTFS extraction](https://github.com/Vonter/bmrcl-gtfs) | System and line overview; station sample |
+| Chennai Metro | [CMRL](https://chennaimetrorail.org/) · [Chennai GTFS](https://github.com/ungalsoththu/ChennaiGTFS) | System and line overview; station sample |
+| Hyderabad Metro | [HMRL](https://hmrl.co.in/) · [Mobility Database official feed record](https://mobilitydatabase.org/feeds/gtfs/mdb-2457) | System and line overview; station sample |
+| Kochi Metro | [KMRL](https://kochimetro.org/) · [KMRL GTFS reference](https://www.urbanmobilityindia.in/Upload/Conference/e1180c5c-edea-4c77-9efb-59c56f8d8aa3.pdf) | System and line overview; station sample |
+| Mumbai Metro | [MMRDA](https://www.mmrda.maharashtra.gov.in/) · [Metro2Go source notes](https://www.metro2go.in/data-sources) | System and line overview; station sample |
+| Pune Metro | [Maha Metro](https://www.punemetrorail.org/) | System and line overview; station sample |
 
 ## Station coordinates and line membership
 
@@ -20,7 +34,7 @@ The year values in the current sample are network milestone years intended for t
 
 ## Geometry status
 
-The station points in the current sample are source-backed. The Yellow Line sample is a connector through the sourced station points; it is not yet a full OSM centerline or a complete 37-station Yellow Line geometry. The Blue, Magenta, and Indian Railways lines remain contextual sample connectors. They must be replaced with complete source geometries before presenting the app as a survey-accurate national atlas.
+The Delhi station points in the current sample are source-backed. The cross-city colored lines are system-level overview connectors so the India map can establish the product shape without pretending that a handful of points are complete rail alignments. They must be replaced with complete GTFS `shapes.txt` or OSM route geometries, and the station samples expanded, before presenting the map as a survey-accurate national atlas.
 
 ## Reproduction notes
 

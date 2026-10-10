@@ -1,6 +1,6 @@
 # Transit Time Machine · India's Historical Railway Atlas
 
-An interactive, source-backed Delhi transit atlas for watching a network change over time. The map is the interface: move the compact time slider, inspect stations, or play the historical milestones.
+An interactive, source-backed atlas of India's metro systems. The map is the interface: filter cities, compare colored line families, move the compact time slider, inspect stations, or play the historical milestones.
 
 **[Event and registration on Luma](https://luma.com/z10nz8gp)** · **[Event rules](RULES.md)** · **[Agent instructions](AGENTS.md)**
 
@@ -32,7 +32,7 @@ The implementation was built from scratch during the event. The event rules are 
 ## Project overview — complete during the event
 
 - **Project name:** Transit Time Machine
-- **Short description:** Compare a small, source-backed Delhi rail and metro network across dated snapshots.
+- **Short description:** Explore India's metro systems, colored line families, and dated network expansion on one map.
 - **Working demo:** Run locally with the commands below.
 - **Technology stack:** Vite, React, TypeScript, MapLibre GL JS, OpenStreetMap raster tiles.
 
@@ -46,8 +46,8 @@ The implementation was built from scratch during the event. The event rules are 
 
 ### Current status
 
-- Working features: a single MapLibre map with a compact historical time slider, date-aware route/station filtering, station details, milestone playback, and source links.
-- Known limitations: the current dataset is intentionally a small Delhi sample; live train tracking, national coverage, and a server-side API adapter are not implemented yet. OSM tiles require network access at runtime.
-- Libraries and sources: [MapLibre GL JS](https://maplibre.org/), [OpenStreetMap tiles](https://www.openstreetmap.org/copyright), the source-backed coordinate snapshot and links documented in [DATA_SOURCES.md](DATA_SOURCES.md), [Delhi Metro Rail Corporation](https://delhimetrorail.com/), and [NCRTC](https://ncrtc.in/).
+- Working features: India-scale MapLibre overview, seven metro-system filters, multiple colored line families, compact historical time slider, station details, milestone playback, and source links.
+- Known limitations: the current metro overview uses source-linked system/line metadata and a small station sample; complete station-by-station GTFS geometry is being added city by city. Live train tracking and non-metro rail modes are not implemented yet. OSM tiles require network access at runtime.
+- Libraries and sources: [MapLibre GL JS](https://maplibre.org/), [OpenStreetMap tiles](https://www.openstreetmap.org/copyright), and the system-specific feeds documented in [DATA_SOURCES.md](DATA_SOURCES.md).
 
 See [AI_USAGE.md](AI_USAGE.md) for AI assistance and [CHANGELOG.md](CHANGELOG.md) for the development record.

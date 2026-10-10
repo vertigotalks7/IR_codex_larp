@@ -5,7 +5,7 @@ Complete this file during the hackathon and use it to prepare your submission th
 ## Project
 
 - **Project name:** Transit Time Machine
-- **Short description:** A source-backed interactive atlas that lets people compare Delhi’s rail and metro network across time, inspect what was added, and follow expansion milestones.
+- **Short description:** A source-backed interactive atlas of India’s metro systems with city filters, colored line families, dated expansion, and station provenance.
 - **Code repository URL:** TODO
 - **Final submitted implementation commit SHA:** TODO
 - **Working demo URL or local demo steps:** `npm install` then `npm run dev`, and open the local URL.
@@ -27,8 +27,8 @@ Participate solo or in a team of up to 4. Remove unused rows.
 - **Start command:** `npm run dev`
 - **Demo walkthrough:** Move the small time slider over the map; use Play time; click a station; select a historical milestone; use Fly to milestone.
 - **Checks performed and results:** `npm run build` passed. Local server HTTP verification was attempted but blocked by the managed socket policy.
-- **Known limitations or incomplete features:** Small Delhi sample only; live train adapter and national coverage are not yet implemented; source-backed geometry is intentionally scoped for the demo.
-- **Libraries, APIs, and public datasets used:** MapLibre GL JS, OpenStreetMap raster tiles, DMRC, NCRTC, and the New Delhi station reference. Links and attribution are in `README.md` and the app footer.
+- **Known limitations or incomplete features:** The metro overview currently uses source-linked system metadata and representative line extents with a small station sample; complete station-by-station GTFS geometry is the next data milestone. Live train adapter and non-metro rail modes are not yet implemented.
+- **Libraries, APIs, and public datasets used:** MapLibre GL JS, OpenStreetMap raster tiles, DMRC static GTFS, BMRCL/Chennai/HMRL public feed references, KMRL/Maha Metro/MMRDA operator sources. Detailed links and attribution are in `DATA_SOURCES.md` and the app footer.
 - **AI usage record:** [AI_USAGE.md](AI_USAGE.md)
 - **Development change log:** [CHANGELOG.md](CHANGELOG.md)
 
