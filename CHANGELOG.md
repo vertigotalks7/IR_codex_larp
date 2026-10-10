@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-10T21:54:52+05:30 — Simplify to single-map time travel
+
+- Changed: Removed the dual-map and swipe-divider comparison UI. Added one map with an on-map year slider, play/pause time control, milestone fly-to, and single-year network snapshot stats in `src/App.tsx` and `src/styles.css`.
+- Why: Keep the core historical interaction focused and easier to understand at a glance.
+- Validation: Production build run after the change.
+- Limitations: The dataset and live-tracking limitations from the prior milestone remain.
+
 ## 2026-10-10T21:50:13+05:30 — Build historical comparison foundation
 
 - Changed: Added the Vite/React/TypeScript application, date-aware Delhi sample data, MapLibre map rendering, swipe and dual-map modes, year controls, synchronized camera wiring, change inspection, station/route popups, milestone playback, and responsive styling in `src/`, plus runnable package configuration.

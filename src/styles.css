@@ -20,3 +20,17 @@ main { max-width: 1480px; margin: 0 auto; padding: 0 34px 24px; }
 footer { display: flex; justify-content: space-between; gap: 20px; padding: 25px 0 4px; line-height: 1.5; }footer a { color: var(--muted); }
 @media (max-width: 800px) { main { padding: 0 16px 20px; }.topbar-note { display: none; }.hero { display: block; padding: 36px 0 27px; }.story-card { margin-top: 25px; }.workspace-toolbar { align-items: start; gap: 12px; flex-direction: column; }.map-shell { height: 480px; }.control-grid, .below-fold { grid-template-columns: 1fr; }.stats { gap: 8px; }.milestones { grid-template-columns: repeat(2, 1fr); row-gap: 18px; }.milestones::before { display: none; }.legend { gap: 7px; flex-wrap: wrap; max-width: 220px; }.dual-mode .map-pane { width: 100%; height: 50%; float: none; }.dual-mode .map-pane-left { border-right: 0; border-bottom: 2px solid white; }.dual-mode .map-pane-right { border-left: 0; }.dual-mode .map-label { top: 10px; }.dual-mode .right-label { top: 10px; }.dual-mode { height: 650px; } footer { display: block; } footer span { display: block; margin-top: 7px; } }
 @media (max-width: 500px) { .year-controls { gap: 15px; }.year-controls label { grid-template-columns: 1fr auto; }.year-controls input { grid-column: 1 / -1; }.stats { grid-template-columns: repeat(2, 1fr); row-gap: 12px; } }
+
+/* Single-map time travel controls */
+.current-year { display: block; font: 25px 'DM Mono', monospace; margin-top: 2px; }
+.single-map .map-canvas { position: absolute; inset: 0; }
+.current-label { left: 18px; top: 17px; }
+.map-time-control { position: absolute; z-index: 8; left: 50%; bottom: 18px; transform: translateX(-50%); width: min(500px, calc(100% - 32px)); padding: 12px 15px 10px; background: rgba(251,250,246,.96); box-shadow: 0 3px 14px #10283b30; border: 1px solid #d9d9d2; }
+.time-control-heading { display: flex; justify-content: space-between; align-items: center; font: 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.time-control-heading strong { color: var(--accent); font-size: 16px; }
+.map-time-control input { width: 100%; margin: 7px 0 2px; accent-color: var(--accent); cursor: ew-resize; }
+.time-ticks { display: flex; justify-content: space-between; color: #7b8588; font: 9px 'DM Mono', monospace; }
+.snapshot-stats { border-top: 0; padding-top: 18px; margin-top: 22px; }
+.dataset-note, .milestone-copy { color: var(--muted); font-size: 11px; line-height: 1.5; margin: 20px 0 0; }
+.milestone-copy { margin: 22px 0; max-width: 320px; }
+@media (max-width: 800px) { .map-time-control { bottom: 12px; }.single-map { height: 510px; } }

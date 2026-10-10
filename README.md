@@ -1,6 +1,6 @@
 # Transit Time Machine · India's Historical Railway Atlas
 
-An interactive, source-backed Delhi transit atlas for comparing how a network changes over time. The map is the interface: drag the swipe handle, select two years, inspect the stations that changed, or play the historical milestones.
+An interactive, source-backed Delhi transit atlas for watching a network change over time. The map is the interface: move the compact time slider, inspect stations, or play the historical milestones.
 
 **[Event and registration on Luma](https://luma.com/z10nz8gp)** · **[Event rules](RULES.md)** · **[Agent instructions](AGENTS.md)**
 
@@ -46,7 +46,7 @@ The implementation was built from scratch during the event. The event rules are 
 
 ### Current status
 
-- Working features: synchronized MapLibre map views, swipe and dual comparison, date-aware route/station filtering, change inspection, station details, milestone playback, and source links.
+- Working features: a single MapLibre map with a compact historical time slider, date-aware route/station filtering, station details, milestone playback, and source links.
 - Known limitations: the current dataset is intentionally a small Delhi sample; live train tracking, national coverage, and a server-side API adapter are not implemented yet. OSM tiles require network access at runtime.
 - Libraries and sources: [MapLibre GL JS](https://maplibre.org/), [OpenStreetMap tiles](https://www.openstreetmap.org/copyright), [Delhi Metro Rail Corporation](https://delhimetrorail.com/), [NCRTC](https://ncrtc.in/), and the [New Delhi station reference](https://en.wikipedia.org/wiki/New_Delhi_railway_station).
 

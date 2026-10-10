@@ -25,7 +25,7 @@ Participate solo or in a team of up to 4. Remove unused rows.
 - **Install command:** `npm install`
 - **Required environment variable names:** None for the historical demo.
 - **Start command:** `npm run dev`
-- **Demo walkthrough:** Drag the swipe divider; adjust Earlier/Later years; use Swap years; click a station; switch to Dual maps or Playback; select a milestone.
+- **Demo walkthrough:** Move the small time slider over the map; use Play time; click a station; select a historical milestone; use Fly to milestone.
 - **Checks performed and results:** `npm run build` passed. Local server HTTP verification was attempted but blocked by the managed socket policy.
 - **Known limitations or incomplete features:** Small Delhi sample only; live train adapter and national coverage are not yet implemented; source-backed geometry is intentionally scoped for the demo.
 - **Libraries, APIs, and public datasets used:** MapLibre GL JS, OpenStreetMap raster tiles, DMRC, NCRTC, and the New Delhi station reference. Links and attribution are in `README.md` and the app footer.

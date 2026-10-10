@@ -9,6 +9,7 @@ Codex contributed the first implementation milestone. Human review of the visual
 | Date and time with timezone | Tool / model, if known | Task | Assistance and affected files | Human review / corrections | Validation and result |
 | --- | --- | --- | --- | --- | --- |
 | 2026-10-10T21:50:13+05:30 | Codex | Historical comparison foundation | Created the Vite/React/TypeScript app, canonical dated sample data, MapLibre views, comparison controls, playback, inspection panels, and documentation updates. | Pending | `npm run build` passed; local HTTP smoke request was blocked by managed socket policy. |
+| 2026-10-10T21:54:52+05:30 | Codex | Single-map time control refinement | Removed dual/swipe comparison and rewired the UI around one MapLibre map with an on-map historical slider, playback, milestone navigation, and updated docs. | Pending | Production build run after the change. |
 
 ## Template preparation
 
