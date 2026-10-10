@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T03:05:00+05:30 — Map Indian Railways Train 17216 corridor and live radar tracker
+
+- Changed: Added interactive Indian Railways corridor mapping for Train 17216 (Dharmavaram–Machilipatnam Express) modeled after RailRadar. Ingested all 22 official station stops (DMM, ATP, GYF, TU, KDP, MOO, YA, PRDT, JMDG, KLKA, BGNP, NDL, GID, MRK, VKN, NRT, GNT, BZA, GDV, GVL, PAV, MTM) with scheduled arrival/departure timings, halt durations, and distance metrics. Generated real corridor alignment coordinates spanning 694 km across Andhra Pradesh. Added live animated GPS train radar pulse marker on the map, journey scrubber slider, timetable station selection with fly-to zoom, and interactive stop popups.
+- Why: The user requested mapping an Indian Railways route on our current transit map similar to RailRadar's Train 17216 live tracker. Indian Railways mode previously only displayed reference material; it now provides an interactive railway corridor and train tracking experience.
+- Validation: `npm run build` passed with 48 modules transformed; all 22 stations and route line rendered cleanly; `git diff --check` passed.
+- Limitations: Live train tracking position is driven by route progress simulation/scrubbing; integration with real-time NTES API sockets remains a future enhancement.
+
 ## 2026-10-11T02:45:00+05:30 — Modularize application architecture and fix map reactivity
 
 - Changed: Modularized monolithic `src/App.tsx` into domain-focused subcomponents (`AtlasHeader`, `AtlasPanel`, `AtlasTimeSlider`, `AtlasLegend`, `AtlasMilestones`, `MapView`, and `LandingPage`), extracted network configuration to `src/config/`, and encapsulated transit caching and querying into `src/services/transitData.ts`. Resolved MapView route hydration thrashing during milestone playback by eliminating unnecessary 'loading' cycles on cached hits. Wired up interactive map detail checkboxes for toggling routes and station pins, and restored national camera reset when selecting All India.

@@ -80,3 +80,30 @@ export type LocalTransitData = {
 }
 
 export type RouteStatus = 'loading' | 'real' | 'unavailable'
+
+export interface RailwayStationStop {
+  id: string
+  code: string
+  name: string
+  coordinates: [number, number]
+  arrival: string
+  departure: string
+  day: number
+  distanceKm: number
+  haltMinutes: number
+}
+
+export interface TrainService {
+  number: string
+  name: string
+  type: string
+  origin: string
+  destination: string
+  operator: string
+  zone: string
+  distanceKm: number
+  totalDuration: string
+  date: string
+  stops: RailwayStationStop[]
+  coordinates: [number, number][]
+}

@@ -108,3 +108,35 @@ body:has(.atlas-shell) { background: #d8cdb8; }
 .landing-ledger { display: grid; grid-template-columns: .85fr 1.15fr; gap: 50px; padding: 68px 0; }.landing-ledger h2 { max-width: 320px; margin: 0; font: 34px/1 Georgia, serif; }.ledger-grid { display: grid; grid-template-columns: repeat(3, 1fr); align-items: start; gap: 22px; }.ledger-grid p { margin: 0; padding-top: 10px; border-top: 2px solid #6d2f2b; }.ledger-grid strong, .ledger-grid span { display: block; }.ledger-grid strong { font: 34px Georgia, serif; }.ledger-grid span { margin-top: 8px; color: #6a5743; font-size: 11px; line-height: 1.4; }.landing-footer { padding-top: 18px; border-top: 1px solid #bca989; }.landing-footer button { border: 0; padding: 0; color: #6d2f2b; background: transparent; font: 11px 'DM Mono', monospace; }
 .landing-map-shelf { display: grid; grid-template-columns: .85fr 1.15fr; gap: 50px; padding: 0 0 62px; }.landing-map-shelf h2 { max-width: 390px; margin: 0; font: 30px/1.1 Georgia, serif; }.landing-map-shelf > div > p:last-child { max-width: 390px; margin: 14px 0 0; color: #6a5743; font-size: 13px; line-height: 1.5; }.landing-map-shelf nav { border-top: 1px solid #bca989; }.landing-map-shelf a { display: grid; grid-template-columns: 38px 1fr auto; align-items: baseline; gap: 12px; padding: 16px 0; color: #3a2a20; border-bottom: 1px solid #c7b694; text-decoration: none; }.landing-map-shelf a span, .landing-map-shelf a small { color: #8b5b36; font: 10px 'DM Mono', monospace; }.landing-map-shelf a strong { font: 18px Georgia, serif; }.landing-map-shelf a:hover strong { color: #6d2f2b; }
 @media (max-width: 800px) { .landing-shell { padding: 18px 22px 24px; }.landing-header p { display: none; }.landing-hero { padding: 82px 0 55px; }.landing-hero h1 { font-size: clamp(46px, 14vw, 70px); }.landing-modes, .landing-ledger, .landing-map-shelf, .ledger-grid { grid-template-columns: 1fr; }.landing-modes article { min-height: 190px; padding: 22px 0; margin: 0; border-right: 0; border-bottom: 1px solid #c7b694; }.landing-modes article:last-child { border-bottom: 0; }.landing-modes h2 { margin-top: 20px; }.landing-modes button, .landing-modes small { margin-top: 22px; }.landing-ledger, .landing-map-shelf { gap: 30px; padding: 50px 0; }.ledger-grid { gap: 12px; }.landing-map-shelf a { grid-template-columns: 28px 1fr; }.landing-map-shelf a small { grid-column: 2; }.landing-footer { display: flex; } }
+
+/* Indian Railways & RailRadar live train route styling */
+.railway-card { margin-top: 10px; padding: 12px; background: #e3d5be; border: 1px solid #94836b; display: grid; gap: 8px; }
+.railway-header { display: flex; justify-content: space-between; align-items: flex-start; }
+.railway-badge { background: #6d2f2b; color: #fbfaf6; padding: 2px 7px; font: 10px 'DM Mono', monospace; font-weight: 600; border-radius: 2px; }
+.railway-status-pill { font: 10px 'DM Mono', monospace; color: #1e7e34; display: flex; align-items: center; gap: 5px; font-weight: 600; }
+.railway-status-pill i { width: 7px; height: 7px; border-radius: 50%; background: #28a745; display: inline-block; animation: pulse 1.5s infinite; }
+.railway-card h3 { margin: 0; font: 600 16px Georgia, serif; color: #2d241c; }
+.railway-card p { margin: 0; font-size: 11px; color: #5a4938; line-height: 1.4; }
+.railway-live-metric { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: #dacab0; padding: 8px 6px; border: 1px solid #c0af94; }
+.railway-live-metric div { text-align: center; }
+.railway-live-metric strong { display: block; font: 12px 'DM Mono', monospace; color: #2d241c; }
+.railway-live-metric span { display: block; font-size: 9px; color: #786751; text-transform: uppercase; }
+
+.railway-stop-list { margin-top: 10px; max-height: 240px; overflow-y: auto; display: grid; gap: 3px; border: 1px solid #c0af94; padding: 4px; background: #dacab0; }
+.railway-stop-item { display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 6px; padding: 5px 6px; font-size: 11px; text-align: left; border: 1px solid transparent; background: #e8dcc7; color: #2d241c; border-radius: 2px; }
+.railway-stop-item:hover, .railway-stop-item.active { background: #e4c985; border-color: #6d2f2b; }
+.railway-stop-code { font: 600 10px 'DM Mono', monospace; color: #6d2f2b; }
+.railway-stop-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11px; }
+.railway-stop-time { font: 9px 'DM Mono', monospace; color: #6a5743; text-align: right; }
+
+.rail-radar-ctrl { display: grid; gap: 7px; }
+.rail-radar-actions { display: flex; justify-content: space-between; align-items: center; font: 10px 'DM Mono', monospace; }
+.rail-radar-actions button { border: 1px solid #94836b; background: #6d2f2b; color: #fbfaf6; padding: 3px 9px; border-radius: 2px; }
+.legend-line.railway-corridor { background: #d97706; }
+.legend-dot.train-dot { background: #e11d48; border-color: #fff; box-shadow: 0 0 0 2px #e11d48; }
+
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}

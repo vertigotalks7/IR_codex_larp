@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { systems, years } from './data'
 import { networkModes, ALL_INDIA_CENTER, ALL_INDIA_ZOOM } from './config/networks'
 import { visibleStationsFor } from './services/transitData'
+import { train17216, type RailwayStationStop } from './data/indianRailways'
 import { LandingPage } from './components/Landing/LandingPage'
 import { AtlasHeader } from './components/Atlas/AtlasHeader'
 import { AtlasPanel } from './components/Atlas/AtlasPanel'
@@ -20,10 +21,15 @@ export default function App() {
   const [system, setSystem] = useState<MetroSystemId | 'all'>('all')
   const [playing, setPlaying] = useState(false)
   const [selectedStation, setSelectedStation] = useState<Station | null>(null)
+  const [selectedRailwayStop, setSelectedRailwayStop] = useState<RailwayStationStop | null>(null)
   const [, setMapReady] = useState(false)
   const [routeStatus, setRouteStatus] = useState<RouteStatus>('loading')
   const [showStations, setShowStations] = useState(true)
   const [showRoutes, setShowRoutes] = useState(true)
+
+  // RailRadar train live tracking state
+  const [trainProgress, setTrainProgress] = useState(0.58) // Near Vijayawada Jn
+  const [isTrainRunning, setIsTrainRunning] = useState(false)
 
   const mapRef = useRef<Map | null>(null)
 
@@ -38,7 +44,7 @@ export default function App() {
   const selectedSystem = systems.find((item) => item.id === system)
   const selectedNetwork = networkModes.find((item) => item.id === network) ?? networkModes[0]
 
-  // Playback timer across milestones
+  // Playback timer across milestones (for Metro historical view)
   useEffect(() => {
     if (!playing) return
     const timer = window.setInterval(() => {
@@ -54,9 +60,22 @@ export default function App() {
     return () => window.clearInterval(timer)
   }, [playing])
 
+  // Live simulation ticker for Indian Railways Train 17216
+  useEffect(() => {
+    if (!isTrainRunning || network !== 'rail') return
+    const interval = window.setInterval(() => {
+      setTrainProgress((prev) => {
+        const next = prev + 0.004
+        return next >= 1 ? 0 : next
+      })
+    }, 500)
+    return () => window.clearInterval(interval)
+  }, [isTrainRunning, network])
+
   const handleNetworkChange = (mode: NetworkMode) => {
     setNetwork(mode)
     setSelectedStation(null)
+    setSelectedRailwayStop(null)
     const modeConfig = networkModes.find((item) => item.id === mode)
     if (modeConfig) {
       mapRef.current?.flyTo({ center: modeConfig.center, zoom: modeConfig.zoom })
@@ -83,6 +102,14 @@ export default function App() {
     })
   }
 
+  const handleSelectRailwayStop = (stop: RailwayStationStop) => {
+    setSelectedRailwayStop(stop)
+    mapRef.current?.flyTo({
+      center: stop.coordinates,
+      zoom: 11,
+    })
+  }
+
   if (page === 'landing') {
     return <LandingPage onEnterAtlas={() => setPage('atlas')} />
   }
@@ -104,7 +131,9 @@ export default function App() {
           mapRef={mapRef}
           showStations={showStations}
           showRoutes={showRoutes}
+          trainProgress={trainProgress}
           onSelectStation={setSelectedStation}
+          onSelectRailwayStop={handleSelectRailwayStop}
           onReady={() => setMapReady(true)}
           onRouteStatus={handleRouteStatus}
         />
@@ -115,6 +144,10 @@ export default function App() {
             {network === 'metro' ? (
               <>
                 {selectedSystem?.name ?? 'All metro systems'} <em>· {year}</em>
+              </>
+            ) : network === 'rail' ? (
+              <>
+                17216 · DMM MTM Express <em>({train17216.distanceKm} km · 22 stations)</em>
               </>
             ) : (
               selectedNetwork.description
@@ -127,6 +160,10 @@ export default function App() {
           year={year}
           onYearChange={setYear}
           selectedNetwork={selectedNetwork}
+          trainProgress={trainProgress}
+          onTrainProgressChange={setTrainProgress}
+          isTrainRunning={isTrainRunning}
+          onToggleTrainRunning={() => setIsTrainRunning(!isTrainRunning)}
         />
 
         <AtlasLegend network={network} />
@@ -136,13 +173,19 @@ export default function App() {
         network={network}
         system={system}
         selectedStation={selectedStation}
+        selectedRailwayStop={selectedRailwayStop}
         selectedNetwork={selectedNetwork}
         routeStatus={routeStatus}
         visibleStationsCount={visibleStations.length}
         showStations={showStations}
         showRoutes={showRoutes}
+        trainProgress={trainProgress}
+        isTrainRunning={isTrainRunning}
+        onToggleTrainRunning={() => setIsTrainRunning(!isTrainRunning)}
+        onTrainProgressChange={setTrainProgress}
         onNetworkChange={handleNetworkChange}
         onSystemChange={handleSystemChange}
+        onSelectRailwayStop={handleSelectRailwayStop}
         onToggleStations={setShowStations}
         onToggleRoutes={setShowRoutes}
       />
@@ -158,15 +201,15 @@ export default function App() {
       )}
 
       <footer className="atlas-footer">
-        Transit Time Machine · India metro overview{' '}
+        Transit Time Machine · India rail overview{' '}
         <span>
           Map tiles © OpenStreetMap contributors ·{' '}
           <a
-            href="https://delhimetrorail.com/pages/about-us/present-network"
+            href="https://railradar.in/railradar?train=17216&date=2026-10-10"
             target="_blank"
             rel="noreferrer"
           >
-            Sources
+            RailRadar Source
           </a>
         </span>
       </footer>

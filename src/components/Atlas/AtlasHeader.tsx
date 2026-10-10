@@ -15,7 +15,9 @@ export function AtlasHeader({ onGoLanding, selectedNetwork, network, routeStatus
         : routeStatus === 'loading'
           ? 'loading route geometry…'
           : 'route geometry unavailable'
-      : 'reference mode · reviewed geometry pending'
+      : network === 'rail'
+        ? '17216 DMM–MTM Express · 694 km corridor & radar active'
+        : 'reference mode · reviewed geometry pending'
 
   return (
     <header className="atlas-topbar">
