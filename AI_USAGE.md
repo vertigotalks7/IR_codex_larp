@@ -15,6 +15,7 @@ Codex contributed the first implementation milestone. Human review of the visual
 | 2026-10-10T22:09:21+05:30 | Codex | Restore original basemap | Reverted the basemap to the original standard OpenStreetMap tiles and original opacity after the alternative styles remained too sparse or unreliable. | Pending | `npm run build` passed. |
 | 2026-10-10T22:16:42+05:30 | Codex | Add source-backed station data | Replaced the visible station coordinates with values from a published Delhi Metro coordinate snapshot, updated sampled connectors, and added `DATA_SOURCES.md` documenting provenance and limitations. | Pending | `npm run build` passed. |
 | 2026-10-10T22:41:51+05:30 | Codex | Rehaul for Indian metro systems | Reworked the UI and data model for seven Indian metro systems, multiple colored line families, India-scale navigation, system filters, and source-linked metadata. | Pending | `npm run build` passed. |
+| 2026-10-10T22:57:24+05:30 | Codex | Map-first atlas UI overhaul | Reworked the page into a full-viewport map viewer with dark cartographic chrome, a right settings rail, compact legend, historical strip, gradient atlas badge, and responsive controls inspired by the supplied references. | Pending | `npm run build` passed. |
 
 ## Template preparation
 

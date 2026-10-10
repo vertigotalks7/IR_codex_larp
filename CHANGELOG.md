@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-10T22:57:24+05:30 — Rehaul UI as a map-first atlas viewer
+
+- Changed: Replaced the dashboard-like page layout with a full-viewport map viewer: gradient atlas badge, dark settings rail, system filter list, compact map legend, persistent historical strip, and responsive mobile controls in `src/App.tsx` and `src/styles.css`.
+- Why: Match the requested cartographic atlas direction while keeping the product’s metro-system and time-slider interactions central.
+- Validation: `npm run build` passed.
+- Limitations: The basemap remains the current OSM raster layer; route-geometry accuracy limitations documented in `DATA_SOURCES.md` remain unchanged.
+
 ## 2026-10-10T22:41:51+05:30 — Rehaul atlas around Indian metro systems
 
 - Changed: Reworked the single-map experience from a Delhi-only sample into an India-scale metro overview with seven system filters, multiple colored line families, India viewport, source-linked system metadata, updated milestones, and a 2002–2024 time slider.
