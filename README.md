@@ -46,7 +46,8 @@ The implementation was built from scratch during the event. The event rules are 
 
 ### Current status
 
-- Working features: India-scale map-first atlas viewer, dark settings rail, seven metro-system filters, multiple colored line families, compact historical time slider, station details, milestone playback, and source links.
+- Working features: India-scale map-first atlas viewer, dark settings rail, seven metro-system filters, multiple colored line families, compact historical time slider, station details, milestone playback, interactive map layer toggles, and source links.
+- Architecture: Modular component hierarchy (`src/components/` for Landing, Atlas, and Map), separated data and mapping services (`src/services/`), type definitions (`src/types/`), and configurations (`src/config/`).
 - Product direction: a vintage landing page now introduces the atlas, with separate Metro, Indian Railways, and High-Speed Rail paths. Only the Metro path is currently interactive; broader coverage is tracked in [ATLAS_ARCHITECTURE.md](ATLAS_ARCHITECTURE.md).
 - Performance: MapLibre is loaded only after opening the metro atlas. The landing page also links to the clearly labelled official/source maps for Indian Railways, suburban networks, and NHSRCL while their interactive geometry is prepared.
 - Network switcher: The atlas sidebar switches among Metro, Indian Railways, Suburban Rail, and NHSRCL modes. Metro is the only mode with bundled interactive geometry today; the other modes clear metro data and expose their respective source reference while imports are verified.

@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T02:45:00+05:30 — Modularize application architecture and fix map reactivity
+
+- Changed: Modularized monolithic `src/App.tsx` into domain-focused subcomponents (`AtlasHeader`, `AtlasPanel`, `AtlasTimeSlider`, `AtlasLegend`, `AtlasMilestones`, `MapView`, and `LandingPage`), extracted network configuration to `src/config/`, and encapsulated transit caching and querying into `src/services/transitData.ts`. Resolved MapView route hydration thrashing during milestone playback by eliminating unnecessary 'loading' cycles on cached hits. Wired up interactive map detail checkboxes for toggling routes and station pins, and restored national camera reset when selecting All India.
+- Why: `App.tsx` had grown into a single 22 KB file combining MapLibre lifecycle, network state, landing page, and sidebar UI. Playback mode triggered state recalculation loops every 900 ms causing UI flickering, map toggle inputs were disconnected, and clicking All India failed to fly back to national overview.
+- Validation: `npm run build` passed with 46 modules transformed; `npm run data:build` verified SQLite and JSON pipeline; `git diff --check` passed.
+- Limitations: Verified interactive GTFS geometry remains available for Hyderabad, Bengaluru, and Chennai; Delhi, Kochi, Mumbai, and Pune continue in reference status awaiting source snapshots.
+
 ## 2026-10-11T02:28:00+05:30 — Add in-map network switcher
 
 - Changed: Added distinct Metro, Indian Railways, Suburban Rail, and NHSRCL modes in the atlas sidebar. Each updates the title, map scope, panel copy, and source link; switching away from Metro clears its routes and stations.
