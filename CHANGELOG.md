@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-10T22:03:43+05:30 — Restore landmark context
+
+- Changed: Replaced the overly sparse CARTO Light basemap with CARTO Voyager and restored full tile opacity in `src/App.tsx`.
+- Why: Preserve a clean transit-focused map while keeping streets, labels, and landmarks visible for geographic orientation.
+- Validation: Production build run after the change.
+- Limitations: Basemap detail varies with zoom and runtime tile availability.
+
 ## 2026-10-10T22:00:23+05:30 — Reduce basemap visual noise
 
 - Changed: Switched the detailed standard OSM raster tiles to the lighter CARTO basemap, which uses OpenStreetMap data and keeps roads and labels subordinate to the historical transit layers.

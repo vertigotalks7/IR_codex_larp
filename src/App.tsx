@@ -4,8 +4,8 @@ import { milestones, routes, stations, years, isVisible, type Route, type Statio
 
 const mapStyle = {
   version: 8 as const,
-  sources: { osm: { type: 'raster' as const, tiles: ['https://{a-d}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'], tileSize: 256, attribution: '© OpenStreetMap contributors © CARTO' } },
-  layers: [{ id: 'osm', type: 'raster' as const, source: 'osm', paint: { 'raster-opacity': 0.78 } }],
+  sources: { osm: { type: 'raster' as const, tiles: ['https://{a-d}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'], tileSize: 256, attribution: '© OpenStreetMap contributors © CARTO' } },
+  layers: [{ id: 'osm', type: 'raster' as const, source: 'osm', paint: { 'raster-opacity': 1 } }],
 }
 
 function geoJson(items: Route[] | Station[]) {
