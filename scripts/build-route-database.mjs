@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { createHash } from 'node:crypto'
 import { DatabaseSync } from 'node:sqlite'
 
 const root = process.cwd()
@@ -84,19 +85,27 @@ fs.mkdirSync(path.dirname(databasePath), { recursive: true }); fs.mkdirSync(path
 const database = new DatabaseSync(databasePath)
 database.exec(`
   PRAGMA foreign_keys = ON;
-  DROP TABLE IF EXISTS stations; DROP TABLE IF EXISTS route_shapes; DROP TABLE IF EXISTS lines; DROP TABLE IF EXISTS systems;
+  DROP TABLE IF EXISTS services; DROP TABLE IF EXISTS projects; DROP TABLE IF EXISTS historical_events; DROP TABLE IF EXISTS infrastructure_segments; DROP TABLE IF EXISTS sources; DROP TABLE IF EXISTS stations; DROP TABLE IF EXISTS route_shapes; DROP TABLE IF EXISTS lines; DROP TABLE IF EXISTS systems;
+  CREATE TABLE sources (id TEXT PRIMARY KEY, name TEXT NOT NULL, source_url TEXT NOT NULL, source_type TEXT NOT NULL, licence_note TEXT NOT NULL, snapshot_hash TEXT NOT NULL, coverage_note TEXT NOT NULL, retrieved_at TEXT NOT NULL);
   CREATE TABLE systems (id TEXT PRIMARY KEY, name TEXT NOT NULL, city TEXT NOT NULL, operator TEXT NOT NULL, source_url TEXT NOT NULL, retrieved_at TEXT NOT NULL);
   CREATE TABLE lines (id TEXT PRIMARY KEY, system_id TEXT NOT NULL REFERENCES systems(id), name TEXT NOT NULL, color TEXT NOT NULL, opened_year INTEGER NOT NULL, source_url TEXT NOT NULL);
   CREATE TABLE route_shapes (id TEXT PRIMARY KEY, line_id TEXT NOT NULL REFERENCES lines(id), geometry_geojson TEXT NOT NULL, point_count INTEGER NOT NULL, source_type TEXT NOT NULL, source_url TEXT NOT NULL, retrieved_at TEXT NOT NULL);
   CREATE TABLE stations (id TEXT PRIMARY KEY, system_id TEXT NOT NULL REFERENCES systems(id), name TEXT NOT NULL, latitude REAL NOT NULL, longitude REAL NOT NULL, opened_year INTEGER NOT NULL, line_ids TEXT NOT NULL, source_url TEXT NOT NULL, coordinate_source TEXT NOT NULL);
+  CREATE TABLE infrastructure_segments (id TEXT PRIMARY KEY, system_id TEXT, line_id TEXT, geometry_geojson TEXT NOT NULL, status TEXT NOT NULL, geometry_snapshot_date TEXT NOT NULL, source_id TEXT NOT NULL REFERENCES sources(id));
+  CREATE TABLE historical_events (id TEXT PRIMARY KEY, system_id TEXT, line_id TEXT, segment_id TEXT, station_id TEXT, event_type TEXT NOT NULL, effective_date TEXT, confidence TEXT NOT NULL, source_id TEXT NOT NULL REFERENCES sources(id), note TEXT);
+  CREATE TABLE projects (id TEXT PRIMARY KEY, name TEXT NOT NULL, mode TEXT NOT NULL, status TEXT NOT NULL, geometry_geojson TEXT, source_id TEXT NOT NULL REFERENCES sources(id), last_verified_at TEXT NOT NULL);
+  CREATE TABLE services (id TEXT PRIMARY KEY, system_id TEXT, line_id TEXT, service_number TEXT, name TEXT, validity_start TEXT, validity_end TEXT, source_id TEXT NOT NULL REFERENCES sources(id));
 `)
 const retrievedAt = new Date().toISOString()
+const insertSource = database.prepare('INSERT INTO sources VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
 const insertSystem = database.prepare('INSERT INTO systems VALUES (?, ?, ?, ?, ?, ?)')
 const insertLine = database.prepare('INSERT INTO lines VALUES (?, ?, ?, ?, ?, ?)')
 const insertShape = database.prepare('INSERT INTO route_shapes VALUES (?, ?, ?, ?, ?, ?, ?)')
 const insertStation = database.prepare('INSERT INTO stations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
 for (const snapshot of snapshots) {
   const { feed } = snapshot
+  const snapshotHash = createHash('sha256').update(JSON.stringify({ routes: snapshot.routes, stations: snapshot.stations })).digest('hex')
+  insertSource.run(`${feed.id}-gtfs`, `${feed.name} GTFS snapshot`, feed.source, 'gtfs', 'See DATA_SOURCES.md for source-specific attribution and terms.', snapshotHash, `Route shapes and station catalog for ${feed.city}.`, retrievedAt)
   insertSystem.run(feed.id, feed.name, feed.city, feed.operator, feed.source, retrievedAt)
   for (const feature of snapshot.routes) {
     insertLine.run(feature.properties.id, feed.id, feature.properties.name, feature.properties.color, feed.opened, feed.source)

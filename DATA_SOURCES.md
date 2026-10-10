@@ -51,3 +51,9 @@ The Delhi station points in the current sample are source-backed. The station sa
 ## Reproduction notes
 
 The source snapshot was inspected on 10 October 2026. To refresh the coordinates, download the raw JSON, filter records whose `details.line` contains `Yellow Line`, and preserve the source version/date in this file. Do not silently mix current OSM geometry with historical opening dates: OSM represents present-day physical features, while the time slider needs dated infrastructure records.
+
+## National rail and high-speed research queue
+
+There is no open, official nationwide Indian Railways GIS layer ready to embed in a web atlas. The planned physical-network base is the [Geofabrik India OpenStreetMap extract](https://download.geofabrik.de/asia/india.html), kept as a versioned local snapshot under ODbL attribution. Official Railway Board maps, the [National Rail Plan](https://indianrailways.gov.in/ExeSummary-24122020.pdf), Pink Books, and zonal construction lists are validation and historical-event sources rather than substitute geometry.
+
+High-speed rail will start with the Mumbai–Ahmedabad corridor only after a source-reviewed project geometry is added from [NHSRCL feasibility material](https://nhsrcl.in/en/project/feasibility-study-report). Other corridors are status records only until official alignments are published. The complete data contract and source priority are in [ATLAS_ARCHITECTURE.md](ATLAS_ARCHITECTURE.md).

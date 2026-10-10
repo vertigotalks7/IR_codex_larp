@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T01:20:00+05:30 — Add atlas landing shell and national rail data architecture
+
+- Changed: Added a landing-page-first product shell with honest Metro, Indian Railways, and High-Speed Rail entry states; documented the national source hierarchy and data contract; extended the SQLite schema for sources, infrastructure segments, historical events, projects, and services.
+- Why: The existing current metro data is not broad or historical enough to support claims of a complete Indian rail atlas. The new shell and schema separate what is interactive today from verified expansion work.
+- Validation: `npm run data:build`, `npm run build`, and `git diff --check` passed.
+- Limitations: National rail, high-speed rail, and detailed historical segment data are not yet ingested. The current interactive atlas remains limited to verified metro snapshots.
+
 ## 2026-10-11T00:58:00+05:30 — Fix route switching race condition
 
 - Changed: Added versioned route hydration so a slow request from a previously selected metro cannot overwrite the currently selected map. Local route/station data is re-applied only for the active system/year selection.

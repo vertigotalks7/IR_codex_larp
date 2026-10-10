@@ -32,7 +32,7 @@ The implementation was built from scratch during the event. The event rules are 
 ## Project overview — complete during the event
 
 - **Project name:** Transit Time Machine
-- **Short description:** Explore India's metro systems, colored line families, and dated network expansion on one map.
+- **Short description:** A source-aware historical atlas for India’s metros today, expanding to conventional rail and high-speed project layers as their records are verified.
 - **Working demo:** Run locally with the commands below.
 - **Technology stack:** Vite, React, TypeScript, MapLibre GL JS, OpenStreetMap raster tiles.
 
@@ -47,6 +47,7 @@ The implementation was built from scratch during the event. The event rules are 
 ### Current status
 
 - Working features: India-scale map-first atlas viewer, dark settings rail, seven metro-system filters, multiple colored line families, compact historical time slider, station details, milestone playback, and source links.
+- Product direction: a vintage landing page now introduces the atlas, with separate Metro, Indian Railways, and High-Speed Rail paths. Only the Metro path is currently interactive; broader coverage is tracked in [ATLAS_ARCHITECTURE.md](ATLAS_ARCHITECTURE.md).
 - Known limitations: Hyderabad, Bengaluru, and Chennai now load verified GTFS route shapes and station catalogs from the local SQLite/GeoJSON data bundle; Delhi, Kochi, Mumbai, and Pune still use OSM when available and show no route layer when it is unavailable. Complete station-by-station GTFS geometry and dated extensions are still being added city by city. Live train tracking and non-metro rail modes are not implemented yet. OSM tiles and some route data require network access at runtime.
 - Data pipeline: Run `npm run data:build` to rebuild `data/routes.sqlite` and the browser export at `public/data/routes.json` from the committed GTFS source snapshots in `data/source/`. SQLite is the canonical local store; the frontend reads the generated export for fast browser loading.
 - Libraries and sources: [MapLibre GL JS](https://maplibre.org/), [OpenStreetMap tiles](https://www.openstreetmap.org/copyright), and the system-specific feeds documented in [DATA_SOURCES.md](DATA_SOURCES.md).
