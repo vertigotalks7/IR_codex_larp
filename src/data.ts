@@ -1,6 +1,6 @@
 export type TransportKind = 'metro' | 'railway'
 export type Status = 'operational' | 'planned'
-export type MetroSystemId = 'delhi' | 'bengaluru' | 'chennai' | 'hyderabad' | 'kochi' | 'mumbai' | 'pune'
+export type MetroSystemId = 'delhi' | 'bengaluru' | 'chennai' | 'hyderabad' | 'kochi' | 'mumbai' | 'pune' | 'noida' | 'gurugram-rapid' | 'navi-mumbai'
 
 export type MetroSystem = {
   id: MetroSystemId
@@ -42,13 +42,16 @@ export type Route = {
 }
 
 export const systems: MetroSystem[] = [
-  { id: 'delhi', name: 'Delhi Metro', city: 'Delhi NCR', opened: 2002, lines: ['Red', 'Yellow', 'Blue', 'Green', 'Violet', 'Pink', 'Magenta', 'Grey', 'Airport Express', 'Aqua', 'Rapid Metro'], color: '#f2c94c', center: [77.21, 28.62], source: 'https://delhimetrorail.com/pages/about-us/present-network', dataSource: 'https://www.openstreetmap.org/' },
+  { id: 'delhi', name: 'Delhi Metro', city: 'Delhi NCR', opened: 2002, lines: ['Red', 'Yellow', 'Blue', 'Green', 'Violet', 'Pink', 'Magenta', 'Grey', 'Airport Express'], color: '#f2c94c', center: [77.21, 28.62], source: 'https://delhimetrorail.com/pages/about-us/present-network', dataSource: 'https://www.openstreetmap.org/' },
   { id: 'bengaluru', name: 'Namma Metro', city: 'Bengaluru', opened: 2011, lines: ['Purple', 'Green', 'Yellow'], color: '#9b59b6', center: [77.59, 12.98], source: 'https://english.bmrc.co.in/', dataSource: 'https://github.com/Vonter/bmrcl-gtfs' },
   { id: 'chennai', name: 'Chennai Metro', city: 'Chennai', opened: 2015, lines: ['Blue', 'Green'], color: '#2f80ed', center: [80.24, 13.05], source: 'https://chennaimetrorail.org/metro-line-map/', dataSource: 'https://www.openstreetmap.org/' },
   { id: 'hyderabad', name: 'Hyderabad Metro', city: 'Hyderabad', opened: 2017, lines: ['Red', 'Blue', 'Green'], color: '#e74c3c', center: [78.47, 17.41], source: 'https://hmrl.co.in/', dataSource: 'https://data.opencity.in/dataset/hyderabad-metro-rail-gtfs' },
   { id: 'kochi', name: 'Kochi Metro', city: 'Kochi', opened: 2017, lines: ['Blue'], color: '#00a6a6', center: [76.32, 10.03], source: 'https://kochimetro.org/phase-1-status/', dataSource: 'https://www.openstreetmap.org/' },
   { id: 'mumbai', name: 'Mumbai Metro', city: 'Mumbai', opened: 2014, lines: ['Line 1', 'Line 2', 'Line 3', 'Line 7', 'Line 9'], color: '#f2994a', center: [72.88, 19.14], source: 'https://mmrda.maharashtra.gov.in/en/node/1229', dataSource: 'https://www.openstreetmap.org/' },
   { id: 'pune', name: 'Pune Metro', city: 'Pune', opened: 2022, lines: ['Purple', 'Aqua'], color: '#27ae60', center: [73.86, 18.54], source: 'https://www.mahametro.org/route_maps.html', dataSource: 'https://www.openstreetmap.org/' },
+  { id: 'noida', name: 'Noida Metro', city: 'Noida–Greater Noida', opened: 2019, lines: ['Aqua'], color: '#17889a', center: [77.52, 28.56], source: 'https://www.nmrcnoida.com/Projects/Present-Network', dataSource: 'https://www.openstreetmap.org/' },
+  { id: 'gurugram-rapid', name: 'Rapid Metro Gurugram', city: 'Gurugram', opened: 2013, lines: ['Rapid Metro'], color: '#526a7d', center: [77.08, 28.49], source: 'https://gmrl.org.in/MillenniumCity.aspx', dataSource: 'https://www.openstreetmap.org/' },
+  { id: 'navi-mumbai', name: 'Navi Mumbai Metro', city: 'Navi Mumbai', opened: 2023, lines: ['Line 1'], color: '#2478ad', center: [73.07, 19.03], source: 'https://cidco.maharashtra.gov.in/Page?Token=76747ABE287', dataSource: 'https://www.openstreetmap.org/' },
 ]
 
 export const stations: Station[] = [

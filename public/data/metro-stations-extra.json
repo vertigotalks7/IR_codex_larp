@@ -1,0 +1,422 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "title": "Supplemental verified metro station points from the local HOTOSM/OSM snapshot",
+    "generatedAt": "2026-10-11",
+    "source": {
+      "dataset": "HOTOSM/OSM Indian railways GeoJSON",
+      "localFile": "data/source/hotosm/railways.geojson",
+      "snapshotDate": "2026-05-10",
+      "coordinatePolicy": "Point coordinates are copied unchanged. For tagged station-footprint polygons, the point marker is the polygon centroid; the source object ID and derivation are recorded on the feature."
+    },
+    "officialRosters": {
+      "Line 1": {
+        "operator": "Mumbai Metro One Private Limited (MMOPL)",
+        "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-1/overview",
+        "officialSourceRetrieved": "2026-10-11",
+        "publishedStationCount": 12,
+        "matchedSourceMarkerCount": 12
+      },
+      "Line 3": {
+        "operator": "Mumbai Metro Rail Corporation Limited (MMRCL)",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "publishedStationCount": 27,
+        "matchedSourceMarkerCount": 17
+      },
+      "Line 2B": {
+        "operator": "MMRDA / Maha Mumbai Metro Operation Corporation Limited",
+        "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-2b/overview?page=3",
+        "officialSourceRetrieved": "2026-10-11",
+        "publishedStationCount": 6,
+        "matchedSourceMarkerCount": 5
+      },
+      "Line 9": {
+        "operator": "MMRDA / Maha Mumbai Metro Operation Corporation Limited",
+        "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-9/overview",
+        "officialSourceRetrieved": "2026-10-11",
+        "publishedStationCount": 4,
+        "matchedSourceMarkerCount": 4
+      }
+    },
+    "matchedFeatureCounts": {
+      "kochi": 1,
+      "pune": 1,
+      "mumbai": 38,
+      "Line 1": 12,
+      "Line 2B": 5,
+      "Line 3": 17,
+      "Line 9": 4
+    },
+    "methodology": "A record is included only when a source feature is an exact official roster name after harmless punctuation/case normalization, or a recorded explicit alias. Generic railway points with a name collision were excluded unless the source name or an official line-qualified name makes metro identity unambiguous. Point coordinates are unchanged; station-footprint polygons are represented by their calculated centroids and retain the polygon source ID. No coordinates were interpolated from line geometry.",
+    "limitations": [
+      "This is a partial supplement, not a complete Mumbai Metro dataset. It now includes all 12 Line 1 stations using OSM points or station-footprint centroids, 17 of 27 Line 3 stations, five of six currently open Line 2B stations, and all four currently open Line 9 stations. Missing points remain missing; no station is placed from a schematic.",
+      "The Line 3 Aarey source point is already present in public/data/metro-stations-osm.json as a Line 7 record, so it is not duplicated here even though the physical area is also served by Line 3.",
+      "Ambiguous generic suburban-rail records such as Churchgate, Mumbai Central, Grant Road, and Dadar were not included. A name match alone does not prove that an unqualified source point represents the underground Line 3 station.",
+      "Station rosters validate names and corridor membership; the HOTOSM export itself does not reliably carry metro operator or line tags. Kochi's Vyttila and Pune's Mahatma Phule Mandai are included from source objects that were absent from the first curated point bundle."
+    ],
+    "validation": {
+      "sourceCoordinateEquality": "Point features retain source coordinates; centroid features retain their source polygon IDs and are reproducible from its closed ring in data/source/hotosm/railways.geojson.",
+      "duplicateFeatureIds": "Checked against this file and public/data/metro-stations-osm.json; no duplicate source feature IDs are included."
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "node/6020955334",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Andheri",
+        "officialLine": "Line 1",
+        "sourceFeatureId": "node/6020955334",
+        "sourceName": "Andheri L1",
+        "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-1/overview",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "explicit source alias: Andheri L1"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8488433, 19.1205638] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/4264539430",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Ghatkopar",
+        "officialLine": "Line 1",
+        "sourceFeatureId": "node/4264539430",
+        "sourceName": "Ghatkopar",
+        "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-1/overview",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "exact official roster name; Line 1 terminal"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.9083668, 19.0856928] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/13207029317",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Cuffe Parade",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/13207029317",
+        "sourceName": "Cuffe Parade",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "exact official roster name"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8207152, 18.9135692] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/13207029320",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Hutatma Chowk",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/13207029320",
+        "sourceName": "Hutatma Chowk",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "exact official roster name"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8325037, 18.9341849] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/13207029323",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Kalbadevi",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/13207029323",
+        "sourceName": "Kalbadevi",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "exact official roster name"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.827193, 18.946329] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/13207029324",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Girgaon",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/13207029324",
+        "sourceName": "Girgaon",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "exact official roster name"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8222065, 18.9521015] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/13192130535",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Mahalaxmi Metro",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/13192130535",
+        "sourceName": "Mahalaxmi",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "explicit official alias: Mahalaxmi Metro"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8254006, 18.979467] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/13192130536",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Science Centre",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/13192130536",
+        "sourceName": "Science Centre",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "exact official roster name"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8213521, 18.9908949] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/12857565154",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Acharya Atre Chowk",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/12857565154",
+        "sourceName": "Acharya Atre Chowk",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "exact official roster name"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8177201, 18.9978202] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/12855459847",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Dharavi",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/12855459847",
+        "sourceName": "Dharavi",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "exact official roster name"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.849741, 19.0462612] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/5221297179",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Bandra-Kurla Complex",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/5221297179",
+        "sourceName": "Bandra Kurla Complex (BKC)",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "explicit alias: Bandra Kurla Complex (BKC)"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8546797, 19.0606629] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/12074909129",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Bandra Colony",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/12074909129",
+        "sourceName": "Bandra Colony",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "exact official roster name"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8493601, 19.0699627] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/12074909130",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Santacruz Metro",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/12074909130",
+        "sourceName": "Santacruz",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "explicit official alias: Santacruz Metro"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8471185, 19.0792887] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/12074909131",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Chhatrapati Shivaji Maharaj International Airport - T1",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/12074909131",
+        "sourceName": "CSMI Airport Domestic T1",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "explicit abbreviation alias: CSMI Airport Domestic T1"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8535765, 19.093899] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/12074909132",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Sahar Road",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/12074909132",
+        "sourceName": "Sahar Road",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "exact official roster name"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8652361, 19.102196] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/5221297132",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Chhatrapati Shivaji Maharaj International Airport - T2",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/5221297132",
+        "sourceName": "CSMI Airport International T2",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "explicit abbreviation alias: CSMI Airport International T2"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8744692, 19.1023335] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/5787704197",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "Marol Naka",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/5787704197",
+        "sourceName": "Marol Naka (Line 3)",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "explicit line-qualified source name"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.878578, 19.1085041] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/5787704196",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "MIDC - Andheri",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/5787704196",
+        "sourceName": "MIDC - Andheri",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "exact official roster name"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8735966, 19.1173537] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/5787704195",
+      "properties": {
+        "system": "mumbai",
+        "stationName": "SEEPZ",
+        "officialLine": "Line 3",
+        "sourceFeatureId": "node/5787704195",
+        "sourceName": "SEEPZ",
+        "officialSourceUrl": "https://corporate-old.mmrcl.com/sites/default/files/20240919%20Gazette%20of%20India%20%28Published%29_1.pdf",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "exact official roster name"
+      },
+      "geometry": { "type": "Point", "coordinates": [72.8737266, 19.1259985] }
+    },
+    {
+      "type": "Feature",
+      "id": "way/840310419",
+      "properties": {
+        "system": "kochi",
+        "stationName": "Vyttila",
+        "officialLine": "Kochi Metro",
+        "sourceFeatureId": "way/840310419",
+        "sourceName": "Vyttila",
+        "officialSourceUrl": "https://corporate.kochimetro.org/",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "sourceGeometryType": "Polygon",
+        "coordinateDerivation": "Centroid of the mapped station footprint polygon",
+        "matchReason": "exact operator roster name; source station footprint"
+      },
+      "geometry": { "type": "Point", "coordinates": [76.32052590309755, 9.967462204726928] }
+    },
+    {
+      "type": "Feature",
+      "id": "node/7944597694",
+      "properties": {
+        "system": "pune",
+        "stationName": "Mahatma Phule Mandai",
+        "officialLine": "Corridor 1",
+        "sourceFeatureId": "node/7944597694",
+        "sourceName": "Mahatma Phule Mandai",
+        "officialSourceUrl": "https://www.punemetrorail.org/know-your-metro-stations?lang=en-US",
+        "officialSourceRetrieved": "2026-10-11",
+        "snapshotDate": "2026-05-10",
+        "matchReason": "exact current operator station name"
+      },
+      "geometry": { "type": "Point", "coordinates": [73.8570097, 18.5128979] }
+    },
+    { "type": "Feature", "id": "way/287299861", "properties": { "system": "mumbai", "stationName": "Versova", "officialLine": "Line 1", "sourceFeatureId": "way/287299861", "sourceName": "Versova", "sourceGeometryType": "Polygon", "coordinateDerivation": "Centroid of the mapped station footprint polygon", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-1/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "exact official roster name" }, "geometry": { "type": "Point", "coordinates": [72.82137946269042, 19.130252548379335] } },
+    { "type": "Feature", "id": "way/287299866", "properties": { "system": "mumbai", "stationName": "D. N. Nagar", "officialLine": "Line 1", "sourceFeatureId": "way/287299866", "sourceName": "D.N. Nagar", "sourceGeometryType": "Polygon", "coordinateDerivation": "Centroid of the mapped station footprint polygon", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-1/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "punctuation-normalized official name" }, "geometry": { "type": "Point", "coordinates": [72.83018722790247, 19.128290435686043] } },
+    { "type": "Feature", "id": "way/331815667", "properties": { "system": "mumbai", "stationName": "Azad Nagar", "officialLine": "Line 1", "sourceFeatureId": "way/331815667", "sourceName": "Azad Nagar", "sourceGeometryType": "Polygon", "coordinateDerivation": "Centroid of the mapped station footprint polygon", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-1/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "exact official roster name" }, "geometry": { "type": "Point", "coordinates": [72.83765185093071, 19.12691105653021] } },
+    { "type": "Feature", "id": "way/331815671", "properties": { "system": "mumbai", "stationName": "Western Express Highway", "officialLine": "Line 1", "sourceFeatureId": "way/331815671", "sourceName": "Western Express Highway", "sourceGeometryType": "Polygon", "coordinateDerivation": "Centroid of the mapped station footprint polygon", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-1/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "exact official roster name" }, "geometry": { "type": "Point", "coordinates": [72.85640879083198, 19.11585855711418] } },
+    { "type": "Feature", "id": "way/331824153", "properties": { "system": "mumbai", "stationName": "Chakala", "officialLine": "Line 1", "sourceFeatureId": "way/331824153", "sourceName": "Chakala - J.B. Nagar", "sourceGeometryType": "Polygon", "coordinateDerivation": "Centroid of the mapped station footprint polygon", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-1/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "operator calls station Chakala; OSM includes JB Nagar alias" }, "geometry": { "type": "Point", "coordinates": [72.8676170671513, 19.112034642775] } },
+    { "type": "Feature", "id": "way/311841874", "properties": { "system": "mumbai", "stationName": "Airport Road", "officialLine": "Line 1", "sourceFeatureId": "way/311841874", "sourceName": "Airport Road", "sourceGeometryType": "Polygon", "coordinateDerivation": "Centroid of the mapped station footprint polygon", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-1/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "exact official roster name" }, "geometry": { "type": "Point", "coordinates": [72.87416579111527, 19.110136099561025] } },
+    { "type": "Feature", "id": "way/311841876", "properties": { "system": "mumbai", "stationName": "Marol Naka", "officialLine": "Line 1", "sourceFeatureId": "way/311841876", "sourceName": "Marol Naka L1", "sourceGeometryType": "Polygon", "coordinateDerivation": "Centroid of the mapped station footprint polygon", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-1/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "line-qualified OSM station footprint" }, "geometry": { "type": "Point", "coordinates": [72.8794909782491, 19.108154488073446] } },
+    { "type": "Feature", "id": "way/331824155", "properties": { "system": "mumbai", "stationName": "Saki Naka", "officialLine": "Line 1", "sourceFeatureId": "way/331824155", "sourceName": "Saki Naka", "sourceGeometryType": "Polygon", "coordinateDerivation": "Centroid of the mapped station footprint polygon", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-1/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "punctuation-normalized official name" }, "geometry": { "type": "Point", "coordinates": [72.88795619943043, 19.103535513853696] } },
+    { "type": "Feature", "id": "way/331827626", "properties": { "system": "mumbai", "stationName": "Asalpha Road", "officialLine": "Line 1", "sourceFeatureId": "way/331827626", "sourceName": "Asalpha", "sourceGeometryType": "Polygon", "coordinateDerivation": "Centroid of the mapped station footprint polygon", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-1/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "station name alias in official roster" }, "geometry": { "type": "Point", "coordinates": [72.89488103107341, 19.096423353915245] } },
+    { "type": "Feature", "id": "way/311841875", "properties": { "system": "mumbai", "stationName": "Jagruti Nagar", "officialLine": "Line 1", "sourceFeatureId": "way/311841875", "sourceName": "Jagruti Nagar", "sourceGeometryType": "Polygon", "coordinateDerivation": "Centroid of the mapped station footprint polygon", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-1/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "exact official roster name" }, "geometry": { "type": "Point", "coordinates": [72.90184760797355, 19.092590067369613] } },
+    { "type": "Feature", "id": "node/13252985100", "properties": { "system": "mumbai", "stationName": "Mandale Metro", "officialLine": "Line 2B", "sourceFeatureId": "node/13252985100", "sourceName": "Mandale", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-2b/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "exact location and name on open Line 2B corridor" }, "geometry": { "type": "Point", "coordinates": [72.9386612, 19.0495916] } },
+    { "type": "Feature", "id": "node/13252997911", "properties": { "system": "mumbai", "stationName": "Mankhurd", "officialLine": "Line 2B", "sourceFeatureId": "node/13252997911", "sourceName": "Mankhurd", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-2b/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "metro-adjacent station object on open Line 2B corridor" }, "geometry": { "type": "Point", "coordinates": [72.931231, 19.0492166] } },
+    { "type": "Feature", "id": "node/13252997901", "properties": { "system": "mumbai", "stationName": "Shivaji Chowk", "officialLine": "Line 2B", "sourceFeatureId": "node/13252997901", "sourceName": "Shivaji Chowk (Chembur)", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-2b/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "line-qualified OSM station name" }, "geometry": { "type": "Point", "coordinates": [72.9069806, 19.0479383] } },
+    { "type": "Feature", "id": "node/5219622393", "properties": { "system": "mumbai", "stationName": "Diamond Garden", "officialLine": "Line 2B", "sourceFeatureId": "node/5219622393", "sourceName": "Diamond Garden", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-2b/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "exact official roster name" }, "geometry": { "type": "Point", "coordinates": [72.9018378, 19.0517191] } },
+    { "type": "Feature", "id": "node/5219622321", "properties": { "system": "mumbai", "stationName": "Chembur", "officialLine": "Line 2B", "sourceFeatureId": "node/5219622321", "sourceName": "Chembur", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-2b/overview?page=3", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "metro corridor station point, distinct from suburban Chembur point" }, "geometry": { "type": "Point", "coordinates": [72.8928064, 19.0541298] } },
+    { "type": "Feature", "id": "node/13758670735", "properties": { "system": "mumbai", "stationName": "Dahisar East", "officialLine": "Line 9", "sourceFeatureId": "node/13758670735", "sourceName": "Dahisar (East) [Line 9]", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-9/overview", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "line-qualified OSM station name" }, "geometry": { "type": "Point", "coordinates": [72.8674521, 19.2510803] } },
+    { "type": "Feature", "id": "node/13758670736", "properties": { "system": "mumbai", "stationName": "Pandurang Wadi", "officialLine": "Line 9", "sourceFeatureId": "node/13758670736", "sourceName": "Pandurang Wadi", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-9/overview", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "exact official roster name" }, "geometry": { "type": "Point", "coordinates": [72.8726403, 19.2600987] } },
+    { "type": "Feature", "id": "node/13758670737", "properties": { "system": "mumbai", "stationName": "Miragaon", "officialLine": "Line 9", "sourceFeatureId": "node/13758670737", "sourceName": "Miragaon", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-9/overview", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "exact official roster name" }, "geometry": { "type": "Point", "coordinates": [72.8806976, 19.2710068] } },
+    { "type": "Feature", "id": "node/13758670740", "properties": { "system": "mumbai", "stationName": "Kashigaon", "officialLine": "Line 9", "sourceFeatureId": "node/13758670740", "sourceName": "Kashigaon", "officialSourceUrl": "https://www.mmrda.maharashtra.gov.in/en/projects/transport/metro-line-9/overview", "officialSourceRetrieved": "2026-10-11", "snapshotDate": "2026-05-10", "matchReason": "exact official roster name" }, "geometry": { "type": "Point", "coordinates": [72.8802398, 19.2776661] } }
+  ]
+}

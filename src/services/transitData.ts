@@ -9,6 +9,22 @@ const localStationCache = new Map<MetroSystemId, Station[]>()
 let localTransitDataPromise: Promise<LocalTransitData | null> | null = null
 let isLoaded = false
 
+type OsmMetroStationBundle = {
+  features?: {
+    properties?: {
+      system?: unknown
+      stationName?: unknown
+      officialLines?: unknown
+      officialSource?: unknown
+      officialLine?: unknown
+      officialSourceUrl?: unknown
+      osmFeatureId?: unknown
+      sourceFeatureId?: unknown
+    }
+    geometry?: { type?: unknown; coordinates?: unknown }
+  }[]
+}
+
 export function isTransitDataLoaded(): boolean {
   return isLoaded
 }
@@ -72,10 +88,26 @@ export function visibleStationsFor(system: MetroSystemId | 'all', year: number) 
 
 export async function loadLocalTransitData(): Promise<LocalTransitData | null> {
   if (!localTransitDataPromise) {
-    localTransitDataPromise = fetch('/data/routes.json', { cache: 'no-store' })
-      .then(async (response) => {
+    localTransitDataPromise = Promise.all([
+      fetch('/data/routes.json', { cache: 'no-store' }),
+      fetch('/data/metro-stations-osm.json', { cache: 'no-store' }).catch(() => null),
+      fetch('/data/metro-stations-extra.json', { cache: 'no-store' }).catch(() => null),
+    ])
+      .then(async ([response, osmStationsResponse, extraOsmStationsResponse]) => {
         if (!response.ok) return null
-        const payload = (await response.json()) as LocalTransitData
+        const [payload, osmStationPayload, extraOsmStationPayload] = await Promise.all([
+          response.json() as Promise<LocalTransitData>,
+          osmStationsResponse?.ok
+            ? osmStationsResponse.json() as Promise<OsmMetroStationBundle>
+            : Promise.resolve({ features: [] } as OsmMetroStationBundle),
+          extraOsmStationsResponse?.ok
+            ? extraOsmStationsResponse.json() as Promise<OsmMetroStationBundle>
+            : Promise.resolve({ features: [] } as OsmMetroStationBundle),
+        ])
+        const allOsmStationFeatures = [
+          ...(osmStationPayload.features ?? []),
+          ...(extraOsmStationPayload.features ?? []),
+        ]
         for (const system of systems.map((item) => item.id)) {
           const features = payload.features?.filter((feature) => feature.properties.system === system) ?? []
           if (features.length) {
@@ -101,8 +133,39 @@ export async function loadLocalTransitData(): Promise<LocalTransitData | null> {
               source: station.properties.source,
               coordinateSource: station.properties.coordinateSource,
             }))
-          if (importedStations.length) {
-            localStationCache.set(system, importedStations)
+          const importedOsmStations = allOsmStationFeatures
+            .filter((feature) => feature.properties?.system === system
+              && feature.geometry?.type === 'Point'
+              && Array.isArray(feature.geometry.coordinates)
+              && typeof feature.geometry.coordinates[0] === 'number'
+              && typeof feature.geometry.coordinates[1] === 'number'
+              && typeof feature.properties.stationName === 'string'
+              && (typeof feature.properties.osmFeatureId === 'string' || typeof feature.properties.sourceFeatureId === 'string'))
+            .map((feature) => {
+              const properties = feature.properties!
+              const systemInfo = systems.find((item) => item.id === system)!
+              const osmId = (properties.osmFeatureId ?? properties.sourceFeatureId) as string
+              const officialLines = Array.isArray(properties.officialLines)
+                ? properties.officialLines.filter((line): line is string => typeof line === 'string')
+                : typeof properties.officialLine === 'string' ? [properties.officialLine] : []
+              const sourceUrl = typeof properties.officialSource === 'string'
+                ? properties.officialSource
+                : typeof properties.officialSourceUrl === 'string' ? properties.officialSourceUrl : systemInfo.source
+              return {
+                id: `${system}-${osmId.replace('/', '-')}`,
+                name: properties.stationName as string,
+                city: systemInfo.city,
+                kind: 'metro' as const,
+                opened: systemInfo.opened,
+                coordinates: feature.geometry!.coordinates as [number, number],
+                lines: officialLines,
+                system,
+                source: sourceUrl,
+                coordinateSource: `https://www.openstreetmap.org/${osmId}`,
+              }
+            })
+          if (importedStations.length || importedOsmStations.length) {
+            localStationCache.set(system, [...importedStations, ...importedOsmStations])
           }
         }
         isLoaded = true

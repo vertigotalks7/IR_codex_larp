@@ -1,5 +1,6 @@
 import { systems } from '../../data'
 import { networkModes } from '../../config/networks'
+import { metroCatalog, metroCatalogById } from '../../data/metroCatalog'
 import { nationalCorridors, type RailwayJunction } from '../../data/nationalRailways'
 import { RAILWAY_ZONES } from '../../data/railwayZones'
 import { SUBURBAN_DIVISIONS } from '../../data/suburbanDivisions'
@@ -10,6 +11,7 @@ import {
   getSuburbanTracksGeoJson,
 } from '../../services/railwayService'
 import type { MetroSystemId, NetworkMode, Station, RouteStatus, NetworkModeConfig } from '../../types'
+import './atlas-panel-catalog.css'
 
 interface AtlasPanelProps {
   network: NetworkMode
@@ -56,6 +58,9 @@ export function AtlasPanel({
   const railJunctionCount = routeStatus === 'real' ? getNationalRailwaysJunctionsGeoJson(selectedCorridorId).features.length : '—'
   const cityTrackCount = routeStatus === 'real' ? getSuburbanTracksGeoJson(selectedSuburbanId).features.length : '—'
   const cityStationCount = routeStatus === 'real' ? getSuburbanStationsGeoJson(selectedSuburbanId).features.length : '—'
+  const metroRouteFeatureCount = system === 'all'
+    ? systems.reduce((total, item) => total + (metroCatalogById[item.id]?.routeGeometry.featureCount ?? 0), 0)
+    : metroCatalogById[system]?.routeGeometry.featureCount ?? 0
 
   return (
     <aside className="atlas-panel">
@@ -90,26 +95,46 @@ export function AtlasPanel({
               <i style={{ background: '#8e4b38' }} />
               All India
             </button>
-            {systems.map((item) => (
-              <button
+            {systems.map((item) => {
+              const count = metroCatalogById[item.id]?.stationCount
+              const stationLabel = count?.operating !== null && count?.operating !== undefined
+                ? `${count.operating} stations`
+                : count?.publishedCount !== undefined
+                  ? `${count.publishedCount} reported`
+                  : 'station total n/a'
+              return <button
                 key={item.id}
                 className={system === item.id ? 'active' : ''}
                 onClick={() => onSystemChange(item.id)}
               >
                 <i style={{ background: item.color }} />
                 {item.name}
-                <small>{item.lines.length} lines</small>
+                <small>{stationLabel}</small>
               </button>
-            ))}
+            })}
+            <p className="route-warning">Other operator map catalogs · geometry not imported</p>
+            {metroCatalog.filter((item) => !systems.some((systemItem) => systemItem.id === item.id)).map((item) => {
+              const count = item.stationCount
+              const stationLabel = count.operating !== null
+                ? `${count.operating} stations`
+                : count.publishedCount !== undefined ? `${count.publishedCount} reported` : 'station total n/a'
+              return <button key={item.id} type="button" disabled title={`${item.name}: ${count.definition} Route geometry pending local review.`} aria-label={`${item.name}, ${stationLabel}, route geometry pending`}>
+                <i style={{ background: '#9a8a72' }} />
+                {item.name}
+                <small>{stationLabel}</small>
+              </button>
+            })}
           </div>
           <div className="network-reference">
-            <small>TRACK GEOMETRY SOURCES</small>
+            <small>TRACK & STATION SOURCES</small>
             <p>
-              Bengaluru and Hyderabad use GTFS shapes; Delhi, Chennai, Kochi, Mumbai, and Pune use mapped OSM track ways from 11 Oct 2026. OSM lines are physical mapped geometry, not operator-certified service paths. No station-coordinate connectors are generated.
+              Ten systems have bundled geometry: GTFS shapes for Bengaluru and Hyderabad; OSM subway-track ways for Delhi, Chennai, Kochi, Mumbai, Pune, Noida, Gurugram, and Navi Mumbai. OSM is physical mapped track, not an operator-certified service path; Mumbai's generic OSM Line 2 label does not distinguish Line 2A/2B. Station records are separate from operator totals: Kochi has 25 named-stop markers (24 source points plus one footprint centroid; homepage claim 26), Mumbai has 66 records/65 names with partial Line 2A/2B/3 coverage, and Pune has 30 records/29 names including Mandai and two Civil Court objects. No coordinate-connector routes are generated.
             </p>
             <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap / ODbL attribution ↗</a>
             <br />
             <a href="https://hmrl.co.in/open-data/" target="_blank" rel="noreferrer">HMRL GTFS terms and attribution ↗</a>
+            <br />
+            <a href="https://data.humdata.org/dataset/hotosm_ind_railways" target="_blank" rel="noreferrer">HOTOSM station snapshot · 10 May 2026 ↗</a>
           </div>
         </>
       )}
@@ -320,7 +345,7 @@ export function AtlasPanel({
         <div>
           <strong>
             {network === 'metro'
-              ? visibleStationsCount
+              ? routeStatus === 'real' ? visibleStationsCount : '—'
               : network === 'rail'
                 ? railJunctionCount
                 : network === 'suburban'
@@ -329,7 +354,7 @@ export function AtlasPanel({
           </strong>
           <span>
             {network === 'metro'
-              ? 'stations in view'
+              ? 'station markers in view'
               : network === 'rail'
                 ? 'junctions in view'
                 : network === 'suburban'
@@ -340,7 +365,7 @@ export function AtlasPanel({
         <div>
           <strong>
             {network === 'metro'
-              ? systems.length
+              ? routeStatus === 'real' ? metroRouteFeatureCount : '—'
               : network === 'rail'
                 ? railTrackCount
                 : network === 'suburban'
@@ -349,7 +374,7 @@ export function AtlasPanel({
           </strong>
           <span>
             {network === 'metro'
-              ? 'systems'
+              ? 'route features bundled'
               : network === 'rail'
                 ? 'track sections'
                 : network === 'suburban'

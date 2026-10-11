@@ -17,6 +17,9 @@ const osmMetroSystems = [
   { id: 'kochi', name: 'Kochi Metro', city: 'Kochi', operator: 'Kochi Metro Rail Limited', opened: 2017, source: 'https://kochimetro.org/phase-1-status/', bounds: [76.1, 9.8, 76.55, 10.25] },
   { id: 'mumbai', name: 'Mumbai Metro', city: 'Mumbai', operator: 'MMRDA / MMMOCL', opened: 2014, source: 'https://mmrda.maharashtra.gov.in/en/node/1229', bounds: [72.65, 18.7, 73.3, 19.4] },
   { id: 'pune', name: 'Pune Metro', city: 'Pune', operator: 'Maha Metro', opened: 2022, source: 'https://www.mahametro.org/route_maps.html', bounds: [73.6, 18.3, 74.1, 18.85] },
+  { id: 'noida', name: 'Noida Metro', city: 'Noida–Greater Noida', operator: 'Noida Metro Rail Corporation', opened: 2019, source: 'https://www.nmrcnoida.com/Projects/Present-Network', bounds: [77.25, 28.35, 77.7, 28.7] },
+  { id: 'gurugram-rapid', name: 'Rapid Metro Gurugram', city: 'Gurugram', operator: 'HMRTC / DMRC', opened: 2013, source: 'https://gmrl.org.in/MillenniumCity.aspx', bounds: [76.9, 28.35, 77.2, 28.6] },
+  { id: 'navi-mumbai', name: 'Navi Mumbai Metro', city: 'Navi Mumbai', operator: 'CIDCO / Maha Metro', opened: 2023, source: 'https://cidco.maharashtra.gov.in/Page?Token=76747ABE287', bounds: [72.95, 18.95, 73.2, 19.2] },
 ]
 
 const metroColors = {
@@ -33,8 +36,11 @@ const metroColors = {
   'Rapid Metro': '#526a7d',
   'Line 1': '#2478ad',
   'Line 2': '#e4bb3f',
+  'Line 2A': '#e4bb3f',
+  'Line 2B': '#e4bb3f',
   'Line 3': '#168b91',
   'Line 7': '#df4038',
+  'Line 7A': '#df4038',
   'Line 9': '#ba493c',
   'Purple Line': '#75469a',
   // Do not imply an unnamed OSM way belongs to Chennai's Blue or Green Line.
@@ -128,8 +134,12 @@ function readFeed(feed) {
 
 function osmMetroLine(system, tags) {
   const name = tags.name ?? ''
+  const network = tags.network ?? ''
+  if (system.id === 'noida') return /aqua|noida metro/i.test(`${name} ${network}`) ? 'Aqua Line' : ''
+  if (system.id === 'gurugram-rapid') return /rapid metro/i.test(`${name} ${network}`) ? 'Rapid Metro' : ''
+  if (system.id === 'navi-mumbai') return /navi mumbai metro/i.test(`${name} ${network}`) ? 'Line 1' : ''
   if (system.id === 'delhi') {
-    if (/rapid metro/i.test(name) || /rapid metro/i.test(tags.network ?? '')) return 'Rapid Metro'
+    if (/rapid metro|aqua line/i.test(`${name} ${network}`)) return ''
     if (/airport express/i.test(name)) return 'Airport Express Line'
     const colors = [
       ['red', 'Red Line'], ['yellow', 'Yellow Line'], ['blue', 'Blue Line'], ['green', 'Green Line'],
@@ -157,9 +167,12 @@ function osmMetroLine(system, tags) {
     if (!match) return ''
     const key = match[1].toLowerCase()
     if (key === '1') return 'Line 1'
-    if (key === '2' || key === '2a' || key === '2b') return 'Line 2'
+    if (key === '2a') return 'Line 2A'
+    if (key === '2b') return 'Line 2B'
+    if (key === '2') return 'Line 2'
     if (key === '3') return 'Line 3'
-    if (key === '7' || key === '7a') return 'Line 7'
+    if (key === '7a') return 'Line 7A'
+    if (key === '7') return 'Line 7'
     return 'Line 9'
   }
   if (system.id === 'pune') {

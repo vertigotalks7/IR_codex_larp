@@ -1,6 +1,6 @@
 export type TransportKind = 'metro' | 'railway'
 export type Status = 'operational' | 'planned'
-export type MetroSystemId = 'delhi' | 'bengaluru' | 'chennai' | 'hyderabad' | 'kochi' | 'mumbai' | 'pune'
+export type MetroSystemId = 'delhi' | 'bengaluru' | 'chennai' | 'hyderabad' | 'kochi' | 'mumbai' | 'pune' | 'noida' | 'gurugram-rapid' | 'navi-mumbai'
 export type NetworkMode = 'metro' | 'rail' | 'suburban' | 'nhsrcl'
 
 export interface MetroSystem {

@@ -4,7 +4,7 @@ export const networkModes: NetworkModeConfig[] = [
   {
     id: 'metro',
     name: 'Metro',
-    description: 'Bundled GTFS shapes plus OpenStreetMap track ways for all seven metro systems; source dates are recorded per layer',
+    description: 'Bundled GTFS shapes plus OpenStreetMap track ways for metro systems with verified geometry; station-point coverage is shown separately',
     source: 'DATA_SOURCES.md',
     sourceLabel: 'Atlas source ledger',
     center: [78.96, 20.59],

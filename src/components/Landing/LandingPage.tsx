@@ -1,110 +1,21 @@
-interface LandingPageProps {
-  onEnterAtlas: () => void
-  onOpenHistory: () => void
+import './landing.css'
+import { metroCatalog } from '../../data/metroCatalog'
+import { SUBURBAN_DIVISIONS } from '../../data/suburbanDivisions'
+
+interface LandingPageProps { onEnterAtlas: () => void; onOpenHistory: () => void }
+
+function RouteBoard() {
+  const stops = [[127, 76], [239, 166], [318, 182], [411, 205], [532, 250], [201, 249], [384, 337], [558, 287]]
+  return <div className="route-board" aria-label="Abstract rail network illustration"><div className="route-board-topline"><span>INDIA / RAIL ATLAS</span><span>EST. 2002</span></div><svg viewBox="0 0 700 460" role="img" aria-label="Abstract multi-colour rail lines meeting at stations"><path className="route route-gold" d="M26 115C128 74 161 145 239 166S355 124 411 205s92 98 188 45 69-98 76-168" /><path className="route route-oxide" d="M70 385c60-40 95-123 171-112s108-22 154-75 94-19 137-67 94-82 138-49" /><path className="route route-teal" d="M127 19c26 58 88 77 112 147s-11 129 79 163 139 12 183 89" /><path className="route route-indigo" d="M14 268c78 4 113-45 187-19s96 122 183 88 127-134 285-94" /><path className="route route-ghost" d="M466 18c-44 42-59 86-41 146s-30 124-2 184 92 69 134 95" />{stops.map(([cx, cy], index) => <g className="board-stop" key={`${cx}-${cy}`} style={{ '--delay': `${index * .17}s` } as React.CSSProperties}><circle cx={cx} cy={cy} r="11" /><circle cx={cx} cy={cy} r="4" /></g>)}</svg><div className="route-board-key"><span><i className="gold" />Metro layers</span><span><i className="teal" />Rail research</span><span><i className="oxide" />History thread</span></div></div>
 }
 
 export function LandingPage({ onEnterAtlas, onOpenHistory }: LandingPageProps) {
-  return (
-    <main className="landing-shell">
-      <header className="landing-header">
-        <button className="landing-mark" onClick={onEnterAtlas}>
-          <span>↔</span>
-          <strong>Transit Time Machine</strong>
-        </button>
-        <p>India’s railway atlas · built from verifiable public records</p>
-      </header>
-
-      <section className="landing-hero">
-        <p className="landing-kicker">A living cartography of movement</p>
-        <h1>
-          Travel through India’s <em>railway history.</em>
-        </h1>
-        <p className="landing-intro">
-          Explore metro growth today, then follow the expanding story of conventional rail and high-speed corridors as their source archives are verified and added.
-        </p>
-        <div className="landing-actions">
-          <button className="landing-primary" onClick={onEnterAtlas}>
-            Enter metro atlas <span>→</span>
-          </button>
-          <button className="landing-history-link" onClick={onOpenHistory}>Read the timeline ↗</button>
-          <a href="#data-ledger">View data ledger ↓</a>
-        </div>
-      </section>
-
-      <section className="landing-modes" aria-label="Atlas modes">
-        <article>
-          <span className="mode-number">01</span>
-          <h2>City metros</h2>
-          <p>Mapped track geometry for seven metro systems, combining GTFS route shapes and OpenStreetMap track ways.</p>
-            <button onClick={onEnterAtlas}>Open atlas →</button>
-        </article>
-        <article>
-          <span className="mode-number">02</span>
-          <h2>Indian Railways</h2>
-          <p>National physical-track GIS sections. The imported file’s provider and date are not recorded.</p>
-          <small>Source provenance unresolved</small>
-        </article>
-        <article>
-          <span className="mode-number">03</span>
-          <h2>High-speed rail</h2>
-          <p>NHSRCL lists an official MAHSR alignment KMZ, but the file has not been retrieved and verified locally.</p>
-          <small>No guessed alignment is drawn</small>
-        </article>
-      </section>
-
-      <section className="landing-ledger" id="data-ledger">
-        <div>
-          <p className="landing-kicker">Data ledger</p>
-          <h2>Every layer shows its provenance.</h2>
-        </div>
-        <div className="ledger-grid">
-          <p>
-            <strong>7</strong>
-            <span>metro systems with mapped route geometry</span>
-          </p>
-          <p>
-            <strong>181</strong>
-            <span>GTFS station records across three metro systems</span>
-          </p>
-          <p>
-            <strong>12</strong>
-            <span>city rail track focus areas in the atlas</span>
-          </p>
-        </div>
-      </section>
-
-      <section className="landing-map-shelf" aria-labelledby="source-maps-title">
-        <div>
-          <p className="landing-kicker">Source map shelf</p>
-          <h2 id="source-maps-title">Rail references, kept separate from live layers.</h2>
-          <p>References are linked separately from local geometry; missing lines are never reconstructed from station dots.</p>
-        </div>
-        <nav>
-          <a href="https://surveyofindia.gov.in/pages/railway-map-of-india" target="_blank" rel="noreferrer">
-            <span>01</span>
-            <strong>Indian Railways</strong>
-            <small>Survey of India national map ↗</small>
-          </a>
-          <a href="https://data.humdata.org/dataset/hotosm_ind_railways" target="_blank" rel="noreferrer">
-            <span>02</span>
-            <strong>Suburban rail</strong>
-            <small>OSM physical tracks · snapshot 10 May 2026 ↗</small>
-          </a>
-          <a href="https://www.nhsrcl.in/en/project/technical_details" target="_blank" rel="noreferrer">
-            <span>03</span>
-            <strong>NHSRCL</strong>
-            <small>Official MAHSR alignment KMZ page ↗</small>
-          </a>
-        </nav>
-      </section>
-
-      <footer className="landing-footer">
-        <span>Transit Time Machine · India rail research project</span>
-        <div>
-          <button onClick={onOpenHistory}>History</button>
-          <button onClick={onEnterAtlas}>Metro atlas</button>
-        </div>
-      </footer>
-    </main>
-  )
+  const metroMapLayers = metroCatalog.filter((item) => item.routeGeometry.status === 'bundled').length
+  return <main className="atlas-landing">
+    <header className="atlas-landing-header"><button className="atlas-landing-brand" onClick={onEnterAtlas}><span aria-hidden="true">↔</span><strong>Transit Time Machine</strong></button><div className="atlas-landing-status"><i aria-hidden="true" /> India rail research atlas</div><button className="atlas-landing-history" onClick={onOpenHistory}>Evidence trail <span aria-hidden="true">↗</span></button></header>
+    <section className="atlas-landing-hero"><div className="atlas-landing-copy"><p className="atlas-landing-kicker">Route by route · record by record</p><h1>India’s railways, <em>drawn with care.</em></h1><p>Follow real-world metro geometry, explore city rail infrastructure, and inspect the sources behind every layer—without pretending a map knows more than its records do.</p><div className="atlas-landing-actions"><button className="atlas-landing-primary" onClick={onEnterAtlas}>Board the atlas <span aria-hidden="true">→</span></button><button className="atlas-landing-secondary" onClick={onOpenHistory}>Explore the history</button></div><div className="atlas-landing-tickets"><span><b>{metroCatalog.length}</b> metro records</span><span><b>{metroMapLayers}</b> route bundles</span><span><b>{SUBURBAN_DIVISIONS.length}</b> city rail focus areas</span></div></div><RouteBoard /></section>
+    <section className="atlas-landing-departures" aria-labelledby="departures-title"><div className="atlas-landing-section-head"><p className="atlas-landing-kicker">Choose a platform</p><h2 id="departures-title">Your next stop</h2></div><div className="departure-grid"><article className="departure-card departure-card-main"><span className="departure-number">PLATFORM 01</span><h3>Live atlas</h3><p>Inspect bundled route geometry and station layers across metro, Indian Railways, suburban track focus areas, and the high-speed research desk.</p><button onClick={onEnterAtlas}>Open map <span aria-hidden="true">→</span></button></article><article className="departure-card"><span className="departure-number">PLATFORM 02</span><h3>History desk</h3><p>Switch rail family and region to see what is sourced, what the map layer represents, and where the archive is still incomplete.</p><button onClick={onOpenHistory}>Read chronology <span aria-hidden="true">→</span></button></article><article className="departure-card departure-card-ledger"><span className="departure-number">THE RULE</span><p>Physical track is not a timetable. A station sample is not a route. A missing source stays visibly missing.</p></article></div></section>
+    <section className="atlas-landing-manifest" aria-labelledby="manifest-title"><div><p className="atlas-landing-kicker">The map maker’s manifest</p><h2 id="manifest-title">A railfan’s atlas should make you curious—and make its limits legible.</h2></div><ol><li><span>01</span><div><strong>Trace the line</strong><p>Route geometry is distinct from station dots, so a line only appears when it has a real path behind it.</p></div></li><li><span>02</span><div><strong>Check the ticket</strong><p>Every collection points back to an operator, GTFS feed, OSM layer, or official project reference.</p></div></li><li><span>03</span><div><strong>Follow the story</strong><p>The History desk records documented openings and caveats instead of turning a timeline into fiction.</p></div></li></ol></section>
+    <footer className="atlas-landing-footer"><span>Transit Time Machine · India rail research project</span><div><button onClick={onOpenHistory}>History</button><button onClick={onEnterAtlas}>Atlas</button></div></footer>
+  </main>
 }

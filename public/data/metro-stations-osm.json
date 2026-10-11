@@ -17,9 +17,9 @@
     },
     "limitations": [
       "HOTOSM's exported station features do not carry reliable metro operator or line tags; official route lists are used only to validate names and operating corridor membership.",
-      "Kochi Metro's live site describes 26 elevated stations but enumerates 25 Metro station markers. This file contains 24 explicitly enumerated and matched markers; Vyttila has no unambiguous source point and the claimed 26th marker is not inferred.",
-      "Mumbai coverage is restricted to 15 unambiguously named Line 2A points and all 13 named Line 7 points. It excludes Line 1 and Line 3 because this pass did not establish a complete current operator roster-to-point match, and excludes two Line 2A names absent from the snapshot under their current official names.",
-      "Pune coverage contains 29 source point records on the two currently operating corridors. The source has no named point for Mahatma Phule Mandai; its two distinct Civil/District Court platform points are retained as separate source records. Feature counts are not an official unique-station total."
+      "This base bundle contains 24 of Kochi's 25 named passenger-stop records. The supplemental file adds Vyttila from a source station-footprint polygon centroid. KMRL's homepage separately reports 26 elevated stations; that discrepancy is not resolved by the map layer.",
+      "This base bundle covers 15 named Line 2A and all 13 named Line 7 records. The supplemental file adds all 12 Line 1 stations, 17 of 27 Line 3 stations, five of six open Line 2B stations, and all four open Line 9 stations. Two Line 2A names and other unlisted stations remain unmatched.",
+      "This base bundle contains 29 Pune station-point records. The supplemental file adds the operator-listed Mahatma Phule Mandai point, yielding 30 records and 29 distinct names; the two separately mapped Civil Court corridor points are retained. The operator webpage has both Kasba Peth and Budhwar Peth labels, while this OSM snapshot labels the point Kasba Peth."
     ]
   },
   "features": [
