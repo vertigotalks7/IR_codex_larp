@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "data:build": "node scripts/build-route-database.mjs"
+    "data:build": "node scripts/build-route-database.mjs",
+    "data:build:suburban": "node scripts/build-suburban-divisions.mjs",
+    "data:build:rail": "node scripts/build-railway-network.mjs"
   },
   "dependencies": {
     "maplibre-gl": "^5.7.0",

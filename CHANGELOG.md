@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T04:04:44+05:30 — Correct route fallbacks, source claims, and city rail loading
+
+- Changed: Removed straight-line railway GIS fallbacks and made rail/city-layer load status reflect real bundle availability. Rebuilt six city-focus layers from the HOTOSM OSM snapshot dated 10 May 2026, clipping physical track geometry to each city boundary and loading only the selected city bundle. Removed unsupported commuter ridership, route-km, and station-count claims. Corrected national GIS provenance wording and made the NHSRCL mode explicitly draw no line without an alignment file. Updated README, source ledger, map labels, and data build scripts.
+- Why: The project previously called failed railway loads successful, showed guessed national corridor connectors, classified all rail tracks inside large city boxes as suburban services, and presented unsourced metrics as facts.
+- Validation: `npm run data:build:suburban` generated six bundles; a Node geometry audit found 9,613 track features, 1,132 stations, 86,342 route vertices, 6,378 bent features, and zero coordinates outside their city bounds. `npx tsc -b`, elevated `npm run build`, and `git diff --check` passed. The initial sandboxed Vite build hit `EPERM` resolving `index.html`; the same production build passed outside the restricted sandbox.
+- Limitations: The national GIS input still has no provider/date provenance in the repository. The city OSM layer is infrastructure context, not a commuter-service inventory. NHSRCL alignment geometry is still unavailable. Visual browser QA could not be completed because the computer-use app approval timed out; no UI-render verification is claimed.
+
 ## 2026-10-11T05:15:00+05:30 — Resolve topbar UI text overlap and prune dead route artifacts
 
 - Changed: Removed redundant `.atlas-map-caption` container from `src/App.tsx` that previously rendered unstyled text at `(0, 0)`, eliminating the dark faded text overlapping with the `.atlas-topbar` and TransitAtlas logo. Deleted obsolete `src/routeGeometry.ts` (30.2 KB unused static constants) and its legacy generation script `scripts/build-route-geometry.mjs`. Completed architectural audit on runtime data usage, clarifying that `data/routes.sqlite` is an offline build cache and the application runs entirely client-side without a backend server.

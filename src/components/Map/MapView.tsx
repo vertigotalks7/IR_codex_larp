@@ -100,12 +100,11 @@ function addLayers(
     if (isSuburban) {
       const p = feature.properties || {}
       content =
-        `<strong>${p.name || 'Suburban Rail Track'}</strong><br/>` +
-        `<span>${p.divisionName || 'Suburban Network'}</span><br/>` +
-        `<small>Zone: <b>${p.zone || 'Indian Railways'}</b> · Gauge: <b>${p.gauge || 'Broad Gauge'}</b><br/>` +
-        `Track: ${p.lanes === 4 ? 'Quadruple Track (4 Lines)' : p.lanes === 2 ? 'Double Line' : 'Single Line'} ${p.bridge ? '· Bridge' : ''} ${p.tunnel ? '· Tunnel' : ''}<br/>` +
-        `Speed Limit: <b>${p.speed || 100} km/h</b> · Length: <b>${p.length || '—'} km</b><br/>` +
-        `Source: DataMeet Railways & Official IR GIS Alignment</small>`
+        `<strong>${p.name || 'Rail track'}</strong><br/>` +
+        `<span>${p.divisionName || 'City focus area'} · physical track geometry</span><br/>` +
+        `<small>Mapped railway infrastructure; passenger, freight, and commuter services are not distinguished in this layer.<br/>` +
+        `OSM feature: <b>${p.osmId || '—'}</b> · Snapshot: <b>${p.snapshot || '—'}</b><br/>` +
+        `Source: OpenStreetMap / HOTOSM</small>`
 
       new maplibre.Popup({ closeButton: true, offset: 8 })
         .setLngLat(event.lngLat)
@@ -122,7 +121,7 @@ function addLayers(
           `<span>Zone: <b>${p.zone}</b> · Gauge: <b>${p.gauge}</b></span><br/>` +
           `<small>Speed Limit: <b>${p.speed} km/h</b> · Track Length: <b>${p.length} km</b><br/>` +
           `Track: ${p.lanes === 2 ? 'Double Line' : 'Single Line'} ${p.bridge ? '· Bridge' : ''} ${p.tunnel ? '· Tunnel' : ''}<br/>` +
-          `Source: Official Indian Railways GIS Network</small>`
+          `Source: project railway GIS snapshot (provider and capture date are not recorded)</small>`
       } else {
         const corridorId = feature.properties?.id
         const corridor = findCorridorById(corridorId)
@@ -136,7 +135,7 @@ function addLayers(
           content =
             `<strong>${feature.properties?.name || 'Railway Track'}</strong><br/>` +
             `<span>Indian Railways GIS Alignment</span><br/>` +
-            `<small>Source: Official Indian Railways GIS Network</small>`
+            `<small>Source: project railway GIS snapshot (provider and capture date are not recorded)</small>`
         }
       }
     }
@@ -158,16 +157,15 @@ function addLayers(
     const p = feature?.properties || {}
     const id = p.id || ''
 
-    // Suburban Commuter Station handling
+    // City-area railway station handling
     if (p.kind === 'suburban-station') {
       new maplibre.Popup({ closeButton: true, offset: 8 })
         .setLngLat(event.lngLat)
         .setHTML(
-          `<strong>${p.name} (${p.code})</strong><br/>` +
+          `<strong>${p.name || 'Railway station'}${p.code ? ` (${p.code})` : ''}</strong><br/>` +
             `<span>${p.divisionName || 'Suburban Rail'} · ${p.divisionCity || p.state || 'India'}</span><br/>` +
-            `<small>Zone: <b>${p.zone} (${p.zoneCode || ''})</b> · ${p.isJunction ? 'Type: <b>Junction / Terminal</b><br/>' : 'Type: <b>Commuter Station</b><br/>'}` +
-            `${p.address ? `Address: <b>${p.address}</b><br/>` : ''}` +
-            `Source: CRIS Code Reference & DataMeet</small>`,
+            `<small>OSM feature: <b>${p.osmId || '—'}</b><br/>` +
+            `Snapshot: <b>${p.snapshot || '—'}</b> · Source: OpenStreetMap / HOTOSM</small>`,
         )
         .addTo(map)
       return
@@ -260,13 +258,14 @@ export function MapView({
           const stationSource = createdMap.getSource('stations') as GeoJSONSource | undefined
 
           const applyRail = () => {
-            if (routeSource && showRoutes) {
-              routeSource.setData(getNationalRailwaysTrackGeoJson(selectedCorridorId))
+            const routes = getNationalRailwaysTrackGeoJson(selectedCorridorId)
+            if (routeSource) {
+              routeSource.setData(showRoutes ? routes : emptyRouteCollection())
             }
-            if (stationSource && showStations) {
-              stationSource.setData(getNationalRailwaysJunctionsGeoJson(selectedCorridorId))
+            if (stationSource) {
+              stationSource.setData(showStations ? getNationalRailwaysJunctionsGeoJson(selectedCorridorId) : emptyRouteCollection())
             }
-            onRouteStatus('real')
+            onRouteStatus(isRailwayDataLoaded() && routes.features.length > 0 ? 'real' : 'unavailable')
           }
 
           if (isRailwayDataLoaded()) {
@@ -275,6 +274,11 @@ export function MapView({
             onRouteStatus('loading')
             preloadRailwayData().then(() => {
               applyRail()
+            }).catch((error: unknown) => {
+              console.error('Railway GIS bundle load failed', error)
+              routeSource?.setData(emptyRouteCollection())
+              stationSource?.setData(emptyRouteCollection())
+              onRouteStatus('unavailable')
             })
           }
           return
@@ -285,21 +289,27 @@ export function MapView({
           const stationSource = createdMap.getSource('stations') as GeoJSONSource | undefined
 
           const applySuburban = () => {
-            if (routeSource && showRoutes) {
-              routeSource.setData(getSuburbanTracksGeoJson(selectedSuburbanId))
+            const routes = getSuburbanTracksGeoJson(selectedSuburbanId)
+            if (routeSource) {
+              routeSource.setData(showRoutes ? routes : emptyRouteCollection())
             }
-            if (stationSource && showStations) {
-              stationSource.setData(getSuburbanStationsGeoJson(selectedSuburbanId))
+            if (stationSource) {
+              stationSource.setData(showStations ? getSuburbanStationsGeoJson(selectedSuburbanId) : emptyRouteCollection())
             }
-            onRouteStatus('real')
+            onRouteStatus(isSuburbanDataLoaded(selectedSuburbanId) && routes.features.length > 0 ? 'real' : 'unavailable')
           }
 
-          if (isSuburbanDataLoaded()) {
+          if (isSuburbanDataLoaded(selectedSuburbanId)) {
             applySuburban()
           } else {
             onRouteStatus('loading')
-            preloadSuburbanData().then(() => {
+            preloadSuburbanData(selectedSuburbanId).then(() => {
               applySuburban()
+            }).catch((error: unknown) => {
+              console.error('City rail bundle load failed', error)
+              routeSource?.setData(emptyRouteCollection())
+              stationSource?.setData(emptyRouteCollection())
+              onRouteStatus('unavailable')
             })
           }
           return
@@ -337,27 +347,39 @@ export function MapView({
   useEffect(() => {
     const map = mapRef.current
     if (!map || !map.isStyleLoaded()) return
+    const version = ++hydrateVersion.current
 
     const routeSource = map.getSource('routes') as GeoJSONSource | undefined
     const stationSource = map.getSource('stations') as GeoJSONSource | undefined
 
     if (network === 'rail') {
       const applyRail = () => {
+        if (version !== hydrateVersion.current || mapRef.current !== map) return
+        const routes = getNationalRailwaysTrackGeoJson(selectedCorridorId)
+        const junctions = getNationalRailwaysJunctionsGeoJson(selectedCorridorId)
         if (routeSource) {
-          routeSource.setData(showRoutes ? getNationalRailwaysTrackGeoJson(selectedCorridorId) : emptyRouteCollection())
+          routeSource.setData(showRoutes ? routes : emptyRouteCollection())
         }
         if (stationSource) {
-          stationSource.setData(showStations ? getNationalRailwaysJunctionsGeoJson(selectedCorridorId) : emptyRouteCollection())
+          stationSource.setData(showStations ? junctions : emptyRouteCollection())
         }
-        onRouteStatus('real')
+        onRouteStatus(isRailwayDataLoaded() && routes.features.length > 0 ? 'real' : 'unavailable')
       }
 
       if (isRailwayDataLoaded()) {
         applyRail()
       } else {
         onRouteStatus('loading')
+        routeSource?.setData(emptyRouteCollection())
+        stationSource?.setData(emptyRouteCollection())
         preloadRailwayData().then(() => {
           applyRail()
+        }).catch((error: unknown) => {
+          if (version !== hydrateVersion.current || mapRef.current !== map) return
+          console.error('Railway GIS bundle load failed', error)
+          routeSource?.setData(emptyRouteCollection())
+          stationSource?.setData(emptyRouteCollection())
+          onRouteStatus('unavailable')
         })
       }
       return
@@ -365,28 +387,38 @@ export function MapView({
 
     if (network === 'suburban') {
       const applySuburban = () => {
+        if (version !== hydrateVersion.current || mapRef.current !== map) return
+        const routes = getSuburbanTracksGeoJson(selectedSuburbanId)
+        const stations = getSuburbanStationsGeoJson(selectedSuburbanId)
         if (routeSource) {
-          routeSource.setData(showRoutes ? getSuburbanTracksGeoJson(selectedSuburbanId) : emptyRouteCollection())
+          routeSource.setData(showRoutes ? routes : emptyRouteCollection())
         }
         if (stationSource) {
-          stationSource.setData(showStations ? getSuburbanStationsGeoJson(selectedSuburbanId) : emptyRouteCollection())
+          stationSource.setData(showStations ? stations : emptyRouteCollection())
         }
-        onRouteStatus('real')
+        onRouteStatus(isSuburbanDataLoaded(selectedSuburbanId) && routes.features.length > 0 ? 'real' : 'unavailable')
       }
 
-      if (isSuburbanDataLoaded()) {
+      if (isSuburbanDataLoaded(selectedSuburbanId)) {
         applySuburban()
       } else {
         onRouteStatus('loading')
-        preloadSuburbanData().then(() => {
+        routeSource?.setData(emptyRouteCollection())
+        stationSource?.setData(emptyRouteCollection())
+        preloadSuburbanData(selectedSuburbanId).then(() => {
           applySuburban()
+        }).catch((error: unknown) => {
+          if (version !== hydrateVersion.current || mapRef.current !== map) return
+          console.error('City rail bundle load failed', error)
+          routeSource?.setData(emptyRouteCollection())
+          stationSource?.setData(emptyRouteCollection())
+          onRouteStatus('unavailable')
         })
       }
       return
     }
 
     if (network !== 'metro') {
-      ++hydrateVersion.current
       routeSource?.setData(emptyRouteCollection())
       stationSource?.setData(geoJson([]))
       onRouteStatus('unavailable')
@@ -409,7 +441,8 @@ export function MapView({
       onRouteStatus(features.length > 0 ? 'real' : 'unavailable')
     } else {
       onRouteStatus('loading')
-      const version = ++hydrateVersion.current
+      routeSource?.setData(emptyRouteCollection())
+      stationSource?.setData(geoJson([]))
       hydrateMapWithBundledRoutes(
         map,
         system,

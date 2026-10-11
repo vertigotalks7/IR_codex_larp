@@ -4,10 +4,11 @@ Use Codex during the hackathon and briefly document its actual contribution here
 
 ## Event build log
 
-Codex contributed the first implementation milestone. Human review of the visual interaction remains pending.
+Codex contributed the first implementation milestone. Human visual review remains pending; browser QA for the latest milestone could not run because computer-use app approval timed out.
 
 | Date and time with timezone | Tool / model, if known | Task | Assistance and affected files | Human review / corrections | Validation and result |
 | --- | --- | --- | --- | --- | --- |
+| 2026-10-11T04:04:44+05:30 | Codex | Audit route accuracy and current project data | Inspected the current subagent changes; removed fallback railway connectors and false success statuses; rebuilt city track layers from dated HOTOSM geometry with per-city lazy bundles; corrected unsupported UI/data-source claims; documented that NHSRCL has no local route geometry and national GIS provenance is unresolved. | Pending human visual review; no geometry was guessed to fill missing sources. | `npm run data:build:suburban`, coordinate/bend audit, `npx tsc -b`, elevated `npm run build`, and `git diff --check` passed. The standard sandboxed build had a Vite `EPERM`; production build passed outside the restricted sandbox. Browser QA was attempted but computer-use app approval timed out. |
 | 2026-10-10T21:50:13+05:30 | Codex | Historical comparison foundation | Created the Vite/React/TypeScript app, canonical dated sample data, MapLibre views, comparison controls, playback, inspection panels, and documentation updates. | Pending | `npm run build` passed; local HTTP smoke request was blocked by managed socket policy. |
 | 2026-10-10T21:54:52+05:30 | Codex | Single-map time control refinement | Removed dual/swipe comparison and rewired the UI around one MapLibre map with an on-map historical slider, playback, milestone navigation, and updated docs. | Pending | Production build run after the change. |
 | 2026-10-10T22:00:23+05:30 | Codex | Basemap readability refinement | Switched the detailed OSM raster basemap to a quieter CARTO light basemap and updated attribution documentation. | Pending | `npm run build` passed. |

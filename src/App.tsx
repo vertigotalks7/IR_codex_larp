@@ -216,7 +216,7 @@ export default function App() {
       <footer className="atlas-footer">
         Transit Time Machine · India rail overview{' '}
         <span>
-          Track geometry © Official Indian Railways GIS / OpenStreetMap ·{' '}
+          Track geometry © OpenStreetMap contributors; national GIS provenance is documented in the source ledger ·{' '}
           <a
             href="https://data.humdata.org/dataset/hotosm_ind_railways"
             target="_blank"

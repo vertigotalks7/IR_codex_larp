@@ -11,15 +11,23 @@ export function AtlasHeader({ onGoLanding, selectedNetwork, network, routeStatus
   const statusText =
     network === 'metro'
       ? routeStatus === 'real'
-        ? 'verified route geometry loaded'
+        ? 'bundled metro route geometry loaded'
         : routeStatus === 'loading'
           ? 'loading route geometry…'
           : 'route geometry unavailable'
       : network === 'rail'
-        ? 'Official Indian Railways GIS network · 2,390 routes · 2,033 junctions across 16 zones'
+        ? routeStatus === 'real'
+          ? 'rail GIS track geometry loaded · source date not recorded'
+          : routeStatus === 'loading'
+            ? 'loading rail GIS geometry…'
+            : 'rail GIS geometry unavailable · no connector fallback'
         : network === 'suburban'
-          ? '6 Suburban Divisions · 572 commuter stations · Mumbai, Kolkata, Chennai, Delhi NCR, Hyderabad & Pune'
-          : 'reference mode · reviewed geometry pending'
+          ? routeStatus === 'real'
+            ? 'OSM physical rail tracks · snapshot 10 May 2026 · not service-only'
+            : routeStatus === 'loading'
+              ? 'loading city rail track geometry…'
+              : 'city rail geometry unavailable · no connector fallback'
+          : 'NHSRCL alignment geometry not bundled · no line drawn'
 
   return (
     <header className="atlas-topbar">

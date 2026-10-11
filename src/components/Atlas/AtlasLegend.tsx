@@ -22,34 +22,24 @@ export function AtlasLegend({ network }: AtlasLegendProps) {
 
       {network === 'rail' && (
         <>
-          <span>
-            <i className="legend-line railway-corridor" /> Official IR GIS Track Network
-          </span>
-          <span>
-            <i className="legend-dot" /> 2,033 Junction Stations
-          </span>
-          <small>Official Indian Railways GIS (Railway_Network_.geojson)</small>
+          <span><i className="legend-line railway-corridor" /> Indian Railways track geometry</span>
+          <span><i className="legend-dot" /> Junction points</span>
+          <small>Project GIS snapshot; original provider and capture date are not recorded.</small>
         </>
       )}
 
       {network === 'suburban' && (
         <>
-          <span>
-            <i className="legend-line" style={{ background: '#0284c7' }} /> Suburban Rail Corridors
-          </span>
-          <span>
-            <i className="legend-dot" style={{ background: '#0284c7', borderColor: '#0369a1' }} /> 572 Commuter Stations
-          </span>
-          <small>DataMeet Railways & Official IR GIS Alignment</small>
+          <span><i className="legend-line" style={{ background: '#0284c7' }} /> Physical rail tracks</span>
+          <span><i className="legend-dot" style={{ background: '#0284c7', borderColor: '#0369a1' }} /> Railway stations</span>
+          <small>OSM / HOTOSM snapshot (10 May 2026); not commuter-service-only.</small>
         </>
       )}
 
       {network !== 'metro' && network !== 'rail' && network !== 'suburban' && (
         <>
-          <span>
-            <i className="legend-line rail" /> Reference-map mode
-          </span>
-          <small>Interactive geometry is added only after source review.</small>
+          <span><i className="legend-line rail" /> No NHSRCL line loaded</span>
+          <small>Official alignment geometry is not bundled; no guessed line is drawn.</small>
         </>
       )}
     </div>

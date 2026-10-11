@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const outDir = path.resolve('c:/PROJECTS/codex_new/data/source/datameet');
+const outDir = path.join(process.cwd(), 'data', 'source', 'datameet');
 if (!fs.existsSync(outDir)) {
   fs.mkdirSync(outDir, { recursive: true });
 }

@@ -1,7 +1,9 @@
 import fs from 'node:fs';
+import path from 'node:path';
 
 console.log('--- Inspecting datameet stations.json ---');
-const stationsData = JSON.parse(fs.readFileSync('c:/PROJECTS/codex_new/data/source/datameet/stations.json', 'utf8'));
+const root = process.cwd();
+const stationsData = JSON.parse(fs.readFileSync(path.join(root, 'data', 'source', 'datameet', 'stations.json'), 'utf8'));
 console.log('Total stations in datameet:', stationsData.features.length);
 
 const sampleStation = stationsData.features[0];
@@ -23,7 +25,7 @@ console.log('Zones count:', zones.size, Array.from(zones));
 console.log('States count:', states.size);
 
 console.log('\n--- Inspecting datameet trains.json for Suburban Divisions ---');
-const trainsData = JSON.parse(fs.readFileSync('c:/PROJECTS/codex_new/data/source/datameet/trains.json', 'utf8'));
+const trainsData = JSON.parse(fs.readFileSync(path.join(root, 'data', 'source', 'datameet', 'trains.json'), 'utf8'));
 console.log('Total trains:', trainsData.features.length);
 
 const trainTypes = new Map();

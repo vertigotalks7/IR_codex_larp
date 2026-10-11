@@ -1,7 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const datameetPath = 'c:/PROJECTS/codex_new/data/source/datameet/stations.json';
+const root = process.cwd();
+const datameetPath = path.join(root, 'data', 'source', 'datameet', 'stations.json');
+if (!fs.existsSync(datameetPath)) {
+  throw new Error(`Missing DataMeet station source: ${datameetPath}`);
+}
 const datameet = JSON.parse(fs.readFileSync(datameetPath, 'utf8'));
 
 console.log(`Loaded ${datameet.features.length} stations from DataMeet.`);
@@ -85,7 +89,7 @@ console.log(`Valid stations: ${processedStations.length} (${majorJunctions.lengt
 console.log('Top States:', Object.entries(stateStats).sort((a,b) => b[1] - a[1]).slice(0, 8));
 console.log('Top Zones:', Object.entries(zoneStats).sort((a,b) => b[1] - a[1]).slice(0, 8));
 
-const outDir = path.resolve('c:/PROJECTS/codex_new/public/data');
+const outDir = path.join(root, 'public', 'data');
 const allStationsPath = path.join(outDir, 'railway-stations-datameet.json');
 fs.writeFileSync(allStationsPath, JSON.stringify({
   type: 'FeatureCollection',

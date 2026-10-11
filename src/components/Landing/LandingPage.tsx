@@ -33,27 +33,27 @@ export function LandingPage({ onEnterAtlas }: LandingPageProps) {
         <article>
           <span className="mode-number">01</span>
           <h2>City metros</h2>
-          <p>Interactive network geometry and station records for verified systems.</p>
+          <p>Bundled route geometry for Hyderabad, Bengaluru, and Chennai; other systems remain metadata-only.</p>
           <button onClick={onEnterAtlas}>Open atlas →</button>
         </article>
         <article>
           <span className="mode-number">02</span>
           <h2>Indian Railways</h2>
-          <p>National routes, services, junctions, and historic layers.</p>
-          <small>Source audit in progress</small>
+          <p>National physical-track GIS sections. The imported file’s provider and date are not recorded.</p>
+          <small>Source provenance unresolved</small>
         </article>
         <article>
           <span className="mode-number">03</span>
           <h2>High-speed rail</h2>
-          <p>Project corridors, milestones, and opening timelines.</p>
-          <small>Project records in review</small>
+          <p>Official NHSRCL project reference; no alignment geometry is bundled or drawn.</p>
+          <small>Geometry pending source file</small>
         </article>
       </section>
 
       <section className="landing-ledger" id="data-ledger">
         <div>
           <p className="landing-kicker">Data ledger</p>
-          <h2>Nothing on the map is a guess.</h2>
+          <h2>Every layer shows its provenance.</h2>
         </div>
         <div className="ledger-grid">
           <p>
@@ -75,7 +75,7 @@ export function LandingPage({ onEnterAtlas }: LandingPageProps) {
         <div>
           <p className="landing-kicker">Source map shelf</p>
           <h2 id="source-maps-title">Rail references, kept separate from live layers.</h2>
-          <p>These source maps are available while their geometry is reviewed for the interactive atlas.</p>
+          <p>References are linked separately from local geometry; missing lines are never reconstructed from station dots.</p>
         </div>
         <nav>
           <a href="https://surveyofindia.gov.in/pages/railway-map-of-india" target="_blank" rel="noreferrer">
@@ -83,15 +83,15 @@ export function LandingPage({ onEnterAtlas }: LandingPageProps) {
             <strong>Indian Railways</strong>
             <small>Survey of India national map ↗</small>
           </a>
-          <a href="https://irfca.org/faq/faq-map-suburban.html" target="_blank" rel="noreferrer">
+          <a href="https://data.humdata.org/dataset/hotosm_ind_railways" target="_blank" rel="noreferrer">
             <span>02</span>
             <strong>Suburban rail</strong>
-            <small>Mumbai, Chennai, Kolkata and more ↗</small>
+            <small>OSM physical tracks · snapshot 10 May 2026 ↗</small>
           </a>
-          <a href="https://nhsrcl.in/en/project/feasibility-study-report" target="_blank" rel="noreferrer">
+          <a href="https://nhsrcl.in/index.php/en/project/project-overview" target="_blank" rel="noreferrer">
             <span>03</span>
             <strong>NHSRCL</strong>
-            <small>Mumbai–Ahmedabad project material ↗</small>
+            <small>Official Mumbai–Ahmedabad project overview ↗</small>
           </a>
         </nav>
       </section>

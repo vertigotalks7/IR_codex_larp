@@ -3,6 +3,12 @@ import { networkModes } from '../../config/networks'
 import { nationalCorridors, type RailwayJunction } from '../../data/nationalRailways'
 import { RAILWAY_ZONES } from '../../data/railwayZones'
 import { SUBURBAN_DIVISIONS } from '../../data/suburbanDivisions'
+import {
+  getNationalRailwaysJunctionsGeoJson,
+  getNationalRailwaysTrackGeoJson,
+  getSuburbanStationsGeoJson,
+  getSuburbanTracksGeoJson,
+} from '../../services/railwayService'
 import type { MetroSystemId, NetworkMode, Station, RouteStatus, NetworkModeConfig } from '../../types'
 
 interface AtlasPanelProps {
@@ -46,6 +52,10 @@ export function AtlasPanel({
   onToggleRoutes,
 }: AtlasPanelProps) {
   const currentCorridor = nationalCorridors.find((c) => c.id === selectedCorridorId)
+  const railTrackCount = routeStatus === 'real' ? getNationalRailwaysTrackGeoJson(selectedCorridorId).features.length : '—'
+  const railJunctionCount = routeStatus === 'real' ? getNationalRailwaysJunctionsGeoJson(selectedCorridorId).features.length : '—'
+  const cityTrackCount = routeStatus === 'real' ? getSuburbanTracksGeoJson(selectedSuburbanId).features.length : '—'
+  const cityStationCount = routeStatus === 'real' ? getSuburbanStationsGeoJson(selectedSuburbanId).features.length : '—'
 
   return (
     <aside className="atlas-panel">
@@ -98,7 +108,7 @@ export function AtlasPanel({
       {network === 'rail' && (
         <>
           <div className="panel-close">
-            INDIAN RAILWAYS GIS ZONES (OFFICIAL NETWORK) <span>⌃</span>
+            INDIAN RAILWAYS GIS ZONES <span>⌃</span>
           </div>
           <div className="system-filter atlas-systems" role="tablist" aria-label="Filter railway zone">
             {RAILWAY_ZONES.map((z) => (
@@ -109,7 +119,7 @@ export function AtlasPanel({
               >
                 <i style={{ background: z.color }} />
                 {z.short}
-                <small>{z.routes} routes</small>
+                <small>{routeStatus === 'real' ? `${getNationalRailwaysTrackGeoJson(z.id).features.length} sections` : '—'}</small>
               </button>
             ))}
           </div>
@@ -124,26 +134,22 @@ export function AtlasPanel({
                     <div className="railway-header">
                       <span className="railway-badge">{activeZone.code}</span>
                       <span style={{ fontSize: '10px', color: '#6d2f2b', fontWeight: 600 }}>
-                        {activeZone.totalKm} KM
+                        {railTrackCount} SECTIONS
                       </span>
                     </div>
                     <h3 style={{ fontSize: '14px' }}>{activeZone.name}</h3>
                     <div className="railway-live-metric" style={{ marginTop: '6px' }}>
                       <div>
-                        <strong>{activeZone.routes}</strong>
-                        <span>SECTIONS</span>
+                        <strong>{railTrackCount}</strong>
+                        <span>TRACK SECTIONS</span>
                       </div>
                       <div>
-                        <strong>{activeZone.totalKm} km</strong>
-                        <span>NETWORK</span>
-                      </div>
-                      <div>
-                        <strong>130 km/h</strong>
-                        <span>MAX SPEED</span>
+                        <strong>{activeZone.code}</strong>
+                        <span>ZONE</span>
                       </div>
                     </div>
                     <p style={{ fontSize: '10px', color: '#786751', marginTop: '6px' }}>
-                      Official Indian Railways GIS Dataset · Broad, Metre & Narrow Gauge
+                      Project railway GIS snapshot. Its upstream provider and capture date are not recorded in this repository.
                     </p>
                   </div>
                 )
@@ -187,7 +193,7 @@ export function AtlasPanel({
       {network === 'suburban' && (
         <>
           <div className="panel-close">
-            SUBURBAN DIVISIONS (COMMUTER NETWORKS) <span>⌃</span>
+            CITY RAIL TRACK CONTEXT <span>⌃</span>
           </div>
           <div className="system-filter atlas-systems" role="tablist" aria-label="Filter suburban division">
             <button
@@ -195,8 +201,7 @@ export function AtlasPanel({
               onClick={() => onSuburbanDivisionChange?.('all')}
             >
               <i style={{ background: '#0284c7' }} />
-              All Divisions
-              <small>6 networks</small>
+              All focus areas
             </button>
             {SUBURBAN_DIVISIONS.map((d) => (
               <button
@@ -206,7 +211,6 @@ export function AtlasPanel({
               >
                 <i style={{ background: d.color }} />
                 {d.shortName}
-                <small>{d.dailyRidership}</small>
               </button>
             ))}
           </div>
@@ -221,33 +225,23 @@ export function AtlasPanel({
                       {activeDivision.city.toUpperCase()}
                     </span>
                     <span style={{ fontSize: '10px', color: '#6d2f2b', fontWeight: 600 }}>
-                      {activeDivision.routeKm} KM ROUTE
+                      OSM FOCUS AREA
                     </span>
                   </div>
                   <h3 style={{ fontSize: '14px' }}>{activeDivision.name}</h3>
-                  <p style={{ fontSize: '11px', color: '#453a2f', margin: '4px 0' }}>
-                    <b>Operator:</b> {activeDivision.operator}
-                  </p>
                   <div className="railway-live-metric" style={{ marginTop: '6px' }}>
                     <div>
-                      <strong>{activeDivision.dailyRidership}</strong>
-                      <span>DAILY RIDERS</span>
+                      <strong>{cityTrackCount}</strong>
+                      <span>TRACK FEATURES</span>
                     </div>
                     <div>
-                      <strong>{activeDivision.routeKm} km</strong>
-                      <span>ROUTE-KM</span>
+                      <strong>{cityStationCount}</strong>
+                      <span>STATIONS</span>
                     </div>
-                    <div>
-                      <strong>{activeDivision.lines.length}</strong>
-                      <span>MAIN LINES</span>
-                    </div>
-                  </div>
-                  <div style={{ marginTop: '6px', fontSize: '10px', color: '#594d3f' }}>
-                    <b>Key Lines:</b> {activeDivision.lines.join(' · ')}
                   </div>
                   <p style={{ fontSize: '10px', color: '#786751', marginTop: '6px' }}>
-                    Traction: <b>{activeDivision.electrification}</b> · Gauge: <b>{activeDivision.gauge}</b><br/>
-                    Source: DataMeet Railways & CRIS Station Directory
+                    Physical OpenStreetMap rail tracks clipped to this city focus area. Includes any mapped railway use; this is not a commuter-service-only route map.<br/>
+                    Snapshot: <b>10 May 2026</b> · Source: HOTOSM / OpenStreetMap
                   </p>
                 </div>
               )
@@ -255,26 +249,22 @@ export function AtlasPanel({
             return (
               <div className="railway-card" style={{ marginTop: '8px' }}>
                 <div className="railway-header">
-                  <span className="railway-badge" style={{ background: '#0284c7', color: '#fff' }}>ALL INDIA</span>
-                  <span style={{ fontSize: '10px', color: '#6d2f2b', fontWeight: 600 }}>6 DIVISIONS</span>
+                  <span className="railway-badge" style={{ background: '#0284c7', color: '#fff' }}>CITY AREAS</span>
+                  <span style={{ fontSize: '10px', color: '#6d2f2b', fontWeight: 600 }}>6 FOCUS AREAS</span>
                 </div>
-                <h3 style={{ fontSize: '14px' }}>National Suburban Commuter Networks</h3>
+                <h3 style={{ fontSize: '14px' }}>Urban rail infrastructure</h3>
                 <div className="railway-live-metric" style={{ marginTop: '6px' }}>
                   <div>
-                    <strong>12.8M+</strong>
-                    <span>DAILY RIDERS</span>
+                    <strong>{cityTrackCount}</strong>
+                    <span>TRACK FEATURES</span>
                   </div>
                   <div>
-                    <strong>2,631 km</strong>
-                    <span>TOTAL ROUTE</span>
-                  </div>
-                  <div>
-                    <strong>572</strong>
+                    <strong>{cityStationCount}</strong>
                     <span>STATIONS</span>
                   </div>
                 </div>
                 <p style={{ fontSize: '10px', color: '#786751', marginTop: '6px' }}>
-                  Mumbai (CR/WR), Kolkata (ER/SER), Chennai (SR), Delhi NCR (NR), Hyderabad MMTS (SCR), and Pune (CR).
+                  Physical rail infrastructure in the selected city extents, not operator-defined commuter services. OSM snapshot: 10 May 2026.
                 </p>
               </div>
             )
@@ -286,7 +276,7 @@ export function AtlasPanel({
         <div className="network-reference">
           <small>{selectedNetwork.description}</small>
           <p>
-            The map keeps metro routes hidden in this mode. Browse the referenced source while a reviewed local geometry snapshot is prepared.
+            No NHSRCL alignment geometry is bundled yet, so this mode intentionally draws no line. Open the official project page for current corridor information.
           </p>
           <a href={selectedNetwork.source} target="_blank" rel="noreferrer">
             Open {selectedNetwork.sourceLabel} ↗
@@ -323,20 +313,18 @@ export function AtlasPanel({
             {network === 'metro'
               ? visibleStationsCount
               : network === 'rail'
-                ? selectedCorridorId === 'all'
-                  ? '2,033'
-                  : 'Junctions'
+                ? railJunctionCount
                 : network === 'suburban'
-                  ? '572'
+                  ? cityStationCount
                   : '—'}
           </strong>
           <span>
             {network === 'metro'
               ? 'stations in view'
               : network === 'rail'
-                ? 'junctions'
+                ? 'junctions in view'
                 : network === 'suburban'
-                  ? 'commuter stations'
+                  ? 'stations in focus area'
                   : 'stations'}
           </span>
         </div>
@@ -345,22 +333,18 @@ export function AtlasPanel({
             {network === 'metro'
               ? systems.length
               : network === 'rail'
-                ? selectedCorridorId === 'all'
-                  ? '2,390'
-                  : '1 zone'
+                ? railTrackCount
                 : network === 'suburban'
-                  ? selectedSuburbanId === 'all'
-                    ? '201'
-                    : '1 division'
+                  ? cityTrackCount
                   : '1'}
           </strong>
           <span>
             {network === 'metro'
               ? 'systems'
               : network === 'rail'
-                ? 'rail routes'
+                ? 'track sections'
                 : network === 'suburban'
-                  ? 'suburban routes'
+                  ? 'track features'
                   : 'networks'}
           </span>
         </div>
@@ -369,6 +353,18 @@ export function AtlasPanel({
       {network === 'metro' && routeStatus === 'unavailable' && (
         <p className="route-warning">
           No verified route geometry is bundled for this selection yet. Straight connector lines are intentionally hidden.
+        </p>
+      )}
+
+      {(network === 'rail' || network === 'suburban') && routeStatus === 'unavailable' && (
+        <p className="route-warning">
+          No route geometry loaded for this selection. The map does not draw connector-line fallbacks.
+        </p>
+      )}
+
+      {network === 'nhsrcl' && (
+        <p className="route-warning">
+          The official MAHSR alignment download is not available in this project snapshot; no guessed route is drawn.
         </p>
       )}
 

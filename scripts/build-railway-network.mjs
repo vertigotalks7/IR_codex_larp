@@ -75,8 +75,14 @@ function isValidIndiaCoord(c) {
   return c[0] >= 65 && c[0] <= 98 && c[1] >= 6 && c[1] <= 38;
 }
 
-console.log('Reading c:/PROJECTS/codex_new/Railway_Network_.geojson...');
-const stream = fs.createReadStream('c:/PROJECTS/codex_new/Railway_Network_.geojson', { encoding: 'utf8' });
+const root = process.cwd();
+const sourcePath = path.join(root, 'Railway_Network_.geojson');
+if (!fs.existsSync(sourcePath)) {
+  throw new Error(`Missing railway GIS source: ${sourcePath}. See DATA_SOURCES.md for provenance and setup notes.`);
+}
+
+console.log(`Reading ${sourcePath}...`);
+const stream = fs.createReadStream(sourcePath, { encoding: 'utf8' });
 const rl = readline.createInterface({ input: stream });
 
 const groupMap = new Map();
@@ -213,7 +219,7 @@ for (const f of routeFeatures) {
   zoneBreakdown[z].maxSpeed = Math.max(zoneBreakdown[z].maxSpeed, f.properties.speed);
 }
 
-const outputDir = path.resolve('c:/PROJECTS/codex_new/public/data');
+const outputDir = path.join(root, 'public', 'data');
 if (!fs.existsSync(outputDir)) {
   fs.mkdirSync(outputDir, { recursive: true });
 }
@@ -248,7 +254,7 @@ fs.writeFileSync(metaFile, JSON.stringify({
   zones: zoneBreakdown,
   gauges: ['Broad Gauge', 'Metre Gauge', 'Narrow Gauge'],
   colors: ZONE_COLORS,
-  source: 'Official Indian Railways GIS Network (Railway_Network_.geojson)'
+  source: 'Railway_Network_.geojson (upstream provider and capture date not recorded in this repository)'
 }, null, 2));
 
 console.log(`Routes: ${(fs.statSync(routesFile).size / (1024*1024)).toFixed(2)} MB`);

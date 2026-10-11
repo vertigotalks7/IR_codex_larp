@@ -1,22 +1,13 @@
 {
+  "source": "https://data.humdata.org/dataset/hotosm_ind_railways",
+  "upstream": "https://www.openstreetmap.org/",
+  "license": "ODbL",
+  "snapshot": "2026-05-10",
+  "geometryMeaning": "Physical railway track ways and railway station features clipped to city focus bounds; not a list of commuter train services.",
   "divisions": [
     {
       "id": "mumbai",
-      "name": "Mumbai Suburban Railway",
-      "city": "Mumbai",
-      "shortName": "Mumbai Suburban",
-      "operator": "Central Railway (CR) & Western Railway (WR)",
-      "zones": [
-        "Central Railway",
-        "Western Railway"
-      ],
-      "lines": [
-        "Western Line",
-        "Central Main Line",
-        "Harbour Line",
-        "Trans-Harbour Line",
-        "Nerul-Uran Line"
-      ],
+      "name": "Mumbai",
       "color": "#0284c7",
       "bounds": {
         "minLon": 72.75,
@@ -24,31 +15,12 @@
         "minLat": 18.88,
         "maxLat": 20
       },
-      "center": [
-        72.88,
-        19.08
-      ],
-      "zoom": 10,
-      "dailyRidership": "7.5 Million+",
-      "routeKm": 465,
-      "electrification": "25 kV AC OHE",
-      "gauge": "Broad Gauge (1676 mm)"
+      "tracks": 3051,
+      "stations": 216
     },
     {
       "id": "kolkata",
-      "name": "Kolkata Suburban Railway",
-      "city": "Kolkata",
-      "shortName": "Kolkata Suburban",
-      "operator": "Eastern Railway (ER) & South Eastern Railway (SER)",
-      "zones": [
-        "Eastern Railway",
-        "South Eastern Railway"
-      ],
-      "lines": [
-        "Howrah Division (Main & Chord)",
-        "Sealdah Division (North & South)",
-        "Circular Railway"
-      ],
+      "name": "Kolkata",
       "color": "#059669",
       "bounds": {
         "minLon": 88,
@@ -56,31 +28,12 @@
         "minLat": 22.25,
         "maxLat": 23.15
       },
-      "center": [
-        88.36,
-        22.57
-      ],
-      "zoom": 9.8,
-      "dailyRidership": "3.5 Million+",
-      "routeKm": 1501,
-      "electrification": "25 kV AC OHE",
-      "gauge": "Broad Gauge (1676 mm)"
+      "tracks": 1833,
+      "stations": 257
     },
     {
       "id": "chennai",
-      "name": "Chennai Suburban Railway",
-      "city": "Chennai",
-      "shortName": "Chennai Suburban",
-      "operator": "Southern Railway (SR)",
-      "zones": [
-        "Southern Railway"
-      ],
-      "lines": [
-        "South Line (Beach–Tambaram–Chengalpattu)",
-        "West Line (Central–Arakkonam)",
-        "North Line (Central–Gummidipoondi)",
-        "MRTS (Beach–Velachery)"
-      ],
+      "name": "Chennai",
       "color": "#ea580c",
       "bounds": {
         "minLon": 79.6,
@@ -88,32 +41,12 @@
         "minLat": 12.65,
         "maxLat": 13.45
       },
-      "center": [
-        80.2,
-        13.06
-      ],
-      "zoom": 10.2,
-      "dailyRidership": "1.2 Million+",
-      "routeKm": 212,
-      "electrification": "25 kV AC OHE",
-      "gauge": "Broad Gauge (1676 mm)"
+      "tracks": 1409,
+      "stations": 122
     },
     {
       "id": "delhi",
-      "name": "Delhi NCR Suburban / EMU Network",
-      "city": "Delhi NCR",
-      "shortName": "Delhi NCR Suburban",
-      "operator": "Northern Railway (NR)",
-      "zones": [
-        "Northern Railway"
-      ],
-      "lines": [
-        "Delhi Ring Railway",
-        "Delhi–Ghaziabad–Aligarh",
-        "Delhi–Panipat",
-        "Delhi–Palwal",
-        "Delhi–Rohtak"
-      ],
+      "name": "Delhi NCR",
       "color": "#dc2626",
       "bounds": {
         "minLon": 76.8,
@@ -121,30 +54,12 @@
         "minLat": 28.3,
         "maxLat": 29.05
       },
-      "center": [
-        77.21,
-        28.65
-      ],
-      "zoom": 9.8,
-      "dailyRidership": "350,000+",
-      "routeKm": 340,
-      "electrification": "25 kV AC OHE",
-      "gauge": "Broad Gauge (1676 mm)"
+      "tracks": 2174,
+      "stations": 345
     },
     {
       "id": "hyderabad",
-      "name": "Hyderabad MMTS",
-      "city": "Hyderabad",
-      "shortName": "Hyderabad MMTS",
-      "operator": "South Central Railway (SCR)",
-      "zones": [
-        "South Central Railway"
-      ],
-      "lines": [
-        "Falaknuma–Secunderabad–Lingampalli",
-        "Hyderabad–Lingampalli",
-        "Secunderabad–Bolarum–Medchal"
-      ],
+      "name": "Hyderabad",
       "color": "#7c3aed",
       "bounds": {
         "minLon": 78.25,
@@ -152,28 +67,12 @@
         "minLat": 17.3,
         "maxLat": 17.58
       },
-      "center": [
-        78.47,
-        17.4
-      ],
-      "zoom": 11.2,
-      "dailyRidership": "160,000+",
-      "routeKm": 50,
-      "electrification": "25 kV AC OHE",
-      "gauge": "Broad Gauge (1676 mm)"
+      "tracks": 701,
+      "stations": 106
     },
     {
       "id": "pune",
-      "name": "Pune Suburban Railway",
-      "city": "Pune",
-      "shortName": "Pune Suburban",
-      "operator": "Central Railway (CR)",
-      "zones": [
-        "Central Railway"
-      ],
-      "lines": [
-        "Pune–Shivajinagar–Chinchwad–Talegaon–Lonavala Line"
-      ],
+      "name": "Pune",
       "color": "#d97706",
       "bounds": {
         "minLon": 73.35,
@@ -181,17 +80,10 @@
         "minLat": 18.5,
         "maxLat": 18.8
       },
-      "center": [
-        73.85,
-        18.55
-      ],
-      "zoom": 10.5,
-      "dailyRidership": "100,000+",
-      "routeKm": 63,
-      "electrification": "25 kV AC OHE",
-      "gauge": "Broad Gauge (1676 mm)"
+      "tracks": 445,
+      "stations": 86
     }
   ],
-  "totalRoutes": 201,
-  "totalStations": 572
+  "totalTrackFeatures": 9613,
+  "totalStations": 1132
 }

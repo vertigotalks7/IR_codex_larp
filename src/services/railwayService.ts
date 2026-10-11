@@ -6,7 +6,11 @@ import type { RailwayMeta } from '../types'
 let cachedRoutesGeoJson: any | null = null
 let cachedJunctionsGeoJson: any | null = null
 let cachedMeta: RailwayMeta | null = null
-let isPreloading = false
+let railwayLoadPromise: Promise<{
+  routes: any
+  junctions: any
+  meta: RailwayMeta | null
+}> | null = null
 
 export async function preloadRailwayData(): Promise<{
   routes: any
@@ -17,116 +21,42 @@ export async function preloadRailwayData(): Promise<{
     return { routes: cachedRoutesGeoJson, junctions: cachedJunctionsGeoJson, meta: cachedMeta }
   }
 
-  if (isPreloading) {
-    // Wait briefly if already in flight
-    await new Promise((r) => setTimeout(r, 200))
-    if (cachedRoutesGeoJson && cachedJunctionsGeoJson) {
-      return { routes: cachedRoutesGeoJson, junctions: cachedJunctionsGeoJson, meta: cachedMeta }
-    }
-  }
+  if (railwayLoadPromise) return railwayLoadPromise
 
-  isPreloading = true
-  try {
+  railwayLoadPromise = (async () => {
     const [routesRes, junctionsRes, metaRes] = await Promise.all([
       fetch('/data/railway-routes.json'),
       fetch('/data/railway-major-junctions.json'),
-      fetch('/data/railway-meta.json').catch(() => null),
+      fetch('/data/railway-meta.json'),
     ])
 
-    if (routesRes.ok) {
-      cachedRoutesGeoJson = await routesRes.json()
+    if (!routesRes.ok || !junctionsRes.ok) {
+      throw new Error(`Railway GIS bundles unavailable (routes ${routesRes.status}, junctions ${junctionsRes.status})`)
     }
-    if (junctionsRes.ok) {
-      cachedJunctionsGeoJson = await junctionsRes.json()
-    }
-    if (metaRes && metaRes.ok) {
-      cachedMeta = await metaRes.json()
-    }
-  } catch (err) {
-    console.warn('Failed to load official Railway GIS data, fallback to static corridors', err)
-  } finally {
-    isPreloading = false
-  }
 
-  return {
-    routes: cachedRoutesGeoJson || getFallbackTrackGeoJson(),
-    junctions: cachedJunctionsGeoJson || getFallbackJunctionsGeoJson(),
-    meta: cachedMeta,
-  }
+    const [routes, junctions] = await Promise.all([routesRes.json(), junctionsRes.json()])
+    const meta = metaRes.ok ? await metaRes.json() : null
+    if (!Array.isArray(routes.features) || !Array.isArray(junctions.features)) {
+      throw new Error('Railway GIS bundles are not valid GeoJSON feature collections')
+    }
+
+    cachedRoutesGeoJson = routes
+    cachedJunctionsGeoJson = junctions
+    cachedMeta = meta
+    return { routes, junctions, meta }
+  })().finally(() => {
+    railwayLoadPromise = null
+  })
+
+  return railwayLoadPromise
 }
 
 export function isRailwayDataLoaded(): boolean {
-  return cachedRoutesGeoJson !== null
+  return cachedRoutesGeoJson !== null && cachedJunctionsGeoJson !== null
 }
 
 export function getRailwayMeta(): RailwayMeta | null {
   return cachedMeta
-}
-
-function getFallbackTrackGeoJson(selectedCorridorId: string = 'all') {
-  const filtered =
-    selectedCorridorId === 'all'
-      ? nationalCorridors
-      : nationalCorridors.filter((c) => c.id === selectedCorridorId)
-
-  return {
-    type: 'FeatureCollection' as const,
-    features: filtered.map((corridor) => ({
-      type: 'Feature' as const,
-      properties: {
-        id: corridor.id,
-        name: corridor.name,
-        from: corridor.origin,
-        to: corridor.destination,
-        shortName: corridor.shortName,
-        code: corridor.code,
-        zone: corridor.zone,
-        distanceKm: corridor.distanceKm,
-        length: corridor.distanceKm,
-        speed: 130,
-        gauge: corridor.gauge,
-        electrification: corridor.electrification,
-        color: corridor.color,
-        origin: corridor.origin,
-        destination: corridor.destination,
-        system: 'rail',
-        kind: 'railway',
-      },
-      geometry: {
-        type: 'LineString' as const,
-        coordinates: corridor.coordinates,
-      },
-    })),
-  }
-}
-
-function getFallbackJunctionsGeoJson(selectedCorridorId: string = 'all') {
-  const filtered =
-    selectedCorridorId === 'all'
-      ? nationalJunctions
-      : nationalJunctions.filter((j) => j.corridors.includes(selectedCorridorId))
-
-  return {
-    type: 'FeatureCollection' as const,
-    features: filtered.map((junction) => ({
-      type: 'Feature' as const,
-      properties: {
-        id: `ir-${junction.code}`,
-        name: junction.name,
-        code: junction.code,
-        zone: junction.zone,
-        division: junction.division,
-        state: junction.state,
-        platforms: junction.platforms,
-        connections: junction.corridors.length,
-        kind: 'railway-junction',
-      },
-      geometry: {
-        type: 'Point' as const,
-        coordinates: junction.coordinates,
-      },
-    })),
-  }
 }
 
 export function getNationalRailwaysTrackGeoJson(
@@ -134,7 +64,7 @@ export function getNationalRailwaysTrackGeoJson(
   gauge: string = 'all',
 ) {
   if (!cachedRoutesGeoJson) {
-    return getFallbackTrackGeoJson(filterZoneOrCorridor)
+    return { type: 'FeatureCollection' as const, features: [] }
   }
 
   let features = cachedRoutesGeoJson.features as any[]
@@ -163,7 +93,7 @@ export function getNationalRailwaysTrackGeoJson(
 
 export function getNationalRailwaysJunctionsGeoJson(filterZoneOrCorridor: string = 'all') {
   if (!cachedJunctionsGeoJson) {
-    return getFallbackJunctionsGeoJson(filterZoneOrCorridor)
+    return { type: 'FeatureCollection' as const, features: [] }
   }
 
   let features = cachedJunctionsGeoJson.features as any[]
@@ -305,87 +235,83 @@ export function findCorridorById(id: string): RailwayCorridor | undefined {
   return nationalCorridors.find((c) => c.id === id)
 }
 
-let cachedSuburbanRoutesGeoJson: any | null = null
-let cachedSuburbanStationsGeoJson: any | null = null
-let isSuburbanPreloading = false
+const cachedSuburbanData = new Map<string, { routes: any; stations: any }>()
+const suburbanLoadPromises = new Map<string, Promise<{ routes: any; stations: any }>>()
 
 let cachedDatameetStationsGeoJson: any | null = null
 let isDatameetPreloading = false
 
-export async function preloadSuburbanData(): Promise<{
+async function loadSuburbanDivision(divisionId: string): Promise<{ routes: any; stations: any }> {
+  const cached = cachedSuburbanData.get(divisionId)
+  if (cached) return cached
+
+  const inFlight = suburbanLoadPromises.get(divisionId)
+  if (inFlight) return inFlight
+
+  const promise = (async () => {
+    const response = await fetch(`/data/suburban/${divisionId}.json`)
+    if (!response.ok) throw new Error(`City rail bundle unavailable (${response.status})`)
+
+    const payload = await response.json()
+    if (!Array.isArray(payload.routes?.features) || !Array.isArray(payload.stations?.features)) {
+      throw new Error(`City rail bundle for ${divisionId} is not valid GeoJSON`)
+    }
+
+    cachedSuburbanData.set(divisionId, payload)
+    return payload
+  })().finally(() => {
+    suburbanLoadPromises.delete(divisionId)
+  })
+
+  suburbanLoadPromises.set(divisionId, promise)
+  return promise
+}
+
+export async function preloadSuburbanData(divisionId: string = 'all'): Promise<{
   routes: any
   stations: any
 }> {
-  if (cachedSuburbanRoutesGeoJson && cachedSuburbanStationsGeoJson) {
-    return { routes: cachedSuburbanRoutesGeoJson, stations: cachedSuburbanStationsGeoJson }
-  }
+  if (divisionId !== 'all') return loadSuburbanDivision(divisionId)
 
-  if (isSuburbanPreloading) {
-    await new Promise((r) => setTimeout(r, 200))
-    if (cachedSuburbanRoutesGeoJson && cachedSuburbanStationsGeoJson) {
-      return { routes: cachedSuburbanRoutesGeoJson, stations: cachedSuburbanStationsGeoJson }
-    }
-  }
-
-  isSuburbanPreloading = true
-  try {
-    const [routesRes, stationsRes] = await Promise.all([
-      fetch('/data/suburban-routes.json'),
-      fetch('/data/suburban-stations.json'),
-    ])
-
-    if (routesRes.ok) {
-      cachedSuburbanRoutesGeoJson = await routesRes.json()
-    }
-    if (stationsRes.ok) {
-      cachedSuburbanStationsGeoJson = await stationsRes.json()
-    }
-  } catch (err) {
-    console.warn('Failed to load Suburban Rail data', err)
-  } finally {
-    isSuburbanPreloading = false
-  }
-
+  const divisions = await Promise.all(SUBURBAN_DIVISIONS.map(({ id }) => loadSuburbanDivision(id)))
   return {
-    routes: cachedSuburbanRoutesGeoJson || { type: 'FeatureCollection', features: [] },
-    stations: cachedSuburbanStationsGeoJson || { type: 'FeatureCollection', features: [] },
+    routes: {
+      type: 'FeatureCollection',
+      features: divisions.flatMap(({ routes }) => routes.features),
+    },
+    stations: {
+      type: 'FeatureCollection',
+      features: divisions.flatMap(({ stations }) => stations.features),
+    },
   }
 }
 
-export function isSuburbanDataLoaded(): boolean {
-  return cachedSuburbanRoutesGeoJson !== null && cachedSuburbanStationsGeoJson !== null
+export function isSuburbanDataLoaded(divisionId: string = 'all'): boolean {
+  return divisionId === 'all'
+    ? SUBURBAN_DIVISIONS.every(({ id }) => cachedSuburbanData.has(id))
+    : cachedSuburbanData.has(divisionId)
 }
 
 export function getSuburbanTracksGeoJson(divisionId: string = 'all') {
-  if (!cachedSuburbanRoutesGeoJson) {
-    return { type: 'FeatureCollection' as const, features: [] }
-  }
-
-  let features = cachedSuburbanRoutesGeoJson.features as any[]
-  if (divisionId !== 'all') {
-    features = features.filter((f) => f.properties?.divisionId === divisionId)
-  }
+  const features = divisionId === 'all'
+    ? SUBURBAN_DIVISIONS.flatMap(({ id }) => cachedSuburbanData.get(id)?.routes.features ?? [])
+    : cachedSuburbanData.get(divisionId)?.routes.features ?? []
 
   return {
     type: 'FeatureCollection' as const,
-    name: 'Indian_Suburban_Railway_Network_GIS',
+    name: 'OSM_Physical_Railway_Tracks_By_City',
     features,
   }
 }
 
 export function getSuburbanStationsGeoJson(divisionId: string = 'all') {
-  if (!cachedSuburbanStationsGeoJson) {
-    return { type: 'FeatureCollection' as const, features: [] }
-  }
-
-  let features = cachedSuburbanStationsGeoJson.features as any[]
-  if (divisionId !== 'all') {
-    features = features.filter((f) => f.properties?.divisionId === divisionId)
-  }
+  const features = divisionId === 'all'
+    ? SUBURBAN_DIVISIONS.flatMap(({ id }) => cachedSuburbanData.get(id)?.stations.features ?? [])
+    : cachedSuburbanData.get(divisionId)?.stations.features ?? []
 
   return {
     type: 'FeatureCollection' as const,
-    name: 'Indian_Suburban_Railway_Stations',
+    name: 'OSM_Railway_Stations_By_City',
     features,
   }
 }
