@@ -4,9 +4,12 @@ import { historyEvents } from '../../data/history'
 import { loadBundledMetroStationPoints, metroCatalog } from '../../data/metroCatalog'
 import type { MappedMetroStationPoint } from '../../data/metroCatalog'
 import { nationalCorridors, nationalJunctions } from '../../data/nationalRailways'
+import type { RailwayJunction } from '../../data/nationalRailways'
 import { RAILWAY_ADMIN_SOURCE, RAILWAY_BASE_ROSTER_SOURCE, RAILWAY_DIVISION_REORGANIZATION_SOURCE, RAILWAY_HISTORY_ZONES, RAILWAY_OPERATING_DIVISION_COUNT, RAILWAY_OPERATING_ZONE_COUNT, SOUTH_COAST_EFFECTIVE_SOURCE } from '../../data/railwayDivisions'
+import { findDivisionDossier, railwayDivisionDossiers } from '../../data/railwayDivisionStories'
 import { SUBURBAN_DIVISIONS } from '../../data/suburbanDivisions'
 import { preloadSuburbanData } from '../../services/railwayService'
+import { MuseumWalk } from './MuseumWalk'
 import './history.css'
 import './history-enhancements.css'
 
@@ -17,6 +20,68 @@ const labels: Record<Mode, string> = { metro: 'Metro', suburban: 'Suburban rail'
 
 function CardView({ card }: { card: Card }) {
   return <article className="history-detail-card"><strong>{card.value}</strong><span>{card.label}</span><small>{card.note}</small></article>
+}
+
+function DivisionSamplePlot({ points }: { points: readonly RailwayJunction[] }) {
+  if (!points.length) return <p className="history-detail-note">No geolocated junction samples are indexed for this selection.</p>
+  const width = 620
+  const height = 220
+  const padding = { x: 38, y: 22 }
+  const longitudes = points.map((point) => point.coordinates[0])
+  const latitudes = points.map((point) => point.coordinates[1])
+  const minLon = Math.min(...longitudes)
+  const maxLon = Math.max(...longitudes)
+  const minLat = Math.min(...latitudes)
+  const maxLat = Math.max(...latitudes)
+  const x = (lon: number) => padding.x + ((lon - minLon) / (maxLon - minLon || 1)) * (width - padding.x * 2)
+  const y = (lat: number) => height - padding.y - ((lat - minLat) / (maxLat - minLat || 1)) * (height - padding.y * 2)
+  const namedPoints = points.slice(0, 8)
+  return <div className="division-plot-wrap">
+    <svg className="division-sample-plot" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Longitude and latitude plot of ${points.length} railway junction sample points`}>
+      {[0, 1, 2, 3].map((tick) => {
+        const py = padding.y + tick * ((height - padding.y * 2) / 3)
+        const px = padding.x + tick * ((width - padding.x * 2) / 3)
+        return <g key={tick}>
+          <line x1={padding.x} y1={py} x2={width - padding.x} y2={py} />
+          <line x1={px} y1={padding.y} x2={px} y2={height - padding.y} />
+        </g>
+      })}
+      <text x={padding.x} y={height - 3}>{minLon.toFixed(2)}° E</text>
+      <text x={width - padding.x} y={height - 3} textAnchor="end">{maxLon.toFixed(2)}° E</text>
+      <text x={4} y={padding.y + 4}>{maxLat.toFixed(2)}° N</text>
+      <text x={4} y={height - padding.y}>{minLat.toFixed(2)}° N</text>
+      {points.map((point) => <circle key={point.code} cx={x(point.coordinates[0])} cy={y(point.coordinates[1])} r="4">
+        <title>{point.name} · {point.state}</title>
+      </circle>)}
+      {namedPoints.map((point, index) => <text key={point.code} className="division-plot-label" x={x(point.coordinates[0]) + (index % 2 ? 7 : -7)} y={y(point.coordinates[1]) - 7} textAnchor={index % 2 ? 'start' : 'end'}>{point.name}</text>)}
+    </svg>
+    <p>Longitude/latitude positions from the project’s local junction sample—not an official division boundary, station inventory, or train route. <a href="https://github.com/vertigotalks7/IR_codex_larp/blob/master/DATA_SOURCES.md#indian-railways-national-track-layer" target="_blank" rel="noreferrer">GIS provenance and limitations ↗</a></p>
+  </div>
+}
+
+function DivisionArchive({ zoneCode, division, junctions }: { zoneCode: string; division: string; junctions: readonly RailwayJunction[] }) {
+  const dossier = findDivisionDossier(zoneCode, division)
+  if (!dossier) return <section className="division-archive division-archive-pending">
+    <div className="division-archive-head"><span>DIVISION CASE FILE · RESEARCH STATUS</span><strong>{division} Division</strong></div>
+    <p>This division is present in the official roster and local junction sample, but this project does not yet have a division-specific historical narrative with a reviewed primary source. No formation year, boundary, or operating statistics are inferred here.</p>
+    <a href={RAILWAY_BASE_ROSTER_SOURCE.url} target="_blank" rel="noreferrer">Railway Board zone/division roster ↗</a>
+    <DivisionSamplePlot points={junctions} />
+  </section>
+
+  return <section className="division-archive">
+    <div className="division-archive-head"><span>DIVISION CASE FILE · {dossier.zoneCode}</span><strong>{dossier.division} Division</strong></div>
+    <p className="division-archive-thesis">{dossier.thesis}</p>
+    <div className="division-archive-location"><span>GEOGRAPHIC LENS</span><strong>{dossier.location}</strong><a href={dossier.references[0]?.url} target="_blank" rel="noreferrer">Open official location/history source ↗</a></div>
+    <div className="division-story-grid">{dossier.milestones.map((milestone, index) => <article key={`${milestone.year ?? 'map'}-${milestone.title}`}>
+      <span>{milestone.year ?? `MAP NOTE ${String(index + 1).padStart(2, '0')}`}</span>
+      <h4>{milestone.title}</h4>
+      <p>{milestone.detail}</p>
+      <a href={milestone.sourceUrl} target="_blank" rel="noreferrer">{milestone.sourceLabel} ↗</a>
+    </article>)}</div>
+    <DivisionSamplePlot points={junctions} />
+    <p className="division-source-caveat">{dossier.sourceNote}</p>
+    <div className="division-source-shelf">{dossier.references.map((reference) => <a key={reference.url} href={reference.url} target="_blank" rel="noreferrer">{reference.label} ↗</a>)}</div>
+  </section>
 }
 
 const metroSearchTerms: Record<string, string[]> = {
@@ -100,6 +165,9 @@ function RailDashboard({ zoneId, divisionId }: { zoneId: string; divisionId: str
     ? null
     : RAILWAY_HISTORY_ZONES.flatMap((item) => item.divisions.map((name) => ({ zone: item, name, id: `${item.code}:${name}` })))
       .find((item) => item.id === divisionId) ?? null
+  const dossier = selectedDivision
+    ? findDivisionDossier(selectedDivision.zone.code, selectedDivision.name)
+    : null
   const localDivisionAliases: Record<string, string[]> = {
     Mumbai: ['Mumbai CR', 'Mumbai WR'],
     Ferozpur: ['Firozpur'],
@@ -126,6 +194,9 @@ function RailDashboard({ zoneId, divisionId }: { zoneId: string; divisionId: str
   const corridorIds = [...new Set(junctions.flatMap((item) => item.corridors))]
   const states = [...new Set(junctions.map((item) => item.state))]
   const divisionCount = zone?.divisions.length ?? RAILWAY_OPERATING_DIVISION_COUNT
+  const rosterSource = (selectedDivision?.zone.id ?? zone?.id) === 'SCoR'
+    ? SOUTH_COAST_EFFECTIVE_SOURCE
+    : RAILWAY_BASE_ROSTER_SOURCE
   const cards: Card[] = [
     { value: String(selectedDivision ? 1 : divisionCount), label: selectedDivision ? 'selected division' : 'official operating divisions', note: selectedDivision ? `${selectedDivision.zone.name} administrative division` : `${zone?.name ?? 'All railway zones'} · ${zone ? 'current roster' : `${RAILWAY_OPERATING_DIVISION_COUNT} divisions across ${RAILWAY_OPERATING_ZONE_COUNT} operating zones`}` },
     { value: String(junctions.length), label: 'indexed junction records', note: 'Local sample only; not all division stations' },
@@ -134,9 +205,10 @@ function RailDashboard({ zoneId, divisionId }: { zoneId: string; divisionId: str
   ]
   const listedDivisions = zone ? zone.divisions : RAILWAY_HISTORY_ZONES.flatMap((item) => item.divisions)
   return <>
-    <div className="history-detail-heading"><span className="history-mode-chip">{selectedDivision ? 'Division record sample' : 'Zone overview'}</span><h2>{selectedDivision ? `${selectedDivision.name} Division` : zone?.name ?? 'Indian Railways'}</h2><p>{selectedDivision ? `${selectedDivision.zone.name} · records currently indexed for this division.` : 'Choose a division to inspect its local junction references and coverage.'} The administrative roster is official; local route and junction samples are incomplete and are not division-wide operating statistics.</p></div>
+    <div className="history-detail-heading"><span className="history-mode-chip">{selectedDivision ? `Division case file · ${dossier ? 'sourced' : 'research pending'}` : 'Zone overview'}</span><h2>{selectedDivision ? `${selectedDivision.name} Division` : zone?.name ?? 'Indian Railways'}</h2><p>{selectedDivision ? `${selectedDivision.zone.name} · ${dossier ? 'a source-linked local history follows' : 'this division has no reviewed local history dossier yet'}.` : 'Choose a division to inspect its local junction references and coverage.'} The administrative roster is official; local route and junction samples are incomplete and are not division-wide operating statistics.</p></div>
     <div className="history-detail-cards">{cards.map((card) => <CardView card={card} key={card.label} />)}</div>
-    <section className="history-division-summary"><div><span>ADMINISTRATIVE ROSTER</span><strong>{selectedDivision?.zone.name ?? zone?.name ?? `${RAILWAY_HISTORY_ZONES.length} railway organizations`}</strong><small>{selectedDivision?.zone.headquarters ?? zone?.headquarters ?? 'Includes Metro Railway, Kolkata'}</small></div><div><span>ESTABLISHED</span><strong>{selectedDivision?.zone.formedYear ?? zone?.formedYear ?? '1853'}</strong><small>{selectedDivision || zone ? 'Railway Board roster year of creation' : 'First passenger service: Mumbai–Thane'}</small></div><div><span>DIVISIONS IN ROSTER</span><strong>{selectedDivision ? '1 / ' + selectedDivision.zone.divisions.length : listedDivisions.length}</strong><small>{selectedDivision ? `of ${selectedDivision.zone.name}` : zone ? 'in selected zone' : `${RAILWAY_OPERATING_ZONE_COUNT} operating zones; Metro Railway has no divisions`}</small></div></section>
+    <section className="history-division-summary"><div><span>ADMINISTRATIVE ROSTER</span><strong>{selectedDivision?.zone.name ?? zone?.name ?? `${RAILWAY_HISTORY_ZONES.length} railway organizations`}</strong><small>{selectedDivision?.zone.headquarters ?? zone?.headquarters ?? 'Includes Metro Railway, Kolkata'}</small></div><div><span>ZONE CREATED</span><strong>{selectedDivision?.zone.formedYear ?? zone?.formedYear ?? 'Roster varies'}</strong><small>{selectedDivision ? <>Parent-zone date only · not this division’s founding date · <a href={rosterSource.url} target="_blank" rel="noreferrer">roster source ↗</a></> : zone ? <>Railway Board roster date · <a href={rosterSource.url} target="_blank" rel="noreferrer">source ↗</a></> : 'Not a single formation date for all railways'}</small></div><div><span>DIVISION HISTORY FILES</span><strong>{selectedDivision ? dossier ? `${dossier.milestones.length} records` : 'Not researched' : `${railwayDivisionDossiers.length} / ${RAILWAY_OPERATING_DIVISION_COUNT}`}</strong><small>{selectedDivision ? dossier ? 'Dated milestones and map notes; each is cited' : 'No date or story inferred from the zone roster' : 'Curated primary-source dossiers; remaining divisions are explicitly unresearched'}</small></div></section>
+    {selectedDivision && <DivisionArchive zoneCode={selectedDivision.zone.code} division={selectedDivision.name} junctions={junctions} />}
     <div className="history-division-records"><div className="history-records-heading"><h3>Division junction ledger</h3><span>{junctions.length} local records</span></div>
       {junctions.length ? <div className="history-junction-grid">{junctions.map((junction) => {
         const linked = junction.corridors.map((id) => nationalCorridors.find((corridor) => corridor.id === id)?.shortName ?? id)
@@ -222,6 +294,18 @@ export function HistoryPage({ onOpenAtlas, onGoLanding }: HistoryPageProps) {
     if (mode === 'rail') {
       const nationalEvents = historyEvents.filter((event) => event.mode === 'rail'
         && (region === 'all' || event.region === 'all' || event.region === region))
+      if (division !== 'all') {
+        const selected = RAILWAY_HISTORY_ZONES.flatMap((item) => item.divisions.map((name) => ({ zone: item, name, id: `${item.code}:${name}` })))
+          .find((item) => item.id === division)
+        const dossier = selected ? findDivisionDossier(selected.zone.code, selected.name) : undefined
+        return (dossier?.milestones ?? []).flatMap((milestone) => milestone.year === undefined || milestone.year > year ? [] : [{
+          year: milestone.year,
+          title: milestone.title,
+          detail: milestone.detail,
+          source: milestone.sourceUrl,
+          sourceLabel: milestone.sourceLabel,
+        }]).sort((a, b) => a.year - b.year || a.title.localeCompare(b.title))
+      }
       const zoneEvents = RAILWAY_HISTORY_ZONES.filter((zone) => region === 'all' || zone.id === region).map((zone) => ({
         year: zone.formedYear,
         title: `${zone.name} is established`,
@@ -236,7 +320,7 @@ export function HistoryPage({ onOpenAtlas, onGoLanding }: HistoryPageProps) {
     const eventMode = mode === 'highSpeed' ? 'highSpeed' : 'suburban'
     return historyEvents.filter((event) => event.mode === eventMode
       && (event.region === region || event.region === 'all') && event.year <= year)
-  }, [mode, region, year])
+  }, [mode, region, division, year])
   const setNetworkMode = (next: Mode) => {
     setMode(next)
     setDivision('all')
@@ -246,8 +330,9 @@ export function HistoryPage({ onOpenAtlas, onGoLanding }: HistoryPageProps) {
 
   return <main className="history-explorer">
     <header className="history-topbar"><button className="history-brand" onClick={onGoLanding}><span aria-hidden="true">↔</span><strong>Transit Time Machine</strong></button><nav aria-label="History navigation"><button onClick={onGoLanding}>Home</button><button className="history-open-atlas" onClick={onOpenAtlas}>Open atlas <span aria-hidden="true">→</span></button></nav></header>
-    <section className="history-intro-grid"><div><p className="history-eyebrow">Source-led network chronicle</p><h1>Read the map’s <em>evidence trail.</em></h1><p>Choose a rail family and region. The dashboard separates official station totals, map coverage, and the actual records in each local dataset.</p></div><aside className="history-signal-card"><span>01 / select</span><strong>Choose a rail family</strong><p>Then narrow to a metro, railway zone and indexed division, or suburban city focus.</p></aside></section>
-    <section className="history-controls" aria-label="History data selection"><fieldset><legend>Rail family</legend><div className="history-mode-tabs">{(Object.keys(labels) as Mode[]).map((item, index) => <button key={item} type="button" className={mode === item ? 'active' : ''} onClick={() => setNetworkMode(item)}><span>0{index + 1}</span>{labels[item]}</button>)}</div></fieldset><label className="history-region-select"><span>{mode === 'metro' ? 'Metro system' : mode === 'rail' ? 'Railway zone' : mode === 'suburban' ? 'City focus area' : 'Project'}</span><select value={region} onChange={(event) => { setRegion(event.target.value); setDivision('all') }}>{regions.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
+    <section className="history-intro-grid"><div><p className="history-eyebrow">The Indian Railway Museum · source-led collection</p><h1>Enter the <em>railway archive.</em></h1><p>Move from locomotives and trainsets to regional railway histories. Technical facts and historical claims link back to their records; gaps are labelled rather than filled with guesses.</p></div><aside className="history-signal-card"><span>THE VISITOR’S ROUTE</span><strong>Look · listen · investigate</strong><p>Explore open railway films, then choose a rail family, railway zone and division case file.</p></aside></section>
+    <MuseumWalk />
+    <section className="history-controls" id="history-controls" aria-label="History data selection"><fieldset><legend>Rail family</legend><div className="history-mode-tabs">{(Object.keys(labels) as Mode[]).map((item, index) => <button key={item} type="button" className={mode === item ? 'active' : ''} onClick={() => setNetworkMode(item)}><span>0{index + 1}</span>{labels[item]}</button>)}</div></fieldset><label className="history-region-select"><span>{mode === 'metro' ? 'Metro system' : mode === 'rail' ? 'Railway zone' : mode === 'suburban' ? 'City focus area' : 'Project'}</span><select value={region} onChange={(event) => { setRegion(event.target.value); setDivision('all') }}>{regions.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
       {mode === 'rail' && <label className="history-region-select history-division-select"><span>Division · official roster</span><select value={division} onChange={(event) => setDivision(event.target.value)}><option value="all">All divisions in this region</option>{availableDivisions.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>}
     </section>
     <section className="history-dashboard" aria-live="polite">{mode === 'metro' ? <MetroDashboard systemId={region} /> : mode === 'rail' ? <RailDashboard zoneId={region} divisionId={railDivisionId} /> : mode === 'suburban' ? <SuburbanDashboard areaId={region} /> : <HighSpeedDashboard />}</section>

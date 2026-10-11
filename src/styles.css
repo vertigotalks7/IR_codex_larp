@@ -137,6 +137,9 @@ body:has(.atlas-shell) { background: #d8cdb8; }
 
 /* Dedicated history register; historical event browsing is no longer layered over the map. */
 .atlas-top-actions button { width: auto; min-width: 38px; padding: 0 11px; font-size: 11px; font-family: 'DM Mono', monospace; }
+.atlas-top-actions .atlas-ntes-link { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; padding: 0 11px; border: 1px solid #94836b; color: #493b2d; background: #eee5d2; box-shadow: 2px 2px 0 #493b2d33; font: 10px 'DM Mono', monospace; text-decoration: none; white-space: nowrap; }
+.atlas-top-actions .atlas-ntes-link:hover,.atlas-top-actions .atlas-ntes-link:focus-visible { color: #fff7e5; background: #6d2f2b; outline-color: #b89452; }
+@media (max-width: 480px) { .atlas-topbar { top: 8px; left: 8px; right: 8px; }.atlas-logo { gap: 6px; padding: 7px 8px 7px 7px; font-size: 14px; }.atlas-logo span { width: 21px; height: 21px; font-size: 13px; }.atlas-top-actions { gap: 4px; }.atlas-top-actions .atlas-ntes-link { min-height: 34px; padding: 0 6px; font-size: 8px; }.atlas-top-actions button { min-height: 34px; padding: 0 7px; font-size: 9px; } }
 .landing-history-link { border: 0; padding: 0; color: #6d2f2b; background: transparent; font: 11px 'DM Mono', monospace; }
 .landing-footer > div { display: flex; gap: 20px; }
 .history-shell { min-height: 100vh; max-width: 980px; padding: 24px clamp(22px, 6vw, 72px) 30px; color: #2d241c; background: radial-gradient(circle at 82% 13%, #eadbb7 0, transparent 32%), #e7decd; }

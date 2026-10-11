@@ -22,7 +22,7 @@ export const SOUTH_COAST_EFFECTIVE_SOURCE = {
 
 export const RAILWAY_DIVISION_REORGANIZATION_SOURCE = {
   label: 'Ministry of Railways · Visakhapatnam and Rayagada divisions',
-  url: 'https://www.pib.gov.in/PressReleaseIframePage.aspx?PRID=2100854&lang=2&reg=48',
+  url: 'https://www.pib.gov.in/PressReleaseIframePage.aspx?PRID=2100853&lang=2&reg=48',
   asOf: '2025-02-07',
 } as const
 

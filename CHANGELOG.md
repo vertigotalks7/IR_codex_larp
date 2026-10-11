@@ -4,6 +4,20 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T08:07:06+05:30 — Expand division histories into a 68-file archive
+
+- Changed: Expanded the source-linked division case files from 30 to 68 of 69 rostered divisions, added source-led geographic/context notes and division-filtered events, and recorded Bilaspur as the one explicit research gap. Updated the README, source ledger, submission summary, and AI-usage record to match the integrated archive. Files: `src/data/railwayDivisionStories.ts`, `src/components/History/HistoryPage.tsx`, `DATA_SOURCES.md`, `README.md`, `SUBMISSION.md`, `AI_USAGE.md`.
+- Why: The previous history coverage was too thin and left most railway divisions without a distinct, cited regional story. The gap remains visible where primary sources did not support a reliable chronology.
+- Validation: Dossier/roster audit found 68 unique dossiers against 69 entries, with only `SECR:Bilaspur` missing. `npx tsc -b --pretty false` and `git diff --check` passed. Sandboxed `npm run build` hit `EPERM` resolving `index.html`; the elevated production build passed (60 modules, MapLibre chunk 1,053 kB, size warning remains).
+- Limitations: Bilaspur remains pending. Division location plots are sparse junction samples rather than GIS boundaries or complete station lists; event timelines are curated highlights, not exhaustive histories. Live tracking is not implemented because CRIS does not document a public API contract or reuse terms.
+
+## 2026-10-11T07:58:21+05:30 — Build a railway museum gallery and division case files
+
+- Changed: Reframed the History page as a rolling-stock museum with four openly licensed Indian railway photographs, three click-to-play Commons films, creator/license credits, and official RDSO WAP-7 and Vande Bharat technical notes. Added 30 division-specific dossiers with geographic lenses and cited dated milestones; selected-division timelines now use only that division’s events, and parent-zone dates are explicitly distinguished from division formation. Added a direct official NTES passenger-enquiry link and an in-map notice that the atlas has no live train positions. Files: `src/components/History/MuseumWalk.tsx`, `src/data/museumCollection.ts`, `src/data/railwayDivisionStories.ts`, `src/components/History/HistoryPage.tsx`, `src/components/History/history-enhancements.css`, `src/components/Atlas/AtlasHeader.tsx`, `src/styles.css`, `src/data/railwayDivisions.ts`, `DATA_SOURCES.md`, `README.md`, `SUBMISSION.md`, `AI_USAGE.md`.
+- Why: The previous history page read as a data dashboard, not a railway museum; it lacked open rolling-stock media and could mislead visitors by showing parent-zone formation years as division history. The map also had no in-map live feed, and the public NTES service must not be represented as a documented API.
+- Validation: `npx tsc -b --pretty false`, elevated `npm run build`, and `git diff --check` passed. Vite transformed 60 modules; the 1,053 kB MapLibre chunk warning remains. The restricted build first failed with `EPERM` resolving `index.html`, then passed outside the sandbox. Browser/visual verification was attempted but the computer-use bridge stopped before opening the local preview.
+- Limitations: The 30 researched division dossiers cover only part of the 69-division roster; 39 remain research gaps. Other divisions stay visibly marked as unresearched. No undocumented NTES scraping or simulated live position is added. Human visual review remains pending.
+
 ## 2026-10-11T07:12:43+05:30 — Reconcile metro station markers against operator rosters
 
 - Changed: Added the missing mapped Vyttila station footprint centroid for Kochi, Pune's Mahatma Phule Mandai point, ten additional Mumbai Line 1 station-footprint centroids, five matched points on open Line 2B, and the four operating Line 9 points. Updated Kochi's display to use the 25-stop operator roster while retaining the conflicting 26-station homepage claim; refreshed Mumbai and Pune point-coverage infographics and the data/source/submission records.

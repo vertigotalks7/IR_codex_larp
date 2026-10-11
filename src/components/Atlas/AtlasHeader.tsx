@@ -41,10 +41,13 @@ export function AtlasHeader({ onGoLanding, onGoHistory, selectedNetwork, network
 
       <div className="atlas-status">
         <i /> India · {selectedNetwork.name}
-        <small>{statusText}</small>
+        <small>{statusText} · map is not a live train-position feed</small>
       </div>
 
       <div className="atlas-top-actions">
+        <a className="atlas-ntes-link" href="https://enquiry.indianrail.gov.in/mntes/" target="_blank" rel="noopener noreferrer" aria-label="Open official NTES live train enquiry in a new tab; this map does not plot live train positions" title="Official NTES live enquiry · opens separately; no live positions on this map">
+          NTES live enquiry ↗
+        </a>
         <button title="Open historical register" aria-label="Open history" onClick={onGoHistory}>
           History ↗
         </button>
