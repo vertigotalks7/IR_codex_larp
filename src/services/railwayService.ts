@@ -1,6 +1,7 @@
 import { nationalCorridors, nationalJunctions, type RailwayCorridor, type RailwayJunction } from '../data/nationalRailways'
 import { train17216, type RailwayStationStop, type TrainService } from '../data/indianRailways'
 import { SUBURBAN_DIVISIONS, type SuburbanDivision } from '../data/suburbanDivisions'
+import { fetchProjectJson } from './projectData'
 import type { RailwayMeta } from '../types'
 
 let cachedRoutesGeoJson: any | null = null
@@ -24,18 +25,11 @@ export async function preloadRailwayData(): Promise<{
   if (railwayLoadPromise) return railwayLoadPromise
 
   railwayLoadPromise = (async () => {
-    const [routesRes, junctionsRes, metaRes] = await Promise.all([
-      fetch('/data/railway-routes.json'),
-      fetch('/data/railway-major-junctions.json'),
-      fetch('/data/railway-meta.json'),
+    const [routes, junctions, meta] = await Promise.all([
+      fetchProjectJson<any>('data/railway-routes.json'),
+      fetchProjectJson<any>('data/railway-major-junctions.json'),
+      fetchProjectJson<RailwayMeta>('data/railway-meta.json').catch(() => null),
     ])
-
-    if (!routesRes.ok || !junctionsRes.ok) {
-      throw new Error(`Railway GIS bundles unavailable (routes ${routesRes.status}, junctions ${junctionsRes.status})`)
-    }
-
-    const [routes, junctions] = await Promise.all([routesRes.json(), junctionsRes.json()])
-    const meta = metaRes.ok ? await metaRes.json() : null
     if (!Array.isArray(routes.features) || !Array.isArray(junctions.features)) {
       throw new Error('Railway GIS bundles are not valid GeoJSON feature collections')
     }
@@ -249,10 +243,7 @@ async function loadSuburbanDivision(divisionId: string): Promise<{ routes: any; 
   if (inFlight) return inFlight
 
   const promise = (async () => {
-    const response = await fetch(`/data/suburban/${divisionId}.json`)
-    if (!response.ok) throw new Error(`City rail bundle unavailable (${response.status})`)
-
-    const payload = await response.json()
+    const payload = await fetchProjectJson<any>(`data/suburban/${divisionId}.json`)
     if (!Array.isArray(payload.routes?.features) || !Array.isArray(payload.stations?.features)) {
       throw new Error(`City rail bundle for ${divisionId} is not valid GeoJSON`)
     }
@@ -332,10 +323,7 @@ export async function preloadDatameetStations(): Promise<any> {
   }
   isDatameetPreloading = true
   try {
-    const res = await fetch('/data/railway-stations-datameet.json')
-    if (res.ok) {
-      cachedDatameetStationsGeoJson = await res.json()
-    }
+    cachedDatameetStationsGeoJson = await fetchProjectJson<any>('data/railway-stations-datameet.json')
   } catch (err) {
     console.warn('Failed to load DataMeet station catalog', err)
   } finally {

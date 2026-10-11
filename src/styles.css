@@ -53,6 +53,9 @@ body:has(.atlas-shell) { background: #111318; overflow: hidden; }
 body:has(.atlas-shell) { background: #d8cdb8; }
 .atlas-shell { color: #2d241c; background: #d8cdb8; }
 .atlas-map { background: #d4cbb9; }
+.page-loading { position: fixed; z-index: 20; inset: 0; display: flex; align-items: center; justify-content: center; gap: 12px; color: #493b2d; background: #e9dfcc; font: 12px 'DM Mono', monospace; }
+.page-loading-indicator { width: 16px; height: 16px; border: 2px solid #c5b393; border-top-color: #6d2f2b; border-radius: 50%; animation: page-loading-spin .8s linear infinite; }
+@keyframes page-loading-spin { to { transform: rotate(360deg); } }
 .atlas-map .maplibregl-canvas { filter: sepia(.16) saturate(.84) contrast(.96); }
 .atlas-map .maplibregl-ctrl-group { background: #eee5d2; border: 1px solid #94836b; box-shadow: 2px 2px 0 #493b2d33; }
 .atlas-map .maplibregl-ctrl button { filter: none; color: #493b2d; }

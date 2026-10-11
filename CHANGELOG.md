@@ -4,6 +4,13 @@ Record each meaningful project change during the event, newest first. Update thi
 
 ## Event build log
 
+## 2026-10-11T08:22:15+05:30 — Prepare static deployment and reduce initial loading cost
+
+- Changed: Added a GitHub Pages Actions workflow and repository-aware Vite base path; centralized project JSON loading with compressed-asset support, a plain-JSON fallback, and in-memory request deduplication; generate gzip copies of all public JSON during production build; split the map and history screens (and MapLibre CSS) into on-demand chunks. Files: `.github/workflows/deploy-pages.yml`, `vite.config.ts`, `src/services/projectData.ts`, `scripts/compress-static-data.mjs`, `src/App.tsx`, `src/main.tsx`, `src/components/Map/MapView.tsx`, data-loading services, `package.json`, `README.md`, `SUBMISSION.md`, `AI_USAGE.md`.
+- Why: GitHub Pages hosts this app at a repository subpath, while previous data requests assumed the domain root. Large uncompressed rail bundles and eagerly loaded history code delayed first use.
+- Validation: TypeScript and the production build passed with `VITE_BASE_PATH=/IR_codex_larp/`. The build produced 22 gzip JSON siblings (18.5 MB to 3.0 MB; 84% smaller); all were decompressed and parsed successfully. Initial JS changed from 461 kB to 308 kB (gzip 134 kB to 92 kB); history and map CSS are lazy chunks. `git diff --check` passed.
+- Limitations: MapLibre remains a separate 1,053 kB (285 kB gzip) chunk and is intentionally fetched only when opening the atlas. Repository Pages settings show publishing is disabled; this change prepares deployment, but the public Pages site is not live until Pages is enabled.
+
 ## 2026-10-11T08:07:06+05:30 — Expand division histories into a 68-file archive
 
 - Changed: Expanded the source-linked division case files from 30 to 68 of 69 rostered divisions, added source-led geographic/context notes and division-filtered events, and recorded Bilaspur as the one explicit research gap. Updated the README, source ledger, submission summary, and AI-usage record to match the integrated archive. Files: `src/data/railwayDivisionStories.ts`, `src/components/History/HistoryPage.tsx`, `DATA_SOURCES.md`, `README.md`, `SUBMISSION.md`, `AI_USAGE.md`.

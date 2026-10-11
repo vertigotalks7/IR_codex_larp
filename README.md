@@ -44,6 +44,12 @@ The implementation was built from scratch during the event. The event rules are 
 4. Open the printed local URL, switch network layers, inspect a mapped track, and open the History page from the atlas header or landing page.
 5. Production check: `npm run build`
 
+### Deploy the MVP
+
+For the first publish, set **Settings → Pages → Build and deployment → Source** to **GitHub Actions**. Pages is currently disabled for this repository, so the site is not public yet. Once enabled, pushes to `master` run `.github/workflows/deploy-pages.yml`, which builds and deploys the `dist/` artifact. The project-site base path is configured for this repository, and all bundled rail data is fetched through that base path. The expected public URL is <https://vertigotalks7.github.io/IR_codex_larp/> after the first successful Pages deployment. See [GitHub's custom Pages workflow guide](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages). GitHub Pages is static hosting: the map uses bundled data and external map tiles, and it does not provide a backend or live train-position service.
+
+The production build also creates gzip-compressed copies of JSON data bundles. The browser uses the compressed copy where streaming decompression is supported and falls back to plain JSON otherwise. Map and history screens are loaded only when opened, keeping the landing page's initial bundle smaller. The latest measured build compressed 18.5 MB of JSON to 3.0 MB (84% smaller) and reduced the initial JS bundle from 461 KB to 308 KB; MapLibre itself remains a separate on-demand chunk.
+
 ### Current status
 
 - Working features: India-scale map-first atlas viewer, metro/rail/city-rail/NHSRCL layer switcher, a separate history page with train-family and region selectors, indexed railway-zone/division records, metro station details, layer toggles, and source links. The atlas map shows current bundled geometry and does not time-travel; historical route reconstruction is not implemented.

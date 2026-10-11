@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useMemo, useRef, useState } from 'react'
 import { systems } from './data'
 import { networkModes, ALL_INDIA_CENTER, ALL_INDIA_ZOOM } from './config/networks'
 import { visibleStationsFor } from './services/transitData'
@@ -6,14 +6,19 @@ import { nationalCorridors, type RailwayJunction } from './data/nationalRailways
 import { RAILWAY_ZONES } from './data/railwayZones'
 import { SUBURBAN_DIVISIONS } from './data/suburbanDivisions'
 import { LandingPage } from './components/Landing/LandingPage'
-import { HistoryPage } from './components/History/HistoryPage'
 import { AtlasHeader } from './components/Atlas/AtlasHeader'
 import { AtlasPanel } from './components/Atlas/AtlasPanel'
 import { AtlasLegend } from './components/Atlas/AtlasLegend'
-import { MapView } from './components/Map/MapView'
 import type { MetroSystemId, NetworkMode, Station, RouteStatus } from './types'
 
 type Map = import('maplibre-gl').Map
+
+const HistoryPage = lazy(() => import('./components/History/HistoryPage').then((module) => ({ default: module.HistoryPage })))
+const MapView = lazy(() => import('./components/Map/MapView').then((module) => ({ default: module.MapView })))
+
+function PageLoading({ label }: { label: string }) {
+  return <div className="page-loading" role="status"><span className="page-loading-indicator" />{label}</div>
+}
 
 export default function App() {
   const [page, setPage] = useState<'landing' | 'atlas' | 'history'>('landing')
@@ -122,7 +127,9 @@ export default function App() {
   }
 
   if (page === 'history') {
-    return <HistoryPage onOpenAtlas={() => setPage('atlas')} onGoLanding={() => setPage('landing')} />
+    return <Suspense fallback={<PageLoading label="Opening the railway archive…" />}>
+      <HistoryPage onOpenAtlas={() => setPage('atlas')} onGoLanding={() => setPage('landing')} />
+    </Suspense>
   }
 
   return (
@@ -136,20 +143,22 @@ export default function App() {
       />
 
       <section className="atlas-map">
-        <MapView
-          year={year}
-          system={system}
-          network={network}
-          mapRef={mapRef}
-          showStations={showStations}
-          showRoutes={showRoutes}
-          selectedCorridorId={selectedCorridorId}
-          selectedSuburbanId={selectedSuburbanId}
-          onSelectStation={setSelectedStation}
-          onSelectRailwayJunction={handleSelectRailwayJunction}
-          onReady={() => setMapReady(true)}
-          onRouteStatus={handleRouteStatus}
-        />
+        <Suspense fallback={<PageLoading label="Loading the map engine…" />}>
+          <MapView
+            year={year}
+            system={system}
+            network={network}
+            mapRef={mapRef}
+            showStations={showStations}
+            showRoutes={showRoutes}
+            selectedCorridorId={selectedCorridorId}
+            selectedSuburbanId={selectedSuburbanId}
+            onSelectStation={setSelectedStation}
+            onSelectRailwayJunction={handleSelectRailwayJunction}
+            onReady={() => setMapReady(true)}
+            onRouteStatus={handleRouteStatus}
+          />
+        </Suspense>
 
         <AtlasLegend network={network} />
       </section>

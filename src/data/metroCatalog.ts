@@ -1,3 +1,5 @@
+import { fetchProjectJson } from '../services/projectData'
+
 /**
  * Source-backed inventory for metro system cards and future data imports.
  *
@@ -153,19 +155,11 @@ const CMRL_GTFS: MetroSource = {
  * src/data.ts. These marker counts are not official network station totals.
  */
 export async function loadBundledMetroStationPoints(
-  fetcher: typeof fetch = fetch,
 ): Promise<readonly MappedMetroStationPoint[]> {
-  const [response, osmResponse, extraOsmResponse] = await Promise.all([
-    fetcher('/data/routes.json'),
-    fetcher('/data/metro-stations-osm.json').catch(() => null),
-    fetcher('/data/metro-stations-extra.json').catch(() => null),
-  ])
-  if (!response.ok) throw new Error(`Unable to load bundled metro stations (${response.status})`)
-
   const [payload, osmPayload, extraOsmPayload] = await Promise.all([
-    response.json() as Promise<RouteBundle>,
-    osmResponse?.ok ? osmResponse.json() as Promise<OsmStationBundle> : Promise.resolve({ features: [] } as OsmStationBundle),
-    extraOsmResponse?.ok ? extraOsmResponse.json() as Promise<OsmStationBundle> : Promise.resolve({ features: [] } as OsmStationBundle),
+    fetchProjectJson<RouteBundle>('data/routes.json'),
+    fetchProjectJson<OsmStationBundle>('data/metro-stations-osm.json').catch(() => ({ features: [] }) as OsmStationBundle),
+    fetchProjectJson<OsmStationBundle>('data/metro-stations-extra.json').catch(() => ({ features: [] }) as OsmStationBundle),
   ])
 
   const gtfsPoints = (Array.isArray(payload.stations) ? payload.stations : []).flatMap((candidate: RouteBundleStation) => {

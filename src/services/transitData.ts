@@ -1,5 +1,6 @@
 import { systems, stations, isVisible } from '../data'
 import type { MetroSystemId, Route, Station, OSMFeatureCollection, LocalTransitData } from '../types'
+import { fetchProjectJson } from './projectData'
 
 type Map = import('maplibre-gl').Map
 type GeoJSONSource = import('maplibre-gl').GeoJSONSource
@@ -89,21 +90,11 @@ export function visibleStationsFor(system: MetroSystemId | 'all', year: number) 
 export async function loadLocalTransitData(): Promise<LocalTransitData | null> {
   if (!localTransitDataPromise) {
     localTransitDataPromise = Promise.all([
-      fetch('/data/routes.json', { cache: 'no-store' }),
-      fetch('/data/metro-stations-osm.json', { cache: 'no-store' }).catch(() => null),
-      fetch('/data/metro-stations-extra.json', { cache: 'no-store' }).catch(() => null),
+      fetchProjectJson<LocalTransitData>('data/routes.json'),
+      fetchProjectJson<OsmMetroStationBundle>('data/metro-stations-osm.json').catch(() => ({ features: [] }) as OsmMetroStationBundle),
+      fetchProjectJson<OsmMetroStationBundle>('data/metro-stations-extra.json').catch(() => ({ features: [] }) as OsmMetroStationBundle),
     ])
-      .then(async ([response, osmStationsResponse, extraOsmStationsResponse]) => {
-        if (!response.ok) return null
-        const [payload, osmStationPayload, extraOsmStationPayload] = await Promise.all([
-          response.json() as Promise<LocalTransitData>,
-          osmStationsResponse?.ok
-            ? osmStationsResponse.json() as Promise<OsmMetroStationBundle>
-            : Promise.resolve({ features: [] } as OsmMetroStationBundle),
-          extraOsmStationsResponse?.ok
-            ? extraOsmStationsResponse.json() as Promise<OsmMetroStationBundle>
-            : Promise.resolve({ features: [] } as OsmMetroStationBundle),
-        ])
+      .then(([payload, osmStationPayload, extraOsmStationPayload]) => {
         const allOsmStationFeatures = [
           ...(osmStationPayload.features ?? []),
           ...(extraOsmStationPayload.features ?? []),

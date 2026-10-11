@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { mapStyle } from '../../config/map'
 import { loadMapLibre } from '../../services/mapLibre'
+import 'maplibre-gl/dist/maplibre-gl.css'
 import {
   emptyRouteCollection,
   geoJson,
