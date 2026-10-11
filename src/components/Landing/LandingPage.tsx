@@ -1,8 +1,9 @@
 interface LandingPageProps {
   onEnterAtlas: () => void
+  onOpenHistory: () => void
 }
 
-export function LandingPage({ onEnterAtlas }: LandingPageProps) {
+export function LandingPage({ onEnterAtlas, onOpenHistory }: LandingPageProps) {
   return (
     <main className="landing-shell">
       <header className="landing-header">
@@ -25,6 +26,7 @@ export function LandingPage({ onEnterAtlas }: LandingPageProps) {
           <button className="landing-primary" onClick={onEnterAtlas}>
             Enter metro atlas <span>→</span>
           </button>
+          <button className="landing-history-link" onClick={onOpenHistory}>Read the timeline ↗</button>
           <a href="#data-ledger">View data ledger ↓</a>
         </div>
       </section>
@@ -33,8 +35,8 @@ export function LandingPage({ onEnterAtlas }: LandingPageProps) {
         <article>
           <span className="mode-number">01</span>
           <h2>City metros</h2>
-          <p>Bundled route geometry for Hyderabad, Bengaluru, and Chennai; other systems remain metadata-only.</p>
-          <button onClick={onEnterAtlas}>Open atlas →</button>
+          <p>Mapped track geometry for seven metro systems, combining GTFS route shapes and OpenStreetMap track ways.</p>
+            <button onClick={onEnterAtlas}>Open atlas →</button>
         </article>
         <article>
           <span className="mode-number">02</span>
@@ -45,8 +47,8 @@ export function LandingPage({ onEnterAtlas }: LandingPageProps) {
         <article>
           <span className="mode-number">03</span>
           <h2>High-speed rail</h2>
-          <p>Official NHSRCL project reference; no alignment geometry is bundled or drawn.</p>
-          <small>Geometry pending source file</small>
+          <p>NHSRCL lists an official MAHSR alignment KMZ, but the file has not been retrieved and verified locally.</p>
+          <small>No guessed alignment is drawn</small>
         </article>
       </section>
 
@@ -57,16 +59,16 @@ export function LandingPage({ onEnterAtlas }: LandingPageProps) {
         </div>
         <div className="ledger-grid">
           <p>
-            <strong>3</strong>
-            <span>verified metro source snapshots</span>
-          </p>
-          <p>
-            <strong>14</strong>
-            <span>GTFS route shapes available offline</span>
+            <strong>7</strong>
+            <span>metro systems with mapped route geometry</span>
           </p>
           <p>
             <strong>181</strong>
-            <span>station records with source links</span>
+            <span>GTFS station records across three metro systems</span>
+          </p>
+          <p>
+            <strong>12</strong>
+            <span>city rail track focus areas in the atlas</span>
           </p>
         </div>
       </section>
@@ -88,17 +90,20 @@ export function LandingPage({ onEnterAtlas }: LandingPageProps) {
             <strong>Suburban rail</strong>
             <small>OSM physical tracks · snapshot 10 May 2026 ↗</small>
           </a>
-          <a href="https://nhsrcl.in/index.php/en/project/project-overview" target="_blank" rel="noreferrer">
+          <a href="https://www.nhsrcl.in/en/project/technical_details" target="_blank" rel="noreferrer">
             <span>03</span>
             <strong>NHSRCL</strong>
-            <small>Official Mumbai–Ahmedabad project overview ↗</small>
+            <small>Official MAHSR alignment KMZ page ↗</small>
           </a>
         </nav>
       </section>
 
       <footer className="landing-footer">
         <span>Transit Time Machine · India rail research project</span>
-        <button onClick={onEnterAtlas}>Metro atlas</button>
+        <div>
+          <button onClick={onOpenHistory}>History</button>
+          <button onClick={onEnterAtlas}>Metro atlas</button>
+        </div>
       </footer>
     </main>
   )

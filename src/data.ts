@@ -42,13 +42,13 @@ export type Route = {
 }
 
 export const systems: MetroSystem[] = [
-  { id: 'delhi', name: 'Delhi Metro', city: 'Delhi NCR', opened: 2002, lines: ['Yellow', 'Blue', 'Magenta'], color: '#f2c94c', center: [77.21, 28.62], source: 'https://delhimetrorail.com/pages/about-us/present-network', dataSource: 'https://otd.delhi.gov.in/data/staticDMRC/' },
-  { id: 'bengaluru', name: 'Namma Metro', city: 'Bengaluru', opened: 2011, lines: ['Purple', 'Green'], color: '#9b59b6', center: [77.59, 12.98], source: 'https://english.bmrc.co.in/', dataSource: 'https://github.com/Vonter/bmrcl-gtfs' },
-  { id: 'chennai', name: 'Chennai Metro', city: 'Chennai', opened: 2015, lines: ['Blue', 'Green'], color: '#2f80ed', center: [80.24, 13.05], source: 'https://chennaimetrorail.org/', dataSource: 'https://github.com/ungalsoththu/ChennaiGTFS' },
-  { id: 'hyderabad', name: 'Hyderabad Metro', city: 'Hyderabad', opened: 2017, lines: ['Red', 'Blue', 'Green'], color: '#e74c3c', center: [78.47, 17.41], source: 'https://hmrl.co.in/', dataSource: 'https://mobilitydatabase.org/feeds/gtfs/mdb-2457' },
-  { id: 'kochi', name: 'Kochi Metro', city: 'Kochi', opened: 2017, lines: ['Blue'], color: '#00a6a6', center: [76.32, 10.03], source: 'https://kochimetro.org/', dataSource: 'https://www.urbanmobilityindia.in/Upload/Conference/e1180c5c-edea-4c77-9efb-59c56f8d8aa3.pdf' },
-  { id: 'mumbai', name: 'Mumbai Metro', city: 'Mumbai', opened: 2014, lines: ['Blue', 'Red', 'Yellow'], color: '#f2994a', center: [72.88, 19.14], source: 'https://www.mmrda.maharashtra.gov.in/', dataSource: 'https://www.metro2go.in/data-sources' },
-  { id: 'pune', name: 'Pune Metro', city: 'Pune', opened: 2022, lines: ['Purple', 'Aqua'], color: '#27ae60', center: [73.86, 18.54], source: 'https://www.punemetrorail.org/', dataSource: 'https://www.punemetrorail.org/' },
+  { id: 'delhi', name: 'Delhi Metro', city: 'Delhi NCR', opened: 2002, lines: ['Red', 'Yellow', 'Blue', 'Green', 'Violet', 'Pink', 'Magenta', 'Grey', 'Airport Express', 'Aqua', 'Rapid Metro'], color: '#f2c94c', center: [77.21, 28.62], source: 'https://delhimetrorail.com/pages/about-us/present-network', dataSource: 'https://www.openstreetmap.org/' },
+  { id: 'bengaluru', name: 'Namma Metro', city: 'Bengaluru', opened: 2011, lines: ['Purple', 'Green', 'Yellow'], color: '#9b59b6', center: [77.59, 12.98], source: 'https://english.bmrc.co.in/', dataSource: 'https://github.com/Vonter/bmrcl-gtfs' },
+  { id: 'chennai', name: 'Chennai Metro', city: 'Chennai', opened: 2015, lines: ['Blue', 'Green'], color: '#2f80ed', center: [80.24, 13.05], source: 'https://chennaimetrorail.org/metro-line-map/', dataSource: 'https://www.openstreetmap.org/' },
+  { id: 'hyderabad', name: 'Hyderabad Metro', city: 'Hyderabad', opened: 2017, lines: ['Red', 'Blue', 'Green'], color: '#e74c3c', center: [78.47, 17.41], source: 'https://hmrl.co.in/', dataSource: 'https://data.opencity.in/dataset/hyderabad-metro-rail-gtfs' },
+  { id: 'kochi', name: 'Kochi Metro', city: 'Kochi', opened: 2017, lines: ['Blue'], color: '#00a6a6', center: [76.32, 10.03], source: 'https://kochimetro.org/phase-1-status/', dataSource: 'https://www.openstreetmap.org/' },
+  { id: 'mumbai', name: 'Mumbai Metro', city: 'Mumbai', opened: 2014, lines: ['Line 1', 'Line 2', 'Line 3', 'Line 7', 'Line 9'], color: '#f2994a', center: [72.88, 19.14], source: 'https://mmrda.maharashtra.gov.in/en/node/1229', dataSource: 'https://www.openstreetmap.org/' },
+  { id: 'pune', name: 'Pune Metro', city: 'Pune', opened: 2022, lines: ['Purple', 'Aqua'], color: '#27ae60', center: [73.86, 18.54], source: 'https://www.mahametro.org/route_maps.html', dataSource: 'https://www.openstreetmap.org/' },
 ]
 
 export const stations: Station[] = [
@@ -72,35 +72,6 @@ export const stations: Station[] = [
   { id: 'pune-south', name: 'Swargate', city: 'Pune', kind: 'metro', opened: 2022, coordinates: [73.8580, 18.5010], lines: ['purple'], system: 'pune', source: 'https://www.punemetrorail.org/', coordinateSource: 'https://www.punemetrorail.org/' },
 ]
 
-export const routes: Route[] = [
-  { id: 'yellow', name: 'Yellow Line', operator: 'Delhi Metro Rail Corporation', kind: 'metro', system: 'delhi', color: '#f2c94c', opened: 2004, status: 'operational', coordinates: [[77.22817, 28.66750], [77.23014, 28.65785], [77.22144, 28.64307], [77.21826, 28.63282], [77.20667, 28.54335], [77.07268, 28.45927]], source: 'https://delhimetrorail.com/pages/about-us/present-network' },
-  { id: 'blue', name: 'Blue Line', operator: 'Delhi Metro Rail Corporation', kind: 'metro', system: 'delhi', color: '#3298dc', opened: 2005, status: 'operational', coordinates: [[77.21826, 28.63282], [77.19, 28.625], [77.16, 28.62]], source: 'https://delhimetrorail.com/pages/about-us/present-network' },
-  { id: 'magenta', name: 'Magenta Line', operator: 'Delhi Metro Rail Corporation', kind: 'metro', system: 'delhi', color: '#d44c9a', opened: 2018, status: 'operational', coordinates: [[77.20667, 28.54335], [77.18, 28.535], [77.15, 28.53]], source: 'https://delhimetrorail.com/pages/about-us/present-network' },
-  { id: 'blr-purple', name: 'Purple Line', operator: 'Bangalore Metro Rail Corporation', kind: 'metro', system: 'bengaluru', color: '#9b59b6', opened: 2011, status: 'operational', coordinates: [[77.4886, 12.9565], [77.58, 12.975], [77.7510, 12.9698]], source: 'https://english.bmrc.co.in/' },
-  { id: 'blr-green', name: 'Green Line', operator: 'Bangalore Metro Rail Corporation', kind: 'metro', system: 'bengaluru', color: '#27ae60', opened: 2014, status: 'operational', coordinates: [[77.50, 13.05], [77.56, 12.98], [77.58, 12.93]], source: 'https://english.bmrc.co.in/' },
-  { id: 'maa-blue', name: 'Blue Line', operator: 'Chennai Metro Rail', kind: 'metro', system: 'chennai', color: '#2f80ed', opened: 2015, status: 'operational', coordinates: [[80.2844, 13.1703], [80.27, 13.08], [80.1655, 12.9815]], source: 'https://chennaimetrorail.org/' },
-  { id: 'maa-green', name: 'Green Line', operator: 'Chennai Metro Rail', kind: 'metro', system: 'chennai', color: '#2ecc71', opened: 2015, status: 'operational', coordinates: [[80.25, 13.08], [80.22, 13.02], [80.18, 12.98]], source: 'https://chennaimetrorail.org/' },
-  { id: 'hyd-red', name: 'Red Line', operator: 'Hyderabad Metro Rail', kind: 'metro', system: 'hyderabad', color: '#e74c3c', opened: 2017, status: 'operational', coordinates: [[78.3736, 17.4968], [78.48, 17.43], [78.5520, 17.3457]], source: 'https://hmrl.co.in/' },
-  { id: 'hyd-blue', name: 'Blue Line', operator: 'Hyderabad Metro Rail', kind: 'metro', system: 'hyderabad', color: '#3498db', opened: 2017, status: 'operational', coordinates: [[78.48, 17.43], [78.50, 17.40], [78.53, 17.37]], source: 'https://hmrl.co.in/' },
-  { id: 'hyd-green', name: 'Green Line', operator: 'Hyderabad Metro Rail', kind: 'metro', system: 'hyderabad', color: '#2ecc71', opened: 2020, status: 'operational', coordinates: [[78.48, 17.43], [78.47, 17.39], [78.48, 17.35]], source: 'https://hmrl.co.in/' },
-  { id: 'kochi-blue', name: 'Blue Line', operator: 'Kochi Metro Rail', kind: 'metro', system: 'kochi', color: '#00a6a6', opened: 2017, status: 'operational', coordinates: [[76.3500, 10.1100], [76.31, 10.02], [76.3420, 9.9490]], source: 'https://kochimetro.org/' },
-  { id: 'mum-blue', name: 'Line 1 Blue', operator: 'Mumbai Metro', kind: 'metro', system: 'mumbai', color: '#3498db', opened: 2014, status: 'operational', coordinates: [[72.8180, 19.1290], [72.87, 19.11], [72.9080, 19.0860]], source: 'https://www.mmrda.maharashtra.gov.in/' },
-  { id: 'mum-red', name: 'Line 7 Red', operator: 'Mumbai Metro', kind: 'metro', system: 'mumbai', color: '#e74c3c', opened: 2022, status: 'operational', coordinates: [[72.85, 19.17], [72.92, 19.21], [72.97, 19.30]], source: 'https://www.mmrda.maharashtra.gov.in/' },
-  { id: 'mum-yellow', name: 'Line 2A Yellow', operator: 'Mumbai Metro', kind: 'metro', system: 'mumbai', color: '#f2c94c', opened: 2022, status: 'operational', coordinates: [[72.83, 19.16], [72.87, 19.20], [72.91, 19.24]], source: 'https://www.mmrda.maharashtra.gov.in/' },
-  { id: 'pune-purple', name: 'Purple Line', operator: 'Maha Metro', kind: 'metro', system: 'pune', color: '#9b59b6', opened: 2022, status: 'operational', coordinates: [[73.8000, 18.6280], [73.84, 18.56], [73.8580, 18.5010]], source: 'https://www.punemetrorail.org/' },
-  { id: 'pune-aqua', name: 'Aqua Line', operator: 'Maha Metro', kind: 'metro', system: 'pune', color: '#00a6a6', opened: 2022, status: 'operational', coordinates: [[73.88, 18.57], [73.92, 18.55], [73.95, 18.52]], source: 'https://www.punemetrorail.org/' },
-]
-
-export const years = [2002, 2004, 2010, 2014, 2017, 2018, 2022, 2024]
-
 export function isVisible(opened: number, year: number, status: Status, closed?: number) {
   return opened <= year && (!closed || year < closed) && (status === 'operational' || year >= opened)
 }
-
-export const milestones = [
-  { year: 2002, label: 'Delhi Metro begins service', detail: 'India’s first modern metro system in this dataset opens its first corridor.', coordinates: [77.22817, 28.66750] as [number, number] },
-  { year: 2011, label: 'Namma Metro begins service', detail: 'Bengaluru joins the growing network of Indian metro cities.', coordinates: [77.58, 12.975] as [number, number] },
-  { year: 2015, label: 'Chennai Metro begins service', detail: 'The first Chennai Metro corridor opens to passengers.', coordinates: [80.22, 13.05] as [number, number] },
-  { year: 2017, label: 'Kochi and Hyderabad expand the map', detail: 'Two southern systems enter the historical atlas.', coordinates: [78.48, 17.43] as [number, number] },
-  { year: 2022, label: 'Mumbai and Pune additions', detail: 'The map widens with new metro systems and multiple colored lines.', coordinates: [73.84, 18.56] as [number, number] },
-]

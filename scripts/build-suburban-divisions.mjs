@@ -44,6 +44,42 @@ const DIVISIONS = [
     color: '#d97706',
     bounds: { minLon: 73.35, maxLon: 73.95, minLat: 18.5, maxLat: 18.8 },
   },
+  {
+    id: 'bengaluru',
+    name: 'Bengaluru',
+    color: '#7c3aed',
+    bounds: { minLon: 77.35, maxLon: 77.95, minLat: 12.72, maxLat: 13.2 },
+  },
+  {
+    id: 'ahmedabad',
+    name: 'Ahmedabad',
+    color: '#0891b2',
+    bounds: { minLon: 72.4, maxLon: 72.8, minLat: 22.9, maxLat: 23.2 },
+  },
+  {
+    id: 'jaipur',
+    name: 'Jaipur',
+    color: '#db2777',
+    bounds: { minLon: 75.6, maxLon: 76.0, minLat: 26.7, maxLat: 27.0 },
+  },
+  {
+    id: 'lucknow',
+    name: 'Lucknow',
+    color: '#16a34a',
+    bounds: { minLon: 80.7, maxLon: 81.1, minLat: 26.7, maxLat: 27.0 },
+  },
+  {
+    id: 'nagpur',
+    name: 'Nagpur',
+    color: '#ca8a04',
+    bounds: { minLon: 79.0, maxLon: 79.35, minLat: 20.95, maxLat: 21.25 },
+  },
+  {
+    id: 'bhopal',
+    name: 'Bhopal',
+    color: '#ea580c',
+    bounds: { minLon: 77.2, maxLon: 77.55, minLat: 23.1, maxLat: 23.4 },
+  },
 ]
 
 function clipSegment(start, end, bounds) {

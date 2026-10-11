@@ -102,6 +102,15 @@ export function AtlasPanel({
               </button>
             ))}
           </div>
+          <div className="network-reference">
+            <small>TRACK GEOMETRY SOURCES</small>
+            <p>
+              Bengaluru and Hyderabad use GTFS shapes; Delhi, Chennai, Kochi, Mumbai, and Pune use mapped OSM track ways from 11 Oct 2026. OSM lines are physical mapped geometry, not operator-certified service paths. No station-coordinate connectors are generated.
+            </p>
+            <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap / ODbL attribution ↗</a>
+            <br />
+            <a href="https://hmrl.co.in/open-data/" target="_blank" rel="noreferrer">HMRL GTFS terms and attribution ↗</a>
+          </div>
         </>
       )}
 
@@ -250,7 +259,7 @@ export function AtlasPanel({
               <div className="railway-card" style={{ marginTop: '8px' }}>
                 <div className="railway-header">
                   <span className="railway-badge" style={{ background: '#0284c7', color: '#fff' }}>CITY AREAS</span>
-                  <span style={{ fontSize: '10px', color: '#6d2f2b', fontWeight: 600 }}>6 FOCUS AREAS</span>
+                  <span style={{ fontSize: '10px', color: '#6d2f2b', fontWeight: 600 }}>{SUBURBAN_DIVISIONS.length} FOCUS AREAS</span>
                 </div>
                 <h3 style={{ fontSize: '14px' }}>Urban rail infrastructure</h3>
                 <div className="railway-live-metric" style={{ marginTop: '6px' }}>
@@ -264,7 +273,7 @@ export function AtlasPanel({
                   </div>
                 </div>
                 <p style={{ fontSize: '10px', color: '#786751', marginTop: '6px' }}>
-                  Physical rail infrastructure in the selected city extents, not operator-defined commuter services. OSM snapshot: 10 May 2026.
+                  Physical rail infrastructure in the selected city extents, not operator-defined commuter services. HOTOSM / OSM snapshot: 10 May 2026.
                 </p>
               </div>
             )
@@ -276,7 +285,7 @@ export function AtlasPanel({
         <div className="network-reference">
           <small>{selectedNetwork.description}</small>
           <p>
-            No NHSRCL alignment geometry is bundled yet, so this mode intentionally draws no line. Open the official project page for current corridor information.
+            NHSRCL’s technical-details page lists an MAHSR alignment KMZ, but this repository has not retrieved and verified that file. This mode intentionally draws no line until the source geometry is archived and checked.
           </p>
           <a href={selectedNetwork.source} target="_blank" rel="noreferrer">
             Open {selectedNetwork.sourceLabel} ↗
@@ -364,7 +373,7 @@ export function AtlasPanel({
 
       {network === 'nhsrcl' && (
         <p className="route-warning">
-          The official MAHSR alignment download is not available in this project snapshot; no guessed route is drawn.
+          The official MAHSR alignment KMZ is listed by NHSRCL but is not archived in this project snapshot; no guessed route is drawn.
         </p>
       )}
 

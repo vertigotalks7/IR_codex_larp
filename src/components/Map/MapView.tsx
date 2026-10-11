@@ -28,6 +28,24 @@ import type { MetroSystemId, NetworkMode, Station, RouteStatus } from '../../typ
 type Map = import('maplibre-gl').Map
 type GeoJSONSource = import('maplibre-gl').GeoJSONSource
 
+function escapeHtml(value: unknown) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+}
+
+function safeSourceUrl(value: unknown) {
+  try {
+    const url = new URL(String(value ?? ''))
+    return url.protocol === 'https:' ? url.href : ''
+  } catch {
+    return ''
+  }
+}
+
 interface MapViewProps {
   year: number
   system: MetroSystemId | 'all'
@@ -95,7 +113,7 @@ function addLayers(
     const isSuburban =
       feature.properties?.system === 'suburban' || feature.properties?.kind === 'suburban-rail'
     const isRailway = feature.properties?.system === 'rail'
-    let content = `<strong>${feature.properties?.name}</strong><br/><span>Route history available in the source record.</span>`
+    let content = ''
 
     if (isSuburban) {
       const p = feature.properties || {}
@@ -138,6 +156,19 @@ function addLayers(
             `<small>Source: project railway GIS snapshot (provider and capture date are not recorded)</small>`
         }
       }
+    }
+
+    if (!isRailway) {
+      const p = feature.properties || {}
+      const name = escapeHtml(p.name || 'Metro track')
+      const sourceType = p.sourceType === 'osm-track' ? 'OpenStreetMap physical track way' : 'GTFS route shape'
+      const sourceUrl = safeSourceUrl(p.source)
+      content =
+        `<strong>${name}</strong><br/>` +
+        `<span>${escapeHtml(p.system || 'Metro')} · ${sourceType}</span><br/>` +
+        `<small>Geometry source date: <b>${escapeHtml(p.snapshot || 'not recorded')}</b>` +
+        `${p.osmId ? ` · OSM way ${escapeHtml(p.osmId)}` : ''}` +
+        `${sourceUrl ? `<br/><a href="${sourceUrl}" target="_blank" rel="noreferrer">Open geometry source ↗</a>` : ''}</small>`
     }
 
     new maplibre.Popup({ closeButton: true, offset: 8 })

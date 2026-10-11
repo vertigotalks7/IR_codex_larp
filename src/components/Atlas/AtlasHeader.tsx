@@ -2,16 +2,17 @@ import type { NetworkModeConfig, RouteStatus, NetworkMode } from '../../types'
 
 interface AtlasHeaderProps {
   onGoLanding: () => void
+  onGoHistory: () => void
   selectedNetwork: NetworkModeConfig
   network: NetworkMode
   routeStatus: RouteStatus
 }
 
-export function AtlasHeader({ onGoLanding, selectedNetwork, network, routeStatus }: AtlasHeaderProps) {
+export function AtlasHeader({ onGoLanding, onGoHistory, selectedNetwork, network, routeStatus }: AtlasHeaderProps) {
   const statusText =
     network === 'metro'
       ? routeStatus === 'real'
-        ? 'bundled metro route geometry loaded'
+        ? 'bundled GTFS + mapped track geometry loaded · source dates in ledger'
         : routeStatus === 'loading'
           ? 'loading route geometry…'
           : 'route geometry unavailable'
@@ -27,7 +28,7 @@ export function AtlasHeader({ onGoLanding, selectedNetwork, network, routeStatus
             : routeStatus === 'loading'
               ? 'loading city rail track geometry…'
               : 'city rail geometry unavailable · no connector fallback'
-          : 'NHSRCL alignment geometry not bundled · no line drawn'
+      : 'official alignment KMZ listed · geometry not archived locally'
 
   return (
     <header className="atlas-topbar">
@@ -44,11 +45,8 @@ export function AtlasHeader({ onGoLanding, selectedNetwork, network, routeStatus
       </div>
 
       <div className="atlas-top-actions">
-        <button title="Search map" aria-label="Search">
-          ⌕
-        </button>
-        <button title="Settings" aria-label="Settings">
-          ⚙
+        <button title="Open historical register" aria-label="Open history" onClick={onGoHistory}>
+          History ↗
         </button>
       </div>
     </header>

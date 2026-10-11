@@ -82,8 +82,86 @@
       },
       "tracks": 445,
       "stations": 86
+    },
+    {
+      "id": "bengaluru",
+      "name": "Bengaluru",
+      "color": "#7c3aed",
+      "bounds": {
+        "minLon": 77.35,
+        "maxLon": 77.95,
+        "minLat": 12.72,
+        "maxLat": 13.2
+      },
+      "tracks": 881,
+      "stations": 109
+    },
+    {
+      "id": "ahmedabad",
+      "name": "Ahmedabad",
+      "color": "#0891b2",
+      "bounds": {
+        "minLon": 72.4,
+        "maxLon": 72.8,
+        "minLat": 22.9,
+        "maxLat": 23.2
+      },
+      "tracks": 338,
+      "stations": 43
+    },
+    {
+      "id": "jaipur",
+      "name": "Jaipur",
+      "color": "#db2777",
+      "bounds": {
+        "minLon": 75.6,
+        "maxLon": 76,
+        "minLat": 26.7,
+        "maxLat": 27
+      },
+      "tracks": 191,
+      "stations": 25
+    },
+    {
+      "id": "lucknow",
+      "name": "Lucknow",
+      "color": "#16a34a",
+      "bounds": {
+        "minLon": 80.7,
+        "maxLon": 81.1,
+        "minLat": 26.7,
+        "maxLat": 27
+      },
+      "tracks": 681,
+      "stations": 42
+    },
+    {
+      "id": "nagpur",
+      "name": "Nagpur",
+      "color": "#ca8a04",
+      "bounds": {
+        "minLon": 79,
+        "maxLon": 79.35,
+        "minLat": 20.95,
+        "maxLat": 21.25
+      },
+      "tracks": 445,
+      "stations": 50
+    },
+    {
+      "id": "bhopal",
+      "name": "Bhopal",
+      "color": "#ea580c",
+      "bounds": {
+        "minLon": 77.2,
+        "maxLon": 77.55,
+        "minLat": 23.1,
+        "maxLat": 23.4
+      },
+      "tracks": 272,
+      "stations": 16
     }
   ],
-  "totalTrackFeatures": 9613,
-  "totalStations": 1132
+  "totalTrackFeatures": 12421,
+  "totalStations": 1417
 }

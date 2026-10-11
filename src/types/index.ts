@@ -42,13 +42,6 @@ export interface Route {
   system: MetroSystemId
 }
 
-export interface Milestone {
-  year: number
-  label: string
-  detail: string
-  coordinates: [number, number]
-}
-
 export interface NetworkModeConfig {
   id: NetworkMode
   name: string
@@ -77,6 +70,7 @@ export type LocalStationFeature = {
 export type LocalTransitData = {
   features: OSMFeatureCollection['features']
   stations: LocalStationFeature[]
+  sources?: { id: string; name: string; source: string; type: string; snapshot: string | null; license?: string }[]
 }
 
 export type RouteStatus = 'loading' | 'real' | 'unavailable'

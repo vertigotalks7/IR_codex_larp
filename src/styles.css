@@ -135,6 +135,41 @@ body:has(.atlas-shell) { background: #d8cdb8; }
 .legend-line.railway-corridor { background: #d97706; }
 .legend-dot.train-dot { background: #e11d48; border-color: #fff; box-shadow: 0 0 0 2px #e11d48; }
 
+/* Dedicated history register; historical event browsing is no longer layered over the map. */
+.atlas-top-actions button { width: auto; min-width: 38px; padding: 0 11px; font-size: 11px; font-family: 'DM Mono', monospace; }
+.landing-history-link { border: 0; padding: 0; color: #6d2f2b; background: transparent; font: 11px 'DM Mono', monospace; }
+.landing-footer > div { display: flex; gap: 20px; }
+.history-shell { min-height: 100vh; max-width: 980px; padding: 24px clamp(22px, 6vw, 72px) 30px; color: #2d241c; background: radial-gradient(circle at 82% 13%, #eadbb7 0, transparent 32%), #e7decd; }
+.history-nav { display: flex; gap: 18px; align-items: center; }
+.history-nav button { border: 0; padding: 8px 0; background: transparent; color: #6d2f2b; font: 11px 'DM Mono', monospace; }
+.history-nav .history-nav-primary { padding: 10px 12px; color: #f7efdf; background: #6d2f2b; border: 1px solid #3f1e1d; box-shadow: 2px 2px 0 #493b2d33; }
+.history-hero { max-width: 750px; padding: clamp(64px, 11vh, 110px) 0 28px; }
+.history-hero h1 { margin: 0; font: clamp(44px, 6vw, 74px)/.96 Georgia, 'Times New Roman', serif; letter-spacing: -.055em; }
+.history-hero h1 em { color: #6d2f2b; font-weight: 400; }
+.history-hero > p:not(.landing-kicker) { max-width: 590px; margin: 20px 0 0; color: #5f4f3d; font-size: 15px; line-height: 1.6; }
+.history-year-control { display: grid; gap: 8px; max-width: 570px; margin-top: 26px; padding: 14px 16px; border: 1px solid #bca989; background: #f0e7d5; box-shadow: 3px 3px 0 #493b2d18; }
+.history-year-control > span { display: flex; align-items: baseline; justify-content: space-between; color: #6d2f2b; font: 12px 'DM Mono', monospace; }
+.history-year-control small { color: #8b7659; font-size: 10px; }
+.history-year-control input { width: 100%; accent-color: #6d2f2b; cursor: ew-resize; }
+.history-limit-note { max-width: 750px; margin: 12px 0 34px; padding: 12px 15px; border-left: 3px solid #a56b32; color: #665540; background: #eee4d1; font-size: 12px; line-height: 1.55; }
+.history-events { list-style: none; margin: 0; padding: 0; border-top: 1px solid #bca989; }
+.history-events li { display: grid; grid-template-columns: 38px 78px minmax(0, 1fr); gap: 15px; align-items: start; padding: 21px 0; border-bottom: 1px solid #c7b694; }
+.history-event-index { color: #a56b32; font: 10px 'DM Mono', monospace; padding-top: 6px; }
+.history-events time { color: #6d2f2b; font: 18px Georgia, serif; }
+.history-events h2 { margin: 0; font: 21px Georgia, serif; }
+.history-events p { max-width: 610px; margin: 8px 0; color: #665540; font-size: 13px; line-height: 1.55; }
+.history-events a { color: #6d2f2b; font: 10px 'DM Mono', monospace; }
+.history-empty { padding: 28px 0; color: #665540; }
+.history-footer { margin-top: 42px; }
+@media (max-width: 800px) {
+  .history-shell { padding: 18px 22px 24px; }
+  .history-nav { gap: 12px; }
+  .history-hero { padding-top: 70px; }
+  .history-events li { grid-template-columns: 24px 55px minmax(0, 1fr); gap: 9px; }
+  .history-events h2 { font-size: 18px; }
+  .history-footer > span { max-width: 60%; }
+}
+
 @keyframes pulse {
   0% { transform: scale(0.95); opacity: 0.8; }
   50% { transform: scale(1.2); opacity: 1; }

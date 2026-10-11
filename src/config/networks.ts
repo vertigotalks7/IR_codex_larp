@@ -4,7 +4,7 @@ export const networkModes: NetworkModeConfig[] = [
   {
     id: 'metro',
     name: 'Metro',
-    description: 'Bundled GTFS route geometry for Hyderabad, Bengaluru, and Chennai; other systems have no local route geometry yet',
+    description: 'Bundled GTFS shapes plus OpenStreetMap track ways for all seven metro systems; source dates are recorded per layer',
     source: 'DATA_SOURCES.md',
     sourceLabel: 'Atlas source ledger',
     center: [78.96, 20.59],
@@ -22,7 +22,7 @@ export const networkModes: NetworkModeConfig[] = [
   {
     id: 'suburban',
     name: 'Suburban Rail',
-    description: 'Physical OpenStreetMap rail tracks and stations in six city focus areas; not commuter-service-only',
+    description: 'Physical OpenStreetMap rail tracks and stations in twelve city focus areas; not commuter-service-only',
     source: 'https://data.humdata.org/dataset/hotosm_ind_railways',
     sourceLabel: 'HOTOSM India railways snapshot',
     center: [72.88, 19.08],
@@ -31,9 +31,9 @@ export const networkModes: NetworkModeConfig[] = [
   {
     id: 'nhsrcl',
     name: 'NHSRCL',
-    description: 'Mumbai–Ahmedabad High-Speed Rail project overview; alignment geometry is not bundled',
-    source: 'https://nhsrcl.in/index.php/en/project/project-overview',
-    sourceLabel: 'Official NHSRCL project overview',
+    description: 'NHSRCL lists the MAHSR alignment KMZ; this project has not archived or verified its geometry',
+    source: 'https://www.nhsrcl.in/en/project/technical_details',
+    sourceLabel: 'Official NHSRCL alignment KMZ page',
     center: [73.25, 20.5],
     zoom: 5.5,
   },

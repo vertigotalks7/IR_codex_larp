@@ -1,27 +1,25 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { systems, years } from './data'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import { systems } from './data'
 import { networkModes, ALL_INDIA_CENTER, ALL_INDIA_ZOOM } from './config/networks'
 import { visibleStationsFor } from './services/transitData'
 import { nationalCorridors, type RailwayJunction } from './data/nationalRailways'
 import { RAILWAY_ZONES } from './data/railwayZones'
 import { SUBURBAN_DIVISIONS } from './data/suburbanDivisions'
 import { LandingPage } from './components/Landing/LandingPage'
+import { HistoryPage } from './components/History/HistoryPage'
 import { AtlasHeader } from './components/Atlas/AtlasHeader'
 import { AtlasPanel } from './components/Atlas/AtlasPanel'
-import { AtlasTimeSlider } from './components/Atlas/AtlasTimeSlider'
 import { AtlasLegend } from './components/Atlas/AtlasLegend'
-import { AtlasMilestones } from './components/Atlas/AtlasMilestones'
 import { MapView } from './components/Map/MapView'
 import type { MetroSystemId, NetworkMode, Station, RouteStatus } from './types'
 
 type Map = import('maplibre-gl').Map
 
 export default function App() {
-  const [page, setPage] = useState<'landing' | 'atlas'>('landing')
+  const [page, setPage] = useState<'landing' | 'atlas' | 'history'>('landing')
   const [network, setNetwork] = useState<NetworkMode>('metro')
-  const [year, setYear] = useState(2022)
+  const year = 2026
   const [system, setSystem] = useState<MetroSystemId | 'all'>('all')
-  const [playing, setPlaying] = useState(false)
   const [selectedStation, setSelectedStation] = useState<Station | null>(null)
   const [selectedRailwayJunction, setSelectedRailwayJunction] = useState<RailwayJunction | null>(null)
   const [selectedCorridorId, setSelectedCorridorId] = useState<string>('all')
@@ -44,22 +42,6 @@ export default function App() {
   const selectedSystem = systems.find((item) => item.id === system)
   const selectedNetwork = networkModes.find((item) => item.id === network) ?? networkModes[0]
   const currentCorridor = nationalCorridors.find((c) => c.id === selectedCorridorId)
-
-  // Playback timer across milestones (for Metro historical view)
-  useEffect(() => {
-    if (!playing) return
-    const timer = window.setInterval(() => {
-      setYear((current) => {
-        const next = years.find((candidate) => candidate > current)
-        if (next === undefined) {
-          setPlaying(false)
-          return current
-        }
-        return next
-      })
-    }, 900)
-    return () => window.clearInterval(timer)
-  }, [playing])
 
   const handleNetworkChange = (mode: NetworkMode) => {
     setNetwork(mode)
@@ -127,14 +109,6 @@ export default function App() {
     }
   }
 
-  const handleMilestoneSelect = (milestoneYear: number, coordinates: [number, number]) => {
-    setYear(milestoneYear)
-    mapRef.current?.flyTo({
-      center: coordinates,
-      zoom: system === 'all' ? 5 : 10,
-    })
-  }
-
   const handleSelectRailwayJunction = (junction: RailwayJunction) => {
     setSelectedRailwayJunction(junction)
     mapRef.current?.flyTo({
@@ -144,13 +118,18 @@ export default function App() {
   }
 
   if (page === 'landing') {
-    return <LandingPage onEnterAtlas={() => setPage('atlas')} />
+    return <LandingPage onEnterAtlas={() => setPage('atlas')} onOpenHistory={() => setPage('history')} />
+  }
+
+  if (page === 'history') {
+    return <HistoryPage onOpenAtlas={() => setPage('atlas')} onGoLanding={() => setPage('landing')} />
   }
 
   return (
     <main className="atlas-shell">
       <AtlasHeader
         onGoLanding={() => setPage('landing')}
+        onGoHistory={() => setPage('history')}
         selectedNetwork={selectedNetwork}
         network={network}
         routeStatus={routeStatus}
@@ -170,13 +149,6 @@ export default function App() {
           onSelectRailwayJunction={handleSelectRailwayJunction}
           onReady={() => setMapReady(true)}
           onRouteStatus={handleRouteStatus}
-        />
-
-        <AtlasTimeSlider
-          network={network}
-          year={year}
-          onYearChange={setYear}
-          selectedNetwork={selectedNetwork}
         />
 
         <AtlasLegend network={network} />
@@ -202,16 +174,6 @@ export default function App() {
         onToggleStations={setShowStations}
         onToggleRoutes={setShowRoutes}
       />
-
-      {network === 'metro' && (
-        <AtlasMilestones
-          year={year}
-          playing={playing}
-          system={system}
-          onSelectMilestone={handleMilestoneSelect}
-          onTogglePlay={() => setPlaying(!playing)}
-        />
-      )}
 
       <footer className="atlas-footer">
         Transit Time Machine · India rail overview{' '}
