@@ -1,6 +1,6 @@
-# DevDay Exchange Community Hackathon: Kochi
+# Transit Time Machine · India's Historical Railway Atlas
 
-A repository template for participants at the 10–11 October 2026 hackathon. It contains event rules and documentation scaffolding; build your project from scratch at the event.
+An India rail atlas prototype with metro, national railway GIS, and city-area rail layers. The map is the interface: switch layers, inspect source-backed track geometry, and browse a separate source-linked history page.
 
 **[Event and registration on Luma](https://luma.com/z10nz8gp)** · **[Event rules](RULES.md)** · **[Agent instructions](AGENTS.md)**
 
@@ -19,7 +19,7 @@ A repository template for participants at the 10–11 October 2026 hackathon. It
 
 Keep your approved Luma QR code ready for entry, and bring your laptop and charger. Eligible checked-in participants will receive Codex credits and OpenAI API credits.
 
-## Use this template
+## Project overview
 
 1. Select **Use this template → Create a new repository** on GitHub. Create your own project repository and clone it.
 2. Read [RULES.md](RULES.md) and [AGENTS.md](AGENTS.md) before building. Begin project implementation at the event.
@@ -27,30 +27,35 @@ Keep your approved Luma QR code ready for entry, and bring your laptop and charg
 4. Record meaningful changes in [CHANGELOG.md](CHANGELOG.md) and your Codex usage in [AI_USAGE.md](AI_USAGE.md). Commit after completed milestones; aim for a meaningful checkpoint about every 30 minutes.
 5. Complete [SUBMISSION.md](SUBMISSION.md) with your code repository, short project description, and working demo. Follow submission instructions announced by the organizers.
 
-This template has no application code or required technology stack. The documentation and commit cadence are repository workflow guidance; the event participation rules are in [RULES.md](RULES.md).
+The implementation was built from scratch during the event. The event rules are in [RULES.md](RULES.md).
 
 ## Project overview — complete during the event
 
-- **Project name:** TODO
-- **Short description:** TODO — what it does, who it helps, and why it matters.
-- **Team:** TODO — participant names and GitHub handles; maximum 4 members.
-- **Working demo:** TODO — link or local demo instructions.
-- **Technology stack:** TODO
+- **Project name:** Transit Time Machine
+- **Short description:** A source-aware Indian rail atlas with ten metro map layers, a twenty-system source catalog, city-rail infrastructure, and a separate history explorer.
+- **Working demo:** Run locally with the commands below.
+- **Technology stack:** Vite, React, TypeScript, MapLibre GL JS, OpenStreetMap raster tiles.
 
 ### Run the project
 
-Replace these placeholders with commands that actually work for your project:
-
-1. Prerequisites and versions: TODO
-2. Dependency installation: TODO
-3. Environment setup: TODO — list required variable names and provide a sanitized `.env.example` if needed.
-4. Start the project: TODO
-5. Run checks or tests: TODO
+1. Prerequisites: Node.js 20+ and npm.
+2. Install dependencies: `npm install`
+3. Start the app: `npm run dev`
+4. Open the printed local URL, switch network layers, inspect a mapped track, and open the History page from the atlas header or landing page.
+5. Production check: `npm run build`
 
 ### Current status
 
-- Working features: TODO
-- Known limitations: TODO
-- Libraries, APIs, and public datasets used: TODO — include source links and applicable attribution.
+- Working features: India-scale map-first atlas viewer, metro/rail/city-rail/NHSRCL layer switcher, a separate history page with train-family and region selectors, indexed railway-zone/division records, metro station details, layer toggles, and source links. The atlas map shows current bundled geometry and does not time-travel; historical route reconstruction is not implemented.
+- Architecture: Modular component hierarchy (`src/components/` for Landing, Atlas, and Map), separated data and mapping services (`src/services/`), type definitions (`src/types/`), and configurations (`src/config/`).
+- Metro coverage: The source catalog has 21 systems with operator/government map references; ten have route geometry bundled in the atlas. The current export contains 626 geometry features (620 OSM track ways and six GTFS shapes) across Delhi, Bengaluru, Chennai, Hyderabad, Kochi, Mumbai, Pune, Noida, Gurugram Rapid Metro, and Navi Mumbai. Kolkata, Jaipur, Ahmedabad–Gandhinagar, Nagpur, Lucknow, Kanpur, Agra, Bhopal, Indore, Meerut, and Patna are listed with their map/source status; geographic geometry not yet imported is visibly marked pending, never replaced by station connectors. Meerut Metro is cataloged separately from Namo Bharat because the services share physical infrastructure; the local bundle has no service-specific Metro route. The map also loads 181 GTFS station records and 121 HOTOSM/OSM station records for Kochi, Mumbai, and Pune. These marker totals are separate from operator station totals: Kochi has 25 named-stop markers (24 source points plus a Vyttila footprint centroid) while KMRL's homepage separately claims 26; Mumbai has 66 partial records with no deduplicated all-operator total; Pune has 30 records/29 names, including its newly added Mandai marker and two Civil Court corridor objects. OSM is contributor-mapped physical infrastructure, not operator-certified service geometry.
+- Newly checked station figures: GMRC's FY2024–25 report records 46 operating Phase I/II corridor-station entries for Ahmedabad–Gandhinagar; the catalog labels this dated and non-deduplicated, rather than repeating a 53-entry figure that included unfinished stations. Patna's inferred count is removed because the current public sources do not establish a reconciled passenger total. NCRTC's June 2026 passenger stopping-pattern document supports 12 Meerut Metro stops; a separate span figure in its April folder is noted as a source-definition caveat. See [DATA_SOURCES.md](DATA_SOURCES.md) for links and definitions.
+- History explorer: Metro entries show operator counts, corridor counts where available, source-point names, route-bundle coverage, and primary links. Railway history includes 18 organization records (17 operating zones and Metro Railway Kolkata) and 69 operating divisions, reflecting South Coast Railway's June 2026 start and the Visakhapatnam/Rayagada reorganization. Railway GIS/junction infographics remain explicitly limited to this project's local sample and are not division-wide totals. Suburban mode loads counts from the selected city-focus GIS bundle; these are railway features, not a commuter-service station roster. Source-linked railway formation events, the national first-passenger-train milestone, Mumbai-area rail history, the Meerut Metro opening, and the MAHSR project milestone populate the relevant timelines.
+- Indian Railways coverage: The map loads 2,390 grouped track sections and junction features from `Railway_Network_.geojson`. The file’s upstream provider and capture date are not recorded in this repository, so this layer is not described as an official or current railway source.
+- City rail coverage: Twelve city-focus filters load physical OSM rail tracks and station points clipped to their bounds from the HOTOSM India railways snapshot dated 10 May 2026. This is infrastructure context, not an operator-verified suburban service map; the Bengaluru Suburban Rail Project is not represented as an operating service. K-RIDE's 2026 Corridor 4 engineering KMZ was inspected but not imported because its thousands of unclassified drawing shapes do not isolate the corridor centerline.
+- NHSRCL coverage: NHSRCL’s technical-details page lists an MAHSR alignment KMZ, but this project has not retrieved and verified the file. The selector remains available as a source reference and deliberately draws no guessed alignment.
+- Performance and limitations: MapLibre is loaded only after entering the atlas. City rail geometry is fetched on demand per selected city; selecting all twelve areas downloads each city bundle. Metro geometry is bundled locally, so it does not depend on a runtime GTFS or Overpass request. The national rail layer still loads a multi-megabyte GeoJSON bundle. OSM base tiles require runtime network access.
+- Data pipeline: `npm run data:build` builds the metro SQLite cache and browser export from the included GTFS inputs and `data/source/openstreetmap/metro-ways-2026-10-11.json`; verified OSM metro station points are bundled in `public/data/metro-stations-osm.json` and the supplemental `public/data/metro-stations-extra.json`. `npm run data:build:suburban` rebuilds city-area OSM bundles and needs the HOTOSM snapshot at `data/source/hotosm/railways.geojson` plus its `README.txt`. `npm run data:build:rail` needs `Railway_Network_.geojson` at the repository root; that raw source is not committed and its provenance is unresolved. The browser reads generated GeoJSON; SQLite is a local build artifact, not a runtime server/database.
+- Libraries and sources: [MapLibre GL JS](https://maplibre.org/), [OpenStreetMap tiles](https://www.openstreetmap.org/copyright), and the system-specific feeds documented in [DATA_SOURCES.md](DATA_SOURCES.md).
 
 See [AI_USAGE.md](AI_USAGE.md) for AI assistance and [CHANGELOG.md](CHANGELOG.md) for the development record.

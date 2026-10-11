@@ -1,0 +1,3 @@
+.atlas-systems button:disabled{opacity:.67;cursor:not-allowed;background:#efe5d1;border-style:dashed}
+.atlas-systems button:disabled small{color:#826e56}
+.atlas-systems>.route-warning{display:block}
